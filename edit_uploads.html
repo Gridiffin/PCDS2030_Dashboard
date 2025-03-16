@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Edit Uploads</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/user_dashboard.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img class="logo" src="assets/images/logo.png" alt="logo">
+        </div>
+        <div class="header-right">
+            <span class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>User</span>
+            </span>
+            <a class="cta" href="user_dashboard.html"><button><i class="fas fa-home"></i> Dashboard</button></a>
+            <a class="cta" href="index.html"><button>Logout <i class="fas fa-sign-out-alt"></i></button></a>
+        </div>
+    </header>
+    
+    <div class="dashboard-container">
+        <div class="welcome-banner">
+            <h1>Edit Uploads</h1>
+            <p>Review and modify your previously submitted data</p>
+        </div>
+        
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-filter"></i> Filter Uploads</h3>
+            </div>
+            <div class="filter-container">
+                <div class="filter-group">
+                    <label for="filterYear">Year</label>
+                    <select id="filterYear">
+                        <option value="">All Years</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterQuarter">Quarter</label>
+                    <select id="filterQuarter">
+                        <option value="">All Quarters</option>
+                        <option value="Q1">Q1</option>
+                        <option value="Q2">Q2</option>
+                        <option value="Q3">Q3</option>
+                        <option value="Q4">Q4</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterType">Type</label>
+                    <select id="filterType">
+                        <option value="">All Types</option>
+                        <option value="target">Target</option>
+                        <option value="status">Status</option>
+                        <option value="statistics">Statistics</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="searchUpload">Search</label>
+                    <div class="search-input">
+                        <input type="text" id="searchUpload" placeholder="Search by indicator name...">
+                        <button type="button" class="search-button"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-edit"></i> Your Uploads</h3>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date Submitted</th>
+                            <th>Year/Quarter</th>
+                            <th>Type</th>
+                            <th>Indicator</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024-05-15</td>
+                            <td>2024 Q2</td>
+                            <td>Target</td>
+                            <td>Carbon Emissions</td>
+                            <td><span class="status-approved">Approved</span></td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button edit-btn" disabled title="Edit not allowed"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-05-10</td>
+                            <td>2024 Q2</td>
+                            <td>Statistics</td>
+                            <td>Water Usage</td>
+                            <td><span class="status-pending">Pending</span></td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-05-05</td>
+                            <td>2024 Q2</td>
+                            <td>Status</td>
+                            <td>Renewable Energy</td>
+                            <td><span class="status-rejected">Rejected</span></td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-04-20</td>
+                            <td>2024 Q1</td>
+                            <td>Target</td>
+                            <td>Waste Reduction</td>
+                            <td><span class="status-draft">Draft</span></td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination">
+                <button class="pagination-button" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+                <div class="page-numbers">
+                    <button class="page-number active">1</button>
+                    <button class="page-number">2</button>
+                    <button class="page-number">3</button>
+                </div>
+                <button class="pagination-button">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="copyright">&copy; 2025 PCDS2030. All rights reserved.</div>
+    </footer>
+</body>
+</html>

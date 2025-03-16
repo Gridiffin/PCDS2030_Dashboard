@@ -1,0 +1,127 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #A49885; /* Set the background color of the body */
+}
+
+
+body {
+    font-family: 'Work Sans', sans-serif;
+    background-color: #A49885;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10%;
+    background-color: #24252A; /* Set the background color of the navbar */
+    position: fixed;
+    width: 100%;
+    z-index: 500;
+    height: 70px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow to header */
+}
+
+.logo {
+    cursor: pointer;
+    width: 200px; /* Adjust the width as needed */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.nav-links {
+    list-style: none;
+}
+
+.nav-links li {
+    display: inline-block;
+    padding: 0px 20px;
+}
+
+.nav-links li a {
+    transition: all 0.3s ease 0s;
+    color: #edf0f1;
+    text-decoration: none;
+}
+
+.nav-links li a:hover {
+    color: #A49885;
+}
+
+.login-container {
+    background-color: #24252A;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    color: #edf0f1;
+}
+
+h2 {
+    text-align: center;
+    color: #A49885;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #edf0f1;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input:focus {
+    outline: none;
+    border-color: #A49885;
+    box-shadow: 0 0 0 2px rgba(164, 152, 133, 0.2);
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background-color: #A49885;
+    color: #24252A;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #8b7a6b;
+}
+
+.error-message {
+    color: #d93025;
+    margin-bottom: 15px;
+    text-align: center;
+    display: none;
+}
+
+.notification {
+    display: none;
+}

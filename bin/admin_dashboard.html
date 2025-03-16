@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <header>
+        <img class="logo" src="logo.png" alt="logo">
+        <nav>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="user_dashboard.html">User Dashboard</a></li>
+                <li><a href="admin_dashboard.html">Admin Dashboard</a></li>
+            </ul>
+        </nav>
+        <a class="cta" href="index.html"><button>Logout</button></a> <!-- button to logout -->
+    </header>
+    <div class="container mt-5">
+        <div class="dashboard-container p-4 rounded shadow">
+            <h1 class="text-primary mb-4">Admin Dashboard</h1>
+            <p class="mb-4">Welcome, Admin! This is your dashboard.</p>
+            <div class="report-generation mb-4">
+                <h2 class="text-primary">Generate Reports</h2>
+                <button class="btn btn-primary btn-block mb-2" data-toggle="modal" data-target="#reportModal">Generate Report</button>
+            </div>
+            <a href="index.html" class="btn btn-danger btn-block">Logout</a>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reportModalLabel">Generate Report</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="reportForm" class="report-form">
+                        <div class="form-group">
+                            <label for="reportType">Report Type</label>
+                            <select id="reportType" class="form-control" required>
+                                <option value="">Select Report Type</option>
+                                <option value="ppt">PPT</option>
+                                <option value="pdf">PDF</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quarter">Quarter</label>
+                            <select id="quarter" class="form-control" required>
+                                <option value="">Select Quarter</option>
+                                <option value="1">Q1</option>
+                                <option value="2">Q2</option>
+                                <option value="3">Q3</option>
+                                <option value="4">Q4</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="year">Year</label>
+                            <input type="number" id="year" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Generate</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin_dashboard.js"></script>
+</body>
+</html>

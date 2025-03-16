@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit FMU/FPMU</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="p-4 rounded shadow">
+            <h1 class="text-primary mb-4">Submit FMU/FPMU</h1>
+            <form action="submit_fmu_fpmu.php" method="POST">
+                <div class="form-group">
+                    <label for="fmu">FMU</label>
+                    <input type="text" id="fmu" name="fmu" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="fpmu">FPMU</label>
+                    <input type="text" id="fpmu" name="fpmu" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Submit</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+<!-- This entire file is unused - not linked from main navigation -->

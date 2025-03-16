@@ -1,0 +1,659 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #A49885; /* Set the background color of the body */
+}
+
+li, a, button, h1, p {
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: #edf0f1;
+    text-decoration: none;
+}
+
+/* Remove header styles as we're removing the navbar */
+header {
+    display: none;
+}
+
+.logo {
+    cursor: pointer;
+    width: 200px; /* Adjust the width as needed */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.nav-links {
+    list-style: none;
+}
+
+.nav-links li {
+    display: inline-block;
+    padding: 0px 20px;
+}
+
+.nav-links li a {
+    transition: all 0.3s ease 0s;
+}
+
+.nav-links li a:hover {
+    color: #A49885;
+}
+
+button {
+    padding: 9px 25px;
+    background-color: #A49885; /* Match the logo color */
+    color: #24252A; /* Change text color for better visibility */
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease 0s;
+}
+
+button:hover {
+    background-color: #8b7a6b; /* Slightly darker shade for hover effect */
+}
+
+.home-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+}
+
+.welcome-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 50px;
+    background-color: #A49885;
+    background-image: url('../assets/images/bg_login.jpg');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    min-height: 100%;  /* Ensure it fills the height */
+}
+
+.welcome-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(164, 152, 133, 0.8); /* #A49885 with 80% opacity */
+    z-index: 1;
+}
+
+.welcome-logo {
+    position: relative;
+    z-index: 2;
+    margin-bottom: 30px;
+    background-color: #24252A;
+    border-radius: 16px;
+    padding: 20px;
+    width: 280px;  /* Adjusted to fit the logo better */
+    height: 180px; /* Adjusted height for better proportion */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+}
+
+.welcome-logo img {
+    width: 220px;
+    height: auto;
+    filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+    max-height: 140px; /* Ensure the image doesn't overflow */
+    object-fit: contain; /* Maintain aspect ratio while fitting within bounds */
+}
+
+.welcome-section h1, .welcome-section p {
+    position: relative;
+    z-index: 2;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-section h1 {
+    font-size: 36px;
+    color: #24252A;
+    margin-bottom: 20px;
+}
+
+.welcome-section p {
+    font-size: 18px;
+    color: #24252A;
+    margin-bottom: 40px;
+}
+
+.login-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #2c2d34; /* Softened from pure black */
+    background-image: linear-gradient(135deg, #2c2d34 0%, #3a3b42 100%); /* Add subtle gradient */
+    padding: 50px;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(30deg, rgba(164, 152, 133, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(164, 152, 133, 0.1) 87.5%, rgba(164, 152, 133, 0.1)),
+        linear-gradient(150deg, rgba(164, 152, 133, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(164, 152, 133, 0.1) 87.5%, rgba(164, 152, 133, 0.1)),
+        linear-gradient(30deg, rgba(164, 152, 133, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(164, 152, 133, 0.1) 87.5%, rgba(164, 152, 133, 0.1)),
+        linear-gradient(150deg, rgba(164, 152, 133, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(164, 152, 133, 0.1) 87.5%, rgba(164, 152, 133, 0.1)),
+        linear-gradient(60deg, rgba(164, 152, 133, 0.08) 25%, transparent 25.5%, transparent 75%, rgba(164, 152, 133, 0.08) 75%, rgba(164, 152, 133, 0.08)),
+        linear-gradient(60deg, rgba(164, 152, 133, 0.08) 25%, transparent 25.5%, transparent 75%, rgba(164, 152, 133, 0.08) 75%, rgba(164, 152, 133, 0.08));
+    background-size: 80px 140px;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.login-section::after {
+    content: '';
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    width: 200px;
+    height: 200px;
+    /* background-image: url('../assets/images/logo.png'); */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 0.1;
+    z-index: 1;
+}
+
+.login-section form {
+    position: relative;
+    z-index: 2;
+}
+
+/* Add some floating shapes for additional visual interest */
+.login-section .shape1, .login-section .shape2, .login-section .shape3 {
+    position: absolute;
+    background-color: rgba(164, 152, 133, 0.1);
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.login-section .shape1 {
+    width: 300px;
+    height: 300px;
+    bottom: -150px;
+    left: -100px;
+}
+
+.login-section .shape2 {
+    width: 200px;
+    height: 200px;
+    top: -100px;
+    right: 30%;
+}
+
+.login-section .shape3 {
+    width: 150px;
+    height: 150px;
+    top: 50%;
+    left: 10%;
+    transform: translateY(-50%);
+}
+
+form {
+    background-color: #f5f5f5;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    width: 350px;
+    text-align: center;
+}
+
+form h2 {
+    margin-bottom: 20px;
+    color: #24252A;
+    font-family: 'Work Sans', sans-serif;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #24252A;
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Merriweather', serif;
+    font-size: 14px;
+    color: #24252A;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #A49885;
+    box-shadow: 0 0 0 2px rgba(164, 152, 133, 0.2);
+}
+
+.error-message, .notification {
+    display: none;
+    margin-top: 20px;
+}
+
+.error-message {
+    color: red;
+}
+
+.notification {
+    color: green;
+}
+
+.loading-spinner {
+    display: none;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #24252A;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+footer {
+    display: none;
+}
+
+.vertical-divider {
+    display: none; /* No longer needed with contrasting backgrounds */
+}
+
+/* Add styling for the form logo */
+.form-logo {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-logo-img {
+    height: 60px;
+    width: auto;
+}
+
+/* Add styling for the login subtitle */
+.login-subtitle {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 20px;
+    font-family: 'Work Sans', sans-serif;
+}
+
+/* Style the input fields with icons */
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.input-with-icon i {
+    position: absolute;
+    left: 12px;
+    color: #A49885;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.input-with-icon input {
+    padding: 12px 15px 12px 35px;
+    width: 100%;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: 'Merriweather', serif;
+    font-size: 14px;
+    color: #24252A;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 0 rgba(164, 152, 133, 0);
+}
+
+.input-with-icon input:hover {
+    border-color: #ccc;
+    background-color: #fff;
+}
+
+.input-with-icon input:focus {
+    outline: none;
+    border-color: #A49885;
+    box-shadow: 0 0 0 3px rgba(164, 152, 133, 0.2);
+    background-color: #fff;
+}
+
+.input-with-icon input:focus + i {
+    color: #24252A;
+    transform: scale(1.1);
+}
+
+/* Add the input animation */
+.input-with-icon input::placeholder {
+    color: #aaa;
+    transition: all 0.3s ease;
+}
+
+.input-with-icon input:focus::placeholder {
+    opacity: 0.7;
+    transform: translateX(5px);
+}
+
+/* Improve submit button interactivity */
+button[type="submit"] {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+    padding: 12px 25px;
+    background-color: #A49885;
+    color: #24252A;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button[type="submit"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.7s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #8b7a6b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+button[type="submit"]:hover::before {
+    left: 100%;
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+button[type="submit"] i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+button[type="submit"]:hover i {
+    transform: translateX(5px);
+}
+
+/* Add validation visual cues */
+.input-with-icon input.valid {
+    border-color: #4CAF50;
+    background-color: rgba(76, 175, 80, 0.05);
+}
+
+.input-with-icon input.valid + i {
+    color: #4CAF50;
+}
+
+.input-with-icon input.invalid {
+    border-color: #F44336;
+    background-color: rgba(244, 67, 54, 0.05);
+}
+
+.input-with-icon input.invalid + i {
+    color: #F44336;
+}
+
+/* Add feature list styling */
+.features-list {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    margin-top: 30px;
+    position: relative;
+    z-index: 2;
+    align-self: flex-start;
+    margin-left: 50px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.feature-item i {
+    color: #24252A;
+    font-size: 18px;
+    background-color: rgba(255, 255, 255, 0.3);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.feature-item span {
+    color: #24252A;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 16px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Add animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.welcome-logo, .welcome-section h1, .welcome-section p, .feature-item {
+    animation: fadeIn 0.8s forwards;
+}
+
+.welcome-section h1 {
+    animation-delay: 0.2s;
+}
+
+.welcome-section p {
+    animation-delay: 0.4s;
+}
+
+.feature-item:nth-child(1) {
+    animation-delay: 0.6s;
+}
+
+.feature-item:nth-child(2) {
+    animation-delay: 0.8s;
+}
+
+.feature-item:nth-child(3) {
+    animation-delay: 1s;
+}
+
+@media screen and (max-width: 768px) {
+    .home-container {
+        flex-direction: column;
+    }
+    
+    .welcome-section, .login-section {
+        flex: none;
+        width: 100%;
+        padding: 30px;
+    }
+    
+    .welcome-section {
+        padding-top: 90px; /* Account for fixed header */
+    }
+    
+    .login-section {
+        padding-bottom: 80px; /* Allow space for the fixed footer */
+    }
+    
+    .welcome-logo {
+        width: 240px;
+        height: 160px;
+        padding: 15px;
+        border-radius: 12px;
+    }
+    
+    .welcome-logo img {
+        width: 180px;
+        max-height: 120px;
+    }
+    
+    .copyright {
+        position: relative;
+        bottom: auto;
+        right: auto; /* Changed from left to right */
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .features-list {
+        margin-left: 0;
+        align-items: center;
+        margin-top: 20px;
+    }
+}
+
+.copyright {
+    position: absolute;
+    bottom: 20px;
+    right: 50px; /* Changed from left to right */
+    z-index: 2;
+    color: #24252A;
+    font-size: 13px;
+    opacity: 0.8;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    text-align: right; /* Changed from left to right alignment */
+    align-self: flex-end; /* Changed from flex-start to flex-end */
+    font-family: 'Merriweather', serif;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+    font-style: italic;
+}
+
+/* Password toggle icon - updated positioning */
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: transparent;
+}
+
+.password-toggle:hover {
+    color: #24252A;
+    background-color: rgba(164, 152, 133, 0.1);
+}
+
+/* Adjust right padding for password input to make room for the eye icon */
+.input-group .input-with-icon input[type="password"],
+.input-group .input-with-icon input[type="text"] {
+    padding-right: 45px;
+}
+
+/* Password toggle icon */
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle:hover {
+    color: #24252A;
+}
+
+.password-toggle.visible .fa-eye {
+    display: none;
+}
+
+.password-toggle:not(.visible) .fa-eye-slash {
+    display: none;
+}
+
+/* Adjust right padding for password input to make room for the eye icon */
+.input-group:has(#password) .input-with-icon input {
+    padding-right: 40px;
+}
+
+.dashboard-button, .admin-dashboard-button {
+    background-color: #ffffff;
+    color: #333;
+    border: 2px solid #e0e0e0;
+    /* ...existing code... */
+}
+
+.dashboard-button i, .admin-dashboard-button i {
+    color: #A49885; /* Brand color for icons */
+    /* ...existing code... */
+}

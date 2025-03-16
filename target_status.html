@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Target & Status</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/user_dashboard.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img class="logo" src="assets/images/logo.png" alt="logo">
+        </div>
+        <div class="header-right">
+            <span class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>User</span>
+            </span>
+            <a class="cta" href="user_dashboard.html"><button><i class="fas fa-home"></i> Dashboard</button></a>
+            <a class="cta" href="index.html"><button>Logout <i class="fas fa-sign-out-alt"></i></button></a>
+        </div>
+    </header>
+    
+    <div class="dashboard-container">
+        <div class="welcome-banner">
+            <h1>Target & Status</h1>
+            <p>Submit your target and current status data</p>
+        </div>
+        
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-bullseye"></i> Target Information</h3>
+            </div>
+            <form class="data-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="targetYear">Year</label>
+                        <select id="targetYear" required>
+                            <option value="">Select Year</option>
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                            <option value="2028">2028</option>
+                            <option value="2029">2029</option>
+                            <option value="2030">2030</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetQuarter">Quarter</label>
+                        <select id="targetQuarter" required>
+                            <option value="">Select Quarter</option>
+                            <option value="Q1">Q1 (Jan-Mar)</option>
+                            <option value="Q2">Q2 (Apr-Jun)</option>
+                            <option value="Q3">Q3 (Jul-Sep)</option>
+                            <option value="Q4">Q4 (Oct-Dec)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="indicatorCategory">Indicator Category</label>
+                    <select id="indicatorCategory" required>
+                        <option value="">Select Category</option>
+                        <option value="economic">Economic</option>
+                        <option value="environmental">Environmental</option>
+                        <option value="social">Social</option>
+                        <option value="governance">Governance</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="indicatorName">Indicator Name</label>
+                        <input type="text" id="indicatorName" placeholder="Enter indicator name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="targetValue">Target Value</label>
+                        <input type="number" id="targetValue" placeholder="Enter target value" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="targetDescription">Target Description</label>
+                    <textarea id="targetDescription" rows="3" placeholder="Describe your target in detail"></textarea>
+                </div>
+            </form>
+        </div>
+        
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-chart-line"></i> Current Status</h3>
+            </div>
+            <form class="data-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="currentValue">Current Value</label>
+                        <input type="number" id="currentValue" placeholder="Enter current value" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="statusDate">Status Date</label>
+                        <input type="date" id="statusDate" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="statusNotes">Status Notes</label>
+                    <textarea id="statusNotes" rows="3" placeholder="Provide notes about current status"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="supportingFiles">Supporting Documents</label>
+                    <div class="file-upload">
+                        <input type="file" id="supportingFiles" multiple>
+                        <label for="supportingFiles"><i class="fas fa-cloud-upload-alt"></i> Choose Files</label>
+                        <span class="file-info">No files selected</span>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="reset" class="secondary-button"><i class="fas fa-times"></i> Clear Form</button>
+                    <button type="submit" class="primary-button"><i class="fas fa-save"></i> Save Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="copyright">&copy; 2025 PCDS2030. All rights reserved.</div>
+    </footer>
+</body>
+</html>

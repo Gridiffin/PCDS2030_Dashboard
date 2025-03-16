@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Admin - View Uploads</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/admin_dashboard.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img class="logo" src="assets/images/logo.png" alt="logo">
+        </div>
+        <div class="header-right">
+            <span class="user-info">
+                <i class="fas fa-user-shield"></i>
+                <span>Admin</span>
+            </span>
+            <a class="cta" href="admin_dashboard.html"><button><i class="fas fa-home"></i> Dashboard</button></a>
+            <a class="cta" href="index.html"><button>Logout <i class="fas fa-sign-out-alt"></i></button></a>
+        </div>
+    </header>
+    
+    <div class="admin-dashboard-container">
+        <div class="welcome-banner">
+            <h1>Data Management</h1>
+            <p>View, approve, and manage all user uploads</p>
+        </div>
+        
+        <div class="admin-dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-chart-line"></i> Upload Statistics</h3>
+            </div>
+            <div class="overview-cards">
+                <div class="overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-file-upload"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Total Uploads</h4>
+                        <p class="card-value">247</p>
+                    </div>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Pending Review</h4>
+                        <p class="card-value">18</p>
+                    </div>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon status-success">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Approved</h4>
+                        <p class="card-value">215</p>
+                    </div>
+                </div>
+                <div class="overview-card">
+                    <div class="card-icon" style="background-color: #f8d7da; color: #721c24;">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="card-content">
+                        <h4>Rejected</h4>
+                        <p class="card-value">14</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="admin-dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-clipboard-list"></i> Pending Approvals</h3>
+            </div>
+            <div class="filter-container">
+                <div class="filter-group">
+                    <label for="searchPending">Search</label>
+                    <div class="search-input">
+                        <input type="text" id="searchPending" placeholder="Search by user or indicator...">
+                        <button type="button" class="search-button"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label for="filterType">Type</label>
+                    <select id="filterType">
+                        <option value="">All Types</option>
+                        <option value="target">Target</option>
+                        <option value="status">Status Update</option>
+                        <option value="statistics">Statistics</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterCategory">Category</label>
+                    <select id="filterCategory">
+                        <option value="">All Categories</option>
+                        <option value="economic">Economic</option>
+                        <option value="environmental">Environmental</option>
+                        <option value="social">Social</option>
+                        <option value="governance">Governance</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date Submitted <i class="fas fa-sort"></i></th>
+                            <th>User <i class="fas fa-sort"></i></th>
+                            <th>Type <i class="fas fa-sort"></i></th>
+                            <th>Indicator <i class="fas fa-sort"></i></th>
+                            <th>Category <i class="fas fa-sort"></i></th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024-05-20</td>
+                            <td>Jane Smith</td>
+                            <td>Target</td>
+                            <td>Carbon Emissions</td>
+                            <td>Environmental</td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button approve-btn" title="Approve"><i class="fas fa-check"></i></button>
+                                <button class="icon-button reject-btn" title="Reject"><i class="fas fa-times"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-05-19</td>
+                            <td>Robert Johnson</td>
+                            <td>Statistics</td>
+                            <td>Water Usage</td>
+                            <td>Environmental</td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button approve-btn" title="Approve"><i class="fas fa-check"></i></button>
+                                <button class="icon-button reject-btn" title="Reject"><i class="fas fa-times"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-05-18</td>
+                            <td>Emily Davis</td>
+                            <td>Status Update</td>
+                            <td>Employee Training</td>
+                            <td>Social</td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button approve-btn" title="Approve"><i class="fas fa-check"></i></button>
+                                <button class="icon-button reject-btn" title="Reject"><i class="fas fa-times"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="admin-dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-history"></i> All Data Submissions</h3>
+            </div>
+            <div class="filter-container">
+                <div class="filter-group">
+                    <label for="searchAll">Search</label>
+                    <div class="search-input">
+                        <input type="text" id="searchAll" placeholder="Search submissions...">
+                        <button type="button" class="search-button"><i class="fas fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label for="filterPeriod">Time Period</label>
+                    <select id="filterPeriod">
+                        <option value="all">All Time</option>
+                        <option value="week">Last 7 Days</option>
+                        <option value="month">Last 30 Days</option>
+                        <option value="quarter">Last Quarter</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filterStatus">Status</label>
+                    <select id="filterStatus">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button class="secondary-button"><i class="fas fa-sync-alt"></i> Reset</button>
+                    <button class="primary-button"><i class="fas fa-file-export"></i> Export</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date <i class="fas fa-sort"></i></th>
+                            <th>User <i class="fas fa-sort"></i></th>
+                            <th>Type <i class="fas fa-sort"></i></th>
+                            <th>Indicator <i class="fas fa-sort"></i></th>
+                            <th>Value <i class="fas fa-sort"></i></th>
+                            <th>Status <i class="fas fa-sort"></i></th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2024-05-20</td>
+                            <td>Jane Smith</td>
+                            <td>Target</td>
+                            <td>Carbon Emissions</td>
+                            <td>-30%</td>
+                            <td><span class="status-pending">Pending</span></td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-05-15</td>
+                            <td>John Doe</td>
+                            <td>Statistics</td>
+                            <td>Water Usage</td>
+                            <td>-27%</td>
+                            <td><span class="status-success">Approved</span></td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button edit-btn" disabled title="Edit not allowed"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-05-10</td>
+                            <td>Emily Davis</td>
+                            <td>Status Update</td>
+                            <td>Renewable Energy</td>
+                            <td>35%</td>
+                            <td><span class="status-success">Approved</span></td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button edit-btn" disabled title="Edit not allowed"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2024-04-28</td>
+                            <td>Robert Johnson</td>
+                            <td>Target</td>
+                            <td>Waste Reduction</td>
+                            <td>-40%</td>
+                            <td><span class="status-rejected">Rejected</span></td>
+                            <td class="action-cell">
+                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
+                                <button class="icon-button edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="pagination">
+                <button class="pagination-button" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+                <div class="page-numbers">
+                    <button class="page-number active">1</button>
+                    <button class="page-number">2</button>
+                    <button class="page-number">3</button>
+                </div>
+                <button class="pagination-button">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="copyright">&copy; 2025 PCDS2030. All rights reserved.</div>
+    </footer>
+</body>
+</html>

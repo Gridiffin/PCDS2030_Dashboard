@@ -1,0 +1,166 @@
+/* Mobile-First Breakpoints */
+/* Base styles are for mobile */
+
+/* Small tablets (portrait) */
+@media (min-width: 600px) {
+  /* Apply tablet-specific styles */
+}
+
+/* Tablets and small desktops */
+@media (min-width: 768px) {
+  /* Apply tablet-landscape styles */
+}
+
+/* Medium desktops */
+@media (min-width: 992px) {
+  /* Apply desktop styles */
+}
+
+/* Large desktops */
+@media (min-width: 1200px) {
+  /* Apply large screen styles */
+}
+
+/* Mobile Navigation */
+.mobile-nav-toggle {
+  display: block;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  border: none;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 24px;
+}
+
+@media (min-width: 768px) {
+  .mobile-nav-toggle {
+    display: none;
+  }
+}
+
+/* Mobile header adjustments */
+@media (max-width: 767px) {
+  header .header-right {
+    display: none;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background-color: #24252A;
+    flex-direction: column;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 999;
+  }
+  
+  header .header-right.active {
+    display: flex;
+  }
+  
+  header .user-info {
+    margin-bottom: 15px;
+  }
+  
+  header .cta {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  header .cta button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .logo {
+    width: 150px;
+  }
+}
+
+/* Mobile table optimizations */
+@media (max-width: 767px) {
+  .data-table {
+    display: block;
+  }
+  
+  .data-table thead {
+    display: none;
+  }
+  
+  .data-table tbody, .data-table tr, .data-table td {
+    display: block;
+    width: 100%;
+  }
+  
+  .data-table tr {
+    margin-bottom: 15px;
+    border: 1px solid #e3ded7;
+    border-radius: 8px;
+    padding: 10px 0;
+    position: relative;
+  }
+  
+  .data-table td {
+    text-align: left;
+    padding-left: 45%;
+    position: relative;
+    border-bottom: 1px dashed #e3ded7;
+  }
+  
+  .data-table td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 15px;
+    width: 40%;
+    font-weight: 600;
+    color: #5c564d;
+  }
+  
+  .data-table td.action-cell {
+    padding-left: 15px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  
+  .data-table td:last-child {
+    border-bottom: none;
+  }
+  
+  .icon-button {
+    padding: 12px; /* Larger touch targets for mobile */
+    margin: 3px;
+  }
+}
+
+/* Improved touch targets for forms */
+@media (max-width: 767px) {
+  button, 
+  input[type="submit"],
+  .icon-button,
+  .dashboard-button,
+  .admin-dashboard-button,
+  .pagination-button,
+  .page-number {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .form-group label {
+    margin-bottom: 12px;
+    font-size: 16px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 14px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+}

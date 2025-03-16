@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>User Dashboard</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/user_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img class="logo" src="assets/images/logo.png" alt="logo">
+        </div>
+        <div class="header-right">
+            <span class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span>User</span>
+            </span>
+            <a class="cta" href="index.html"><button>Logout <i class="fas fa-sign-out-alt"></i></button></a>
+        </div>
+    </header>
+    
+    <div class="dashboard-container">
+        <div class="welcome-banner">
+            <h1>User Dashboard</h1>
+            <p>Welcome to your PCDS2030 Dashboard</p>
+        </div>
+        
+        <div class="dashboard-row">
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-upload"></i> Submit Data</h3>
+                </div>
+                <div class="dashboard-buttons">
+                    <a href="target_status.html" class="button-link">
+                        <button class="dashboard-button">
+                            <i class="fas fa-bullseye"></i>
+                            <span>Target / Status</span>
+                        </button>
+                    </a>
+                    <a href="statistics.html" class="button-link">
+                        <button class="dashboard-button">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Statistics</span>
+                        </button>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-tasks"></i> Review Data</h3>
+                </div>
+                <div class="dashboard-buttons">
+                    <a href="edit_uploads.html" class="button-link">
+                        <button class="dashboard-button">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit Uploads</span>
+                        </button>
+                    </a>
+                    <a href="view_uploads.html" class="button-link">
+                        <button class="dashboard-button">
+                            <i class="fas fa-eye"></i>
+                            <span>View Uploads</span>
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="summary-section">
+            <h2><i class="fas fa-chart-line"></i> Q4 2024 Summary</h2>
+            <div class="chart-container">
+                <img src="summary_chart.png" alt="Summary Chart">
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="copyright">&copy; 2025 PCDS2030. All rights reserved.</div>
+    </footer>
+</body>
+</html>

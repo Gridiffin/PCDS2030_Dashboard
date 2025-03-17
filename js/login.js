@@ -57,11 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Show loading state on the button
+        // Remove the button element from DOM on submit
         const submitButton = loginForm.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.innerHTML;
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
-        submitButton.disabled = true;
+        submitButton.remove();
 
         // Make AJAX request to the server
         const formData = new FormData();
@@ -83,14 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 showNotification(data.message, data.redirect);
             } else {
                 showError(data.message);
-                submitButton.innerHTML = originalButtonText;
                 submitButton.disabled = false;
             }
         })
         .catch(error => {
             showError('An error occurred. Please try again.');
             console.error('Error:', error);
-            submitButton.innerHTML = originalButtonText;
             submitButton.disabled = false;
         });
     });
@@ -115,25 +111,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Add password toggle functionality - improved with animation
-    const passwordToggle = document.getElementById('passwordToggle');
-
-    passwordToggle.addEventListener('click', function() {
-        // Toggle the password visibility
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
+    if (passwordInput) {
+        // Get the existing button if it exists
+        let toggleBtn = document.getElementById('betterTogglePassword');
         
-        // Toggle the eye icon with a smooth transition
-        if (type === 'text') {
-            this.innerHTML = '<i class="fas fa-eye-slash"></i>';
-            this.classList.add('visible');
-            this.title = "Hide password";
-        } else {
-            this.innerHTML = '<i class="fas fa-eye"></i>';
-            this.classList.remove('visible');
-            this.title = "Show password";
+        // Only create a new button if one doesn't exist
+        if (!toggleBtn) {
+            toggleBtn = document.createElement('button');
+            toggleBtn.id = 'betterTogglePassword';
+            toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            toggleBtn.type = 'button';
+            toggleBtn.className = 'password-toggle';
+            passwordInput.parentElement.style.position = 'relative'; // Ensure parent is positioned
+            passwordInput.parentElement.appendChild(toggleBtn);
         }
-        
-        // Add focus back to password field for better UX
-        passwordInput.focus();
-    });
+
+        // Add event listener to the toggle button
+        toggleBtn.addEventListener('click', function() {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            
+            // Toggle between eye and eye-slash icons
+            if (type === 'text') {
+                this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                this.classList.add('visible');
+            } else {
+                this.innerHTML = '<i class="fas fa-eye"></i>';
+                this.classList.remove('visible');
+            }
+        });
+    }
 });

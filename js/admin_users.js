@@ -29,9 +29,22 @@ document.addEventListener('DOMContentLoaded', function() {
         generatePasswordBtn.addEventListener('click', generatePassword);
     }
     
-    const passwordToggle = document.getElementById('passwordToggle');
-    if (passwordToggle) {
-        passwordToggle.addEventListener('click', togglePasswordVisibility);
+    const passwordField = document.getElementById('password');
+    if (passwordField) {
+        const newToggleBtn = document.createElement('button');
+        newToggleBtn.id = 'betterTogglePassword';
+        newToggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+        newToggleBtn.type = 'button';
+        passwordField.parentElement.style.position = 'relative'; // Ensure parent is positioned
+        passwordField.parentElement.appendChild(newToggleBtn);
+
+        newToggleBtn.addEventListener('click', function() {
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+            this.innerHTML = type === 'text'
+                ? '<i class="fas fa-eye-slash"></i>'
+                : '<i class="fas fa-eye"></i>';
+        });
     }
     
     // Set up role-based permission checkboxes logic
@@ -449,20 +462,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const passwordToggle = document.getElementById('passwordToggle');
         if (passwordToggle) {
             passwordToggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        }
-    }
-    
-    function togglePasswordVisibility() {
-        const passwordField = document.getElementById('password');
-        const isVisible = passwordField.type === 'text';
-        
-        passwordField.type = isVisible ? 'password' : 'text';
-        
-        const passwordToggle = document.getElementById('passwordToggle');
-        if (passwordToggle) {
-            passwordToggle.innerHTML = isVisible ? 
-                '<i class="fas fa-eye"></i>' : 
-                '<i class="fas fa-eye-slash"></i>';
         }
     }
     

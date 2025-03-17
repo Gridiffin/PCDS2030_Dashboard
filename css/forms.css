@@ -138,6 +138,59 @@
     border-color: #b9ad9b;
 }
 
+/* Delete button styling */
+.delete-button {
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #dc3545;
+    border: none;
+    color: #ffffff;
+}
+
+.delete-button:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.delete-button:disabled {
+    background-color: #e9a3a9;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.warning-text {
+    color: #dc3545;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 15px;
+}
+
+.warning-text i {
+    font-size: 16px;
+}
+
+.icon-button.delete-btn {
+    color: #dc3545;
+}
+
+.icon-button.delete-btn:hover {
+    background-color: #fde8ea;
+}
+
+.icon-button.delete-btn:disabled {
+    color: #e9a3a9;
+}
+
 /* Section actions for buttons at the bottom of sections */
 .section-actions {
     display: flex;
@@ -884,6 +937,25 @@ input.password-visible {
 
 .status-circle.draft, .status-circle.not-started {
     background-color: #6c757d; /* Gray - Not started */
+}
+
+/* Style for draft options in program dropdown */
+.draft-option {
+    font-style: italic;
+    color: #5c564d;
+    background-color: #f8f6f5;
+}
+
+option[value="new"] {
+    font-weight: bold;
+    color: #a69b8b;
+    border-bottom: 1px solid #e3ded7;
+}
+
+optgroup {
+    font-weight: bold;
+    color: #5c564d;
+    padding: 8px 0;
 }
 
 /* Responsive adjustments */

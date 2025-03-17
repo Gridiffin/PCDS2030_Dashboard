@@ -44,7 +44,7 @@ try {
             Metrics
         WHERE 
             AgencyID = ? AND
-            JSON_EXTRACT(Data, '$.programName') IS NOT NULL
+            JSON_EXTRACT(Data, '$.status') != 'draft'
         ORDER BY 
             JSON_EXTRACT(Data, '$.programName')
     ";
@@ -97,9 +97,41 @@ try {
         }
     }
     
+    // Get drafts for this agency
+    $draftsSql = "
+        SELECT 
+            m.MetricID as id, 
+            JSON_EXTRACT(Data, '$.programName') as programName
+        FROM 
+            Metrics m
+        WHERE 
+            m.AgencyID = ? AND
+            JSON_EXTRACT(m.Data, '$.status') = 'draft'
+        ORDER BY 
+            m.Year DESC, 
+            m.Quarter DESC
+    ";
+    
+    $draftsStmt = $conn->prepare($draftsSql);
+    $draftsStmt->execute([$agencyId]);
+    
+    $drafts = [];
+    while ($row = $draftsStmt->fetch(PDO::FETCH_ASSOC)) {
+        // Clean up JSON_EXTRACT result (removes quotes)
+        $programName = str_replace('"', '', $row['programName']);
+        
+        if (!empty($programName)) {
+            $drafts[] = [
+                'id' => $row['id'],
+                'programName' => $programName
+            ];
+        }
+    }
+    
     $response = [
         'success' => true,
-        'data' => $programs
+        'data' => $programs,
+        'drafts' => $drafts
     ];
     
 } catch (Exception $e) {

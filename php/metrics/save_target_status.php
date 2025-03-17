@@ -45,14 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // For FormData submission, we need to handle differently
-    if (isset($_POST['data'])) {
-        // Get the JSON data from the FormData
-        $inputData = json_decode($_POST['data'], true);
-    } else {
-        // Handle direct JSON POST
-        $inputData = json_decode(file_get_contents('php://input'), true);
-    }
+    // Get the JSON data directly from POST body
+    $inputData = json_decode(file_get_contents('php://input'), true);
     
     if (json_last_error() !== JSON_ERROR_NONE) {
         throw new Exception('Invalid JSON data: ' . json_last_error_msg());
@@ -108,51 +102,84 @@ try {
         'userId' => $_SESSION['user_id']
     ];
     
-    // Insert metric data into database
-    $stmt = $conn->prepare('
-        INSERT INTO Metrics (MetricType, Data, Quarter, Year, AgencyID) 
-        VALUES (?, ?, ?, ?, ?)
-    ');
+    // Check if this is an update to an existing draft
+    $isDraftUpdate = isset($inputData['isDraft']) && $inputData['isDraft'] && isset($inputData['draftId']);
+    $metricId = null;
     
-    $stmt->execute([
-        $inputData['metricType'],
-        json_encode($metricData),
-        $inputData['quarter'],
-        $inputData['year'],
-        $agencyId
-    ]);
+    // Store whether this is a submission of a draft (converting from draft to submission)
+    $isSubmittingDraft = $inputData['status'] !== 'draft' && isset($inputData['draftId']);
+    $programName = $inputData['programName'];
     
-    $metricId = $conn->lastInsertId();
-    
-    // Handle file uploads if present
-    if (isset($_FILES['supportingFiles']) && !empty($_FILES['supportingFiles']['name'][0])) {
-        $uploadDir = '../../uploads/metrics/';
+    if ($isDraftUpdate) {
+        // Update existing draft
+        $stmt = $conn->prepare('
+            UPDATE Metrics 
+            SET Data = ?, Quarter = ?, Year = ? 
+            WHERE MetricID = ? AND AgencyID = ?
+        ');
         
-        // Create directory if it doesn't exist
-        if (!file_exists($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+        $stmt->execute([
+            json_encode($metricData),
+            $inputData['quarter'],
+            $inputData['year'],
+            $inputData['draftId'],
+            $agencyId
+        ]);
+        
+        // Set the metric ID for the response
+        $metricId = $inputData['draftId'];
+        
+        // Check if update was successful
+        if ($stmt->rowCount() === 0) {
+            throw new Exception('Failed to update draft - draft not found or you don\'t have permission to update it');
         }
+    } else {
+        // Insert new record
+        $stmt = $conn->prepare('
+            INSERT INTO Metrics (MetricType, Data, Quarter, Year, AgencyID) 
+            VALUES (?, ?, ?, ?, ?)
+        ');
         
-        $fileCount = count($_FILES['supportingFiles']['name']);
+        $stmt->execute([
+            $inputData['metricType'],
+            json_encode($metricData),
+            $inputData['quarter'],
+            $inputData['year'],
+            $agencyId
+        ]);
         
-        for ($i = 0; $i < $fileCount; $i++) {
-            $fileName = $_FILES['supportingFiles']['name'][$i];
-            $fileTmpName = $_FILES['supportingFiles']['tmp_name'][$i];
-            
-            // Generate unique filename
-            $fileExt = pathinfo($fileName, PATHINFO_EXTENSION);
-            $uniqueName = uniqid('file_') . '.' . $fileExt;
-            $targetFilePath = $uploadDir . $uniqueName;
-            
-            // Upload file
-            if (move_uploaded_file($fileTmpName, $targetFilePath)) {
-                // Success
-            }
+        $metricId = $conn->lastInsertId();
+    }
+    
+    // If this was a draft being submitted (status changed from draft to submitted),
+    // delete any other drafts with the same program name
+    if ($isSubmittingDraft || ($inputData['status'] !== 'draft' && isset($programName))) {
+        // Find and delete other drafts with the same program name
+        $deleteDraftsStmt = $conn->prepare("
+            DELETE FROM Metrics 
+            WHERE AgencyID = ? 
+            AND JSON_EXTRACT(Data, '$.programName') = ? 
+            AND JSON_EXTRACT(Data, '$.status') = 'draft'
+            AND MetricID != ?
+        ");
+        $deleteDraftsStmt->execute([
+            $agencyId,
+            $programName,
+            $metricId
+        ]);
+        
+        $deletedDraftsCount = $deleteDraftsStmt->rowCount();
+        if ($deletedDraftsCount > 0) {
+            $response['deletedDraftsCount'] = $deletedDraftsCount;
+            $response['message'] .= " ($deletedDraftsCount related draft(s) removed)";
         }
     }
     
     // Log the action
-    $actionType = $inputData['status'] === 'draft' ? 'draft_metric' : 'submit_metric';
+    $actionType = $inputData['status'] === 'draft' ? 
+        ($isDraftUpdate ? 'update_draft' : 'draft_metric') : 
+        'submit_metric';
+        
     $stmt = $conn->prepare('
         INSERT INTO logs (user_id, action, entity_type, entity_id, details, ip_address)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -172,8 +199,11 @@ try {
     
     $response = [
         'success' => true,
-        'message' => $inputData['status'] === 'draft' ? 'Draft saved successfully' : 'Data submitted successfully',
-        'metricId' => $metricId
+        'message' => $inputData['status'] === 'draft' ? 
+            ($isDraftUpdate ? 'Draft updated successfully' : 'Draft saved successfully') : 
+            'Data submitted successfully',
+        'metricId' => $metricId,
+        'programName' => $programName
     ];
     
 } catch (Exception $e) {

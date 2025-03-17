@@ -29,7 +29,7 @@
             <!-- Logout button removed - only accessible from main dashboard -->
         </div>
     </header>
-    
+        
     <div class="dashboard-container">
         <div class="welcome-banner">
             <h1>Target & Status</h1>
@@ -97,54 +97,19 @@
                     </div>
                 </div>
                 
-                <!-- Target Name field removed -->
-
                 <div class="form-group">
                     <label for="targetDescription">Target Details <span class="required">*</span></label>
                     <textarea id="targetDescription" rows="3" placeholder="Describe your target in detail (e.g., 'Organize 3 forestry workshops', 'Plant 500 trees in northern region')" required></textarea>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="targetType">Target Type</label>
-                        <select id="targetType">
-                            <option value="qualitative">Qualitative (text-based)</option>
-                            <option value="quantitative">Quantitative (number-based)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="targetDeadline">Target Deadline</label>
-                        <input type="date" id="targetDeadline">
-                        <small class="form-hint">When this target should be achieved</small>
-                    </div>
+                <div class="form-group">
+                    <label for="targetDeadline">Target Deadline</label>
+                    <input type="date" id="targetDeadline">
+                    <small class="form-hint">When this target should be achieved</small>
                 </div>
                 
-                <div id="quantitativeFields" style="display: none;">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="targetValue">Target Value</label>
-                            <input type="number" step="0.01" id="targetValue" placeholder="Enter target value">
-                        </div>
-                        <div class="form-group">
-                            <label for="targetUnit">Unit</label>
-                            <select id="targetUnit">
-                                <option value="">Select Unit</option>
-                                <option value="%">Percentage (%)</option>
-                                <option value="ha">Hectares (ha)</option>
-                                <option value="km²">Square Kilometers (km²)</option>
-                                <option value="count">Count/Number</option>
-                                <option value="sessions">Sessions</option>
-                                <option value="participants">Participants</option>
-                                <option value="other">Other (specify)</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group" id="customUnitGroup" style="display: none;">
-                        <label for="customUnit">Custom Unit <span class="required">*</span></label>
-                        <input type="text" id="customUnit" placeholder="Enter custom unit">
-                    </div>
-                </div>
+                <!-- Remove the entire form row containing target value and unit -->
+                
             </form>
         </div>
 
@@ -158,39 +123,13 @@
                     <input type="date" id="statusDate" required>
                     <small class="form-hint">Date of this status update</small>
                 </div>
-                
-                <div class="form-group">
-                    <label for="statusType">Status Type</label>
-                    <select id="statusType">
-                        <option value="qualitative">Qualitative (text-based)</option>
-                        <option value="quantitative">Quantitative (number-based)</option>
-                        <option value="both">Both</option>
-                    </select>
-                </div>
 
                 <div class="form-group">
                     <label for="statusNotes">Status Update <span class="required">*</span></label>
                     <textarea id="statusNotes" rows="4" placeholder="Describe the current status of your target (e.g., 'Successfully conducted workshop with 25 participants', 'Planted 200 trees so far')" required></textarea>
                 </div>
-                
-                <div id="quantitativeStatusFields" style="display: none;">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="currentValue">Current Value</label>
-                            <input type="number" step="0.01" id="currentValue" placeholder="Enter current value">
-                            <small class="form-hint">Value as of status date</small>
-                        </div>
-                        <div class="form-group">
-                            <label for="completionPercentage">Completion Percentage</label>
-                            <div class="range-input-container">
-                                <input type="range" id="completionPercentage" min="0" max="100" step="5" value="0">
-                                <output for="completionPercentage">0%</output>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Remove status category dropdown and replace with improved color indicator -->
+
+                <!-- Update the status color indicators with color names -->
                 <div class="form-group">
                     <label for="statusColor">Status Indicator</label>
                     
@@ -239,14 +178,7 @@
                     <textarea id="challenges" rows="3" placeholder="Describe any challenges faced and mitigation measures"></textarea>
                 </div>
                 
-                <div class="form-group">
-                    <label for="supportingFiles">Supporting Documents</label>
-                    <div class="file-upload">
-                        <input type="file" id="supportingFiles" multiple>
-                        <label for="supportingFiles"><i class="fas fa-cloud-upload-alt"></i> Choose Files</label>
-                        <span class="file-info">No files selected</span>
-                    </div>
-                </div>
+                <!-- Remove file upload form group -->
                 
                 <div class="form-actions">
                     <button type="button" id="saveAsDraft" class="secondary-button"><i class="fas fa-save"></i> Save as Draft</button>

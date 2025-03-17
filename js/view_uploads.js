@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const viewAgencySelect = document.getElementById('viewAgency');
     const usernameElement = document.getElementById('username');
     const agencyBadge = document.getElementById('agency-badge');
+    const draftsTable = document.getElementById('draftsTable').querySelector('tbody');
+    const noDraftsMessage = document.getElementById('noDraftsMessage');
 
     // Initialize app
     init();
@@ -36,7 +38,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Load current user data
         loadCurrentUser();
         
-        // The rest of initialization will be done after user data is loaded
+        // Listen for localStorage events to refresh drafts dynamically
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'draftsUpdated') {
+                console.log('Draft updates detected in another tab/window');
+                loadDrafts();
+            }
+        });
+        
+        // Listen for hash changes to show proper tab
+        window.addEventListener('hashchange', handleHashChange);
+        
+        // Check initial hash
+        handleHashChange();
+    }
+    
+    function handleHashChange() {
+        // If hash is #drafts, scroll to drafts section
+        if (window.location.hash === '#drafts') {
+            document.querySelector('.dashboard-section:nth-child(2)').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
     }
 
     function loadCurrentUser() {
@@ -66,6 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loadAgencies();
                 loadAllMetricTypes();
                 loadSubmissions();
+                loadDrafts(); // Add function to load drafts separately
             })
             .catch(error => {
                 console.error('Error loading user data:', error);
@@ -157,8 +182,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     noDataMessage.style.display = 'none';
                 }
 
-                // Add rows for each submission
+                // Add rows for each submission - filter out drafts
                 data.data.forEach(submission => {
+                    // Skip drafts - they're now in a separate table
+                    if (submission.status === 'draft') {
+                        return;
+                    }
+
                     const row = document.createElement('tr');
 
                     // Use the statusColor if provided, otherwise fall back to status mapping
@@ -200,6 +230,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     }
 
+                    // Display either the quantitative value or a qualitative summary
+                    let statusDisplay = submission.currentValue;
+                    if (submission.isQualitative) { 
+                        // For qualitative status, show a truncated version of the status notes
+                        const maxLength = 30;
+                        statusDisplay = submission.statusSummary || 
+                            (submission.statusNotes && submission.statusNotes.length > maxLength ? 
+                            submission.statusNotes.substring(0, maxLength) + '...' : 
+                            submission.statusNotes || 'No update');
+                    }
+
                     // Create action buttons based on editability
                     const actionButtons = `
                         <button type="button" class="icon-button view-btn" data-id="${submission.id}" title="View Details">
@@ -209,23 +250,18 @@ document.addEventListener('DOMContentLoaded', function() {
                             <a href="target_status.html?edit=${submission.id}" class="icon-button edit-btn" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </a>
+                            <button type="button" class="icon-button delete-btn" data-id="${submission.id}" data-program="${escapeHtml(submission.programName)}" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         ` : `
                             <button type="button" class="icon-button edit-btn" disabled title="Can't edit (different agency)">
                                 <i class="fas fa-edit"></i>
                             </button>
+                            <button type="button" class="icon-button delete-btn" disabled title="Can't delete (different agency)">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         `}
                     `;
-
-                    // Display either the quantitative value or a qualitative summary
-                    let statusDisplay = submission.currentValue;
-                    if (submission.isQualitative) {
-                        // For qualitative status, show a truncated version of the status notes
-                        const maxLength = 30;
-                        statusDisplay = submission.statusSummary || 
-                            (submission.statusNotes && submission.statusNotes.length > maxLength ? 
-                            submission.statusNotes.substring(0, maxLength) + '...' : 
-                            submission.statusNotes || 'No update');
-                    }
 
                     row.innerHTML = `
                         <td>${escapeHtml(submission.programName)}</td>
@@ -251,6 +287,71 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    function loadDrafts() {
+        fetch('php/metrics/get_drafts.php')
+            .then(response => response.json())
+            .then(data => {
+                // Clear existing rows
+                draftsTable.innerHTML = '';
+
+                // Show or hide no data message
+                if (!data.success || !data.data || data.data.length === 0) {
+                    noDraftsMessage.style.display = 'block';
+                    return;
+                } else {
+                    noDraftsMessage.style.display = 'none';
+                }
+
+                // Add rows for each draft
+                data.data.forEach(draft => {
+                    const row = document.createElement('tr');
+                    row.setAttribute('data-id', draft.id);
+                    row.classList.add('draft-row');
+                    
+                    // Add a subtle fade-in effect for new rows
+                    row.style.opacity = '0';
+                    row.style.transition = 'opacity 0.5s ease-in-out';
+
+                    // Create action buttons for drafts
+                    const actionButtons = `
+                        <button type="button" class="icon-button view-btn" data-id="${draft.id}" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <a href="target_status.html?draft=${draft.id}" class="icon-button edit-btn" title="Continue Editing">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
+                        <button type="button" class="icon-button delete-btn" data-id="${draft.id}" data-program="${escapeHtml(draft.programName)}" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+
+                    row.innerHTML = `
+                        <td>${escapeHtml(draft.programName)}</td>
+                        <td>${draft.year} ${draft.quarter}</td>
+                        <td>${escapeHtml(draft.metricTypeName)}</td>
+                        <td>${escapeHtml(draft.targetSummary || draft.targetDescription || 'No target yet')}</td>
+                        <td>${formatDate(draft.lastUpdated)}</td>
+                        <td class="action-cell">${actionButtons}</td>
+                    `;
+
+                    draftsTable.appendChild(row);
+                    
+                    // Trigger reflow and fade in
+                    setTimeout(() => {
+                        row.style.opacity = '1';
+                    }, 10);
+                });
+
+                // Add event listeners to the draft buttons
+                addDraftActionListeners();
+            })
+            .catch(error => {
+                console.error('Error loading drafts:', error);
+                draftsTable.innerHTML = '<tr><td colspan="6" style="text-align: center;">Error loading drafts: ' + error.message + '</td></tr>';
+                noDraftsMessage.style.display = 'none';
+            });
+    }
+
     function formatDate(dateString) {
         const date = new Date(dateString);
         return isNaN(date) ? dateString : date.toLocaleDateString('en-US', {
@@ -267,6 +368,161 @@ document.addEventListener('DOMContentLoaded', function() {
                 const submissionId = this.getAttribute('data-id');
                 viewSubmissionDetails(submissionId);
             });
+        });
+        
+        // Add listeners for delete buttons
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                if (!this.disabled) {
+                    const submissionId = this.getAttribute('data-id');
+                    const programName = this.getAttribute('data-program');
+                    confirmDelete(submissionId, programName);
+                }
+            });
+        });
+    }
+
+    function addDraftActionListeners() {
+        // Add listeners for draft view buttons
+        document.querySelectorAll('#draftsTable .view-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const submissionId = this.getAttribute('data-id');
+                viewSubmissionDetails(submissionId);
+            });
+        });
+        
+        // Add listeners for draft delete buttons
+        document.querySelectorAll('#draftsTable .delete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const submissionId = this.getAttribute('data-id');
+                const programName = this.getAttribute('data-program');
+                confirmDeleteDraft(submissionId, programName);
+            });
+        });
+    }
+
+    function confirmDelete(submissionId, programName) {
+        // Create confirmation modal
+        const confirmHtml = `
+            <div class="modal-section">
+                <h4>Delete Submission</h4>
+                <p>Are you sure you want to delete the submission for program <strong>${escapeHtml(programName)}</strong>?</p>
+                <p class="warning-text"><i class="fas fa-exclamation-triangle"></i> This action cannot be undone.</p>
+                <div class="modal-actions">
+                    <button class="secondary-button" id="cancelDelete">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="delete-button" id="confirmDelete">
+                        <i class="fas fa-trash"></i> Delete Permanently
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('modalTitle').textContent = "Confirm Deletion";
+        modalContent.innerHTML = confirmHtml;
+        detailModal.classList.add('active');
+        
+        // Add event listeners for the buttons
+        document.getElementById('cancelDelete').addEventListener('click', () => {
+            detailModal.classList.remove('active');
+        });
+        
+        document.getElementById('confirmDelete').addEventListener('click', () => {
+            deleteSubmission(submissionId);
+        });
+    }
+
+    function confirmDeleteDraft(draftId, programName) {
+        // Create confirmation modal
+        const confirmHtml = `
+            <div class="modal-section">
+                <h4>Delete Draft</h4>
+                <p>Are you sure you want to delete this draft for <strong>${escapeHtml(programName)}</strong>?</p>
+                <p class="warning-text"><i class="fas fa-exclamation-triangle"></i> This action cannot be undone.</p>
+                <div class="modal-actions">
+                    <button class="secondary-button" id="cancelDelete">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button class="delete-button" id="confirmDelete">
+                        <i class="fas fa-trash"></i> Delete Draft
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.getElementById('modalTitle').textContent = "Confirm Draft Deletion";
+        modalContent.innerHTML = confirmHtml;
+        detailModal.classList.add('active');
+        
+        // Add event listeners
+        document.getElementById('cancelDelete').addEventListener('click', () => {
+            detailModal.classList.remove('active');
+        });
+        
+        document.getElementById('confirmDelete').addEventListener('click', () => {
+            deleteSubmission(draftId); // Reuse existing delete function
+        });
+    }
+    
+    function deleteSubmission(submissionId) {
+        // Show loading state
+        document.getElementById('confirmDelete').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+        document.getElementById('confirmDelete').disabled = true;
+        document.getElementById('cancelDelete').disabled = true;
+        
+        // Send delete request to server
+        fetch('php/metrics/delete_submission.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: submissionId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Close the modal
+            detailModal.classList.remove('active');
+            
+            if (data.success) {
+                // Show success message
+                showNotification(data.message, 'success');
+                
+                // Animate the row removal
+                if (data.wasDraft) {
+                    const draftRow = document.querySelector(`.draft-row[data-id="${submissionId}"]`);
+                    if (draftRow) {
+                        draftRow.style.transition = 'all 0.5s ease';
+                        draftRow.style.opacity = '0';
+                        draftRow.style.maxHeight = '0';
+                        draftRow.style.overflow = 'hidden';
+                        
+                        // Remove from DOM after animation completes
+                        setTimeout(() => {
+                            draftRow.remove();
+                            // If no drafts left, show the no drafts message
+                            if (document.querySelectorAll('.draft-row').length === 0) {
+                                noDraftsMessage.style.display = 'block';
+                            }
+                        }, 500);
+                        
+                        // Notify other tabs/windows about the change
+                        localStorage.setItem('draftsUpdated', Date.now().toString());
+                    } else {
+                        loadDrafts();
+                    }
+                } else {
+                    loadSubmissions();
+                }
+            } else {
+                // Show error message
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            detailModal.classList.remove('active');
+            console.error('Error deleting submission:', error);
+            showNotification('Error: ' + error.message, 'error');
         });
     }
 
@@ -321,16 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${submission.challenges ? `<p><strong>Challenges:</strong> ${submission.challenges}</p>` : ''}
                     </div>
 
-                    ${submission.supportingFiles && submission.supportingFiles.length > 0 ? `
-                        <div class="modal-section">
-                            <h4>Supporting Documents</h4>
-                            <ul class="file-list">
-                                ${submission.supportingFiles.map(file => `
-                                    <li><a href="${file.url}" target="_blank"><i class="fas fa-file"></i> ${file.name}</a></li>
-                                `).join('')}
-                            </ul>
-                        </div>
-                    ` : ''}
+                    <!-- Remove supporting files section -->
                     
                     <div class="modal-actions">
                         ${submission.isEditable ? `
@@ -371,7 +618,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return unsafe
             .toString()
             .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
+            .replace(/</g, "&lt;")  // Fixed: removed extra slash
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");

@@ -35,6 +35,36 @@
             <p>View and manage targets and status updates for your agency's programs</p>
         </div>
         
+        <!-- Add new section for drafts -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-file-alt"></i> My Drafts</h3>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table" id="draftsTable">
+                    <thead>
+                        <tr>
+                            <th>Program <i class="fas fa-sort"></i></th>
+                            <th>Year/Quarter <i class="fas fa-sort"></i></th>
+                            <th>Sector <i class="fas fa-sort"></i></th>
+                            <th>Target <i class="fas fa-sort"></i></th>
+                            <th>Last Updated <i class="fas fa-sort"></i></th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="noDraftsMessage" class="no-data-message" style="display: none;">
+                <p>No drafts found. You can save your work as drafts while entering data.</p>
+            </div>
+        </div>
+        
+        <!-- Original submissions section -->
         <div class="dashboard-section">
             <div class="section-header">
                 <h3><i class="fas fa-list-alt"></i> All Submissions</h3>
@@ -126,7 +156,6 @@
             </div>
             
             <div id="noDataMessage" class="no-data-message" style="display: none;">
-                <i class="fas fa-info-circle"></i>
                 <p>No submissions found. Please adjust filters or create new entries.</p>
             </div>
             

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/admin_dashboard.css">
     <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/responsive.css"> <!-- Add the responsive CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
@@ -38,77 +39,79 @@
                 <div class="section-header">
                     <h3><i class="fas fa-user-plus"></i> Add New User</h3>
                 </div>
-                <form class="data-form">
+                <form class="data-form" id="userForm">
+                    <div class="form-section-header">
+                        <h4>User Information</h4>
+                        <small>All fields are stored in the users table</small>
+                    </div>
+                    
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="firstName">First Name</label>
-                            <input type="text" id="firstName" placeholder="Enter first name" required>
+                            <label for="username">Username <span class="required">*</span></label>
+                            <input type="text" id="username" name="username" placeholder="Enter username" required>
                         </div>
                         <div class="form-group">
-                            <label for="lastName">Last Name</label>
-                            <input type="text" id="lastName" placeholder="Enter last name" required>
+                            <label for="password">Password <span class="required">*</span></label>
+                            <div style="position: relative;">
+                                <input type="password" id="password" name="password" placeholder="Enter password" required>
+                                <button type="button" id="passwordToggle" class="password-toggle" title="Show password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <button type="button" id="generatePassword" class="secondary-button" style="margin-top: 10px; width: 100%;">
+                                <i class="fas fa-key"></i> Generate Secure Password
+                            </button>
                         </div>
                     </div>
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" placeholder="Enter email address" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Phone (Optional)</label>
-                            <input type="tel" id="phone" placeholder="Enter phone number">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="userRole">Role</label>
-                            <select id="userRole" required>
+                            <label for="userRole">Role <span class="required">*</span></label>
+                            <select id="userRole" name="roleId" required>
                                 <option value="">Select Role</option>
-                                <option value="admin">Administrator</option>
-                                <option value="user">Standard User</option>
-                                <option value="viewer">Viewer (Read-only)</option>
+                                <!-- These options will be replaced by JavaScript if it works properly -->
+                                <option value="1">Admin</option>
+                                <option value="2">User</option>
                             </select>
+                            <small>References roles table (RoleID)</small>
                         </div>
                         <div class="form-group">
-                            <label for="department">Department</label>
-                            <select id="department" required>
-                                <option value="">Select Department</option>
-                                <option value="management">Management</option>
-                                <option value="operations">Operations</option>
-                                <option value="sustainability">Sustainability</option>
-                                <option value="finance">Finance</option>
-                                <option value="hr">Human Resources</option>
+                            <label for="agency">Agency <span class="required">*</span></label>
+                            <select id="agency" name="agencyId" required>
+                                <option value="">Select Agency</option>
+                                <!-- These options will be replaced by JavaScript if it works properly -->
+                                <option value="1">Main Agency</option>
                             </select>
+                            <small>References agencies table (AgencyID)</small>
                         </div>
                     </div>
                     
+                    <!-- Permissions section -->
                     <div class="form-group">
                         <label>Access Permissions</label>
                         <div class="checkbox-group">
                             <div class="checkbox-item">
-                                <input type="checkbox" id="viewData" checked>
+                                <input type="checkbox" id="viewData" name="permissions[]" value="viewData" checked>
                                 <label for="viewData">View Data</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="editData">
+                                <input type="checkbox" id="editData" name="permissions[]" value="editData">
                                 <label for="editData">Edit Data</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="submitData">
+                                <input type="checkbox" id="submitData" name="permissions[]" value="submitData">
                                 <label for="submitData">Submit Data</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="approveData">
+                                <input type="checkbox" id="approveData" name="permissions[]" value="approveData">
                                 <label for="approveData">Approve Data</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="exportData">
+                                <input type="checkbox" id="exportData" name="permissions[]" value="exportData">
                                 <label for="exportData">Export Data</label>
                             </div>
                             <div class="checkbox-item">
-                                <input type="checkbox" id="manageUsers">
+                                <input type="checkbox" id="manageUsers" name="permissions[]" value="manageUsers">
                                 <label for="manageUsers">Manage Users</label>
                             </div>
                         </div>
@@ -161,12 +164,11 @@
             </div>
             
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table" id="usersTable">
                     <thead>
                         <tr>
-                            <th>Name <i class="fas fa-sort"></i></th>
-                            <th>Email <i class="fas fa-sort"></i></th>
-                            <th>Department <i class="fas fa-sort"></i></th>
+                            <th>Username <i class="fas fa-sort"></i></th>
+                            <th>Agency <i class="fas fa-sort"></i></th>
                             <th>Role <i class="fas fa-sort"></i></th>
                             <th>Last Login <i class="fas fa-sort"></i></th>
                             <th>Status <i class="fas fa-sort"></i></th>
@@ -174,58 +176,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>John Doe</td>
-                            <td>john.doe@example.com</td>
-                            <td>Management</td>
-                            <td>Administrator</td>
-                            <td>2024-05-20 09:45</td>
-                            <td><span class="status-success">Active</span></td>
-                            <td class="action-cell">
-                                <button class="icon-button edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="icon-button delete-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Jane Smith</td>
-                            <td>jane.smith@example.com</td>
-                            <td>Sustainability</td>
-                            <td>Standard User</td>
-                            <td>2024-05-19 14:22</td>
-                            <td><span class="status-success">Active</span></td>
-                            <td class="action-cell">
-                                <button class="icon-button edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="icon-button delete-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Robert Johnson</td>
-                            <td>robert.johnson@example.com</td>
-                            <td>Finance</td>
-                            <td>Viewer</td>
-                            <td>2024-05-15 11:30</td>
-                            <td><span class="status-warning">Inactive</span></td>
-                            <td class="action-cell">
-                                <button class="icon-button edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="icon-button delete-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Emily Davis</td>
-                            <td>emily.davis@example.com</td>
-                            <td>Human Resources</td>
-                            <td>Standard User</td>
-                            <td>2024-05-20 08:15</td>
-                            <td><span class="status-success">Active</span></td>
-                            <td class="action-cell">
-                                <button class="icon-button edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
-                                <button class="icon-button view-btn" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="icon-button delete-btn" title="Delete"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        </tr>
+                        <!-- User data will be loaded dynamically -->
                     </tbody>
                 </table>
             </div>
@@ -245,5 +196,13 @@
     <footer>
         <div class="copyright">&copy; 2025 PCDS2030. All rights reserved.</div>
     </footer>
+
+    <!-- Add the notification div for showing messages -->
+    <div id="notification" style="display: none;"></div>
+
+    <!-- Include the admin_users.js file -->
+    <script src="js/admin_users.js"></script>
+    <!-- Include mobile.js for responsive behavior -->
+    <script src="js/mobile.js"></script>
 </body>
 </html>

@@ -259,8 +259,9 @@ button:active {
     display: block;
 }
 
+/* Make dashboard buttons more responsive */
 .dashboard-button {
-    background-color: #A49885; /* Changed to golden color */
+    background-color: #A49885; /* Golden color */
     color: #24252A; /* Dark text for better contrast */
     border: 2px solid #A49885;
     border-radius: 12px;
@@ -299,6 +300,11 @@ button:active {
     font-size: 24px;
     margin-bottom: 5px;
     color: #4a453e; /* Darker shade for icons */
+    display: flex; /* Add flex display to improve icon centering */
+    justify-content: center;
+    align-items: center;
+    height: 30px; /* Fixed height for consistency */
+    width: 30px; /* Fixed width for consistency */
 }
 
 .dashboard-button span {
@@ -306,7 +312,11 @@ button:active {
     font-weight: 600;
     font-size: 16px;
     color: #24252A; /* Make text color consistent */
-    font-weight: 600; /* Make text slightly bolder */
+    padding: 0 5px; /* Add some side padding for text */
+    width: 100%; /* Full width of button */
+    overflow-wrap: break-word; /* Allow text to break */
+    word-wrap: break-word; /* Ensure long words break properly */
+    hyphens: auto; /* Enable hyphenation for very long words */
 }
 
 .summary-section {
@@ -377,6 +387,15 @@ copyright:not(footer .copyright) {
     display: none;
 }
 
+/* Handle text display for desktop vs mobile */
+.mobile-text {
+    display: none !important; /* Hide mobile text by default with higher specificity */
+}
+
+.desktop-text {
+    display: block; /* Ensure desktop text is shown by default */
+}
+
 /* Responsive design */
 @media screen and (max-width: 768px) {
     .dashboard-container {
@@ -391,6 +410,23 @@ copyright:not(footer .copyright) {
     .dashboard-button {
         width: 90%;
         max-width: 300px;
+        padding: 20px 0; /* Slightly reduce padding on mobile */
+    }
+    
+    .dashboard-button i {
+        font-size: 22px; /* Slightly reduce icon size on mobile */
+        margin-bottom: 8px;
+    }
+    
+    .dashboard-button span {
+        font-size: 15px; /* Slightly reduce text size on mobile */
+        line-height: 1.2; /* Better line height for text wrapping */
+        max-width: 100%; /* Ensure text stays within button */
+    }
+    
+    /* Special handling for buttons with long text */
+    .dashboard-button.long-text-button span {
+        font-size: 14px; /* Slightly smaller text */
     }
     
     .header-right {
@@ -404,6 +440,53 @@ copyright:not(footer .copyright) {
     
     .user-info span {
         display: none;
+    }
+    
+    /* Show mobile text, hide desktop text with !important to override any conflicting styles */
+    .dashboard-button .desktop-text {
+        display: none !important;
+    }
+    
+    .dashboard-button .mobile-text {
+        display: block !important;
+    }
+    
+    .dashboard-button .desktop-text {
+        display: none !important;
+    }
+    
+    .dashboard-button .mobile-text {
+        display: block !important;
+    }
+}
+
+/* Ensure even smaller screens have proper styling */
+@media screen and (max-width: 375px) {
+    .dashboard-button {
+        padding: 15px 5px; /* Add horizontal padding to prevent text overflow */
+        width: 100%;
+        min-height: 100px; /* Ensure minimum height for content */
+    }
+    
+    .dashboard-button i {
+        font-size: 20px;
+        margin-bottom: 6px;
+    }
+    
+    .dashboard-button span {
+        font-size: 13px; /* Even smaller text on very small screens */
+        line-height: 1.1; /* Tighter line height */
+        padding: 0 2px; /* Less horizontal padding */
+    }
+    
+    /* Special handling for buttons with long text */
+    .dashboard-button.long-text-button span {
+        font-size: 12px; /* Even smaller text */
+        letter-spacing: -0.5px; /* Reduce letter spacing slightly */
+    }
+    
+    .dashboard-buttons {
+        gap: 10px; /* Reduce gap between buttons on very small screens */
     }
 }
 

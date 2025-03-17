@@ -331,6 +331,65 @@
     color: #5c564d;
 }
 
+/* Form section headers for better organization */
+.form-section-header {
+    margin: 10px 0 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #d5cdc3;
+}
+
+.form-section-header h4 {
+    color: #5c564d;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.form-section-header small {
+    color: #75706a;
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* Required field indicators */
+.required {
+    color: #d9534f;
+    margin-left: 3px;
+}
+
+/* Password toggle styling */
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 0;
+    height: auto;
+    cursor: pointer;
+    color: #75706a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    transition: color 0.2s ease;
+}
+
+.password-toggle:hover {
+    color: #4a453e;
+}
+
+/* Make sure there's no duplicated elements */
+.password-toggle i.fas {
+    font-size: 16px;
+}
+
+/* Create space for the toggle icon */
+input[type="password"],
+input.password-visible {
+    padding-right: 40px;
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 768px) {
     .form-row {

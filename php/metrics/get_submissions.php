@@ -1,6 +1,13 @@
 <?php
+// Turn off error display
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+// Start output buffering to prevent any unwanted output
+ob_start();
+
 // Start session to check authentication
-if (session_status() === PHP_SESSION_NONE) {
+if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
@@ -11,15 +18,6 @@ require_once '../auth/check_session.php';
 // Set content type to JSON
 header('Content-Type: application/json');
 
-// Check if user is authenticated
-if (!isAuthenticated()) {
-    echo json_encode([
-        'success' => false,
-        'message' => 'Authentication required'
-    ]);
-    exit;
-}
-
 // Default response
 $response = [
     'success' => false,
@@ -28,8 +26,17 @@ $response = [
 ];
 
 try {
+    // Check if user is authenticated
+    if (!isAuthenticated()) {
+        throw new Exception('Authentication required');
+    }
+    
     // Get database connection
     $conn = getDbConnection();
+    
+    if (!$conn) {
+        throw new Exception('Database connection failed');
+    }
     
     // Build query based on filters
     $params = [];
@@ -94,12 +101,34 @@ try {
     $submissions = [];
     foreach ($metrics as $metric) {
         $data = json_decode($metric['Data'], true);
+        if (!$data) {
+            continue; // Skip this row if data can't be decoded
+        }
         
         // Determine if the current user can edit this metric (only if it belongs to their agency)
         $isEditable = ($metric['AgencyID'] == $userAgencyId);
         
         // Extract metric type name (in a real application, this would come from a lookup table)
         $metricTypeName = ucfirst($metric['MetricType']);
+        
+        // Process target value and current value safely
+        $targetValue = '';
+        $currentValue = '';
+        
+        if (isset($data['target'])) {
+            if (isset($data['target']['value']) && isset($data['target']['unit'])) {
+                $targetValue = $data['target']['value'] . ' ' . $data['target']['unit'];
+            }
+        }
+        
+        if (isset($data['status'])) {
+            if (isset($data['status']['currentValue'])) {
+                $currentValue = $data['status']['currentValue'];
+                if (isset($data['target']['unit'])) {
+                    $currentValue .= ' ' . $data['target']['unit'];
+                }
+            }
+        }
         
         // Format the submission data
         $submission = [
@@ -111,15 +140,16 @@ try {
             'metricTypeName' => $metricTypeName,
             'agencyId' => $metric['AgencyID'],
             'agencyName' => $metric['AgencyName'],
-            'targetValue' => isset($data['target']) ? 
-                             ($data['target']['value'] . ' ' . $data['target']['unit']) : 
-                             'Not specified',
-            'currentValue' => isset($data['status']) ? 
-                              ($data['status']['currentValue'] . ' ' . $data['target']['unit']) : 
-                              'Not specified',
+            'targetValue' => $targetValue,
+            'targetSummary' => isset($data['targetSummary']) ? $data['targetSummary'] : $targetValue,
+            'currentValue' => $currentValue,
+            'statusSummary' => $data['statusSummary'] ?? '',
             'lastUpdated' => $data['lastUpdated'] ?? $metric['Year'] . '-01-01',
             'status' => $data['status'] ?? 'in-progress',
-            'isEditable' => $isEditable
+            'statusCategory' => $data['statusCategory'] ?? $data['status'] ?? 'in-progress',
+            'statusColor' => $data['statusColor'] ?? null,
+            'isEditable' => $isEditable,
+            'isQualitative' => $data['isQualitative'] ?? false
         ];
         
         $submissions[] = $submission;
@@ -131,9 +161,12 @@ try {
     ];
     
 } catch (Exception $e) {
-    $response['message'] = 'Error: ' . $e->getMessage();
     error_log('Error in get_submissions.php: ' . $e->getMessage());
+    $response['message'] = 'Error: ' . $e->getMessage();
 }
 
+// Clear any buffered output before sending JSON
+ob_end_clean();
 echo json_encode($response);
+exit;
 ?>

@@ -33,10 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Functions
     function init() {
-        // Get mock data mode status
-        const useMockData = window.PCDS_MOCK_DATA === true;
-        console.log('Initializing with ' + (useMockData ? 'mock' : 'real') + ' data');
-
         // Load current user data
         loadCurrentUser();
         
@@ -44,22 +40,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadCurrentUser() {
-        // Get mock data mode status
-        const useMockData = window.PCDS_MOCK_DATA === true;
-
-        // Use the appropriate data source
-        const fetchPromise = useMockData ?
-            window.fetchCurrentUser() :
-            fetch('php/auth/get_current_user.php')
-                .then(response => response.json())
-                .then(data => data.user);
-
-        fetchPromise
-            .then(userData => {
-                if (!userData || !userData.id) {
+        // Connect to the database through PHP endpoint
+        fetch('php/auth/get_current_user.php')
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success || !data.user) {
                     showNotification('Failed to load user data', 'error');
                     return;
                 }
+
+                const userData = data.user;
 
                 // Set current user data
                 currentUser.id = userData.id;
@@ -84,14 +74,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadAllMetricTypes() {
-        const useMockData = window.PCDS_MOCK_DATA === true;
-        
-        const fetchPromise = useMockData ?
-            window.fetchMetricTypes() :
-            fetch('php/metrics/get_metric_types.php')
-                .then(response => response.json());
-                
-        fetchPromise
+        fetch('php/metrics/get_metric_types.php')
+            .then(response => response.json())
             .then(data => {
                 if (!data.success) {
                     throw new Error(data.message || 'Failed to load all metric types');
@@ -114,14 +98,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadAgencies() {
-        const useMockData = window.PCDS_MOCK_DATA === true;
-        
-        const fetchPromise = useMockData ?
-            window.fetchAgencies() :
-            fetch('php/admin/manage_users.php?operation=getAgencies')
-                .then(response => response.json());
-                
-        fetchPromise
+        fetch('php/admin/manage_users.php?operation=getAgencies')
+            .then(response => response.json())
             .then(data => {
                 if (!data.success) {
                     throw new Error(data.message || 'Failed to load agencies');
@@ -152,19 +130,16 @@ document.addEventListener('DOMContentLoaded', function() {
             agencyId: viewAgencySelect.value
         };
 
-        // Get mock data mode status
-        const useMockData = window.PCDS_MOCK_DATA === true;
+        // Build query parameters
+        const queryParams = new URLSearchParams();
+        if (filters.year) queryParams.append('year', filters.year);
+        if (filters.quarter) queryParams.append('quarter', filters.quarter);
+        if (filters.metricType) queryParams.append('metricType', filters.metricType);
+        if (filters.agencyId) queryParams.append('agencyId', filters.agencyId);
 
-        // Use the appropriate data source
-        const fetchPromise = useMockData ?
-            window.fetchSubmissions(filters) :
-            fetch('php/metrics/get_submissions.php?year=' + filters.year + 
-                 '&quarter=' + filters.quarter +
-                 '&metricType=' + filters.metricType +
-                 '&agencyId=' + filters.agencyId)
-                .then(response => response.json());
-
-        fetchPromise
+        // Fetch data from database
+        fetch('php/metrics/get_submissions.php?' + queryParams.toString())
+            .then(response => response.json())
             .then(data => {
                 if (!data.success || !data.data) {
                     showNotification('Failed to load submissions', 'error');
@@ -296,16 +271,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function viewSubmissionDetails(submissionId) {
-        // Get mock data mode status
-        const useMockData = window.PCDS_MOCK_DATA === true;
-
-        // Use the appropriate data source
-        const fetchPromise = useMockData ?
-            window.fetchSubmissionDetails(submissionId) :
-            fetch(`php/metrics/get_submission_details.php?id=${submissionId}`)
-                .then(response => response.json());
-
-        fetchPromise
+        // Fetch submission details from database
+        fetch(`php/metrics/get_submission_details.php?id=${submissionId}`)
+            .then(response => response.json())
             .then(data => {
                 if (!data.success || !data.data) {
                     showNotification('Failed to load submission details', 'error');

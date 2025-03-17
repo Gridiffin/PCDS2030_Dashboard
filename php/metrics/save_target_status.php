@@ -1,4 +1,11 @@
 <?php
+// Turn off error display - errors will be logged but not shown to client
+ini_set('display_errors', 0);
+error_reporting(E_ALL);
+
+// Start output buffering to prevent any unwanted output
+ob_start();
+
 // Start session to check authentication
 if (session_status() === PHP_SESSION_NONE) {
     session_start(); 
@@ -13,6 +20,8 @@ header('Content-Type: application/json');
 
 // Check if user is authenticated
 if (!isAuthenticated()) {
+    // Clear any buffered output
+    ob_end_clean();
     echo json_encode([
         'success' => false, 
         'message' => 'Authentication required'
@@ -29,27 +38,29 @@ $response = [
 
 // Only process POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    ob_end_clean();
     $response['message'] = 'Invalid request method';
     echo json_encode($response);
     exit;
 }
 
 try {
-    // Get the raw POST data
-    $inputData = json_decode(file_get_contents('php://input'), true);
+    // For FormData submission, we need to handle differently
+    if (isset($_POST['data'])) {
+        // Get the JSON data from the FormData
+        $inputData = json_decode($_POST['data'], true);
+    } else {
+        // Handle direct JSON POST
+        $inputData = json_decode(file_get_contents('php://input'), true);
+    }
     
-    // Verify required fields are present
-    $requiredFields = ['metricType', 'year', 'quarter', 'indicator', 'targetValue', 'targetUnit'];
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        throw new Exception('Invalid JSON data: ' . json_last_error_msg());
+    }
     
-    // Only check required fields if not a draft
+    // No need to verify required fields for drafts
     if (!isset($inputData['isDraft']) || !$inputData['isDraft']) {
-        foreach ($requiredFields as $field) {
-            if (!isset($inputData[$field]) || empty($inputData[$field])) {
-                $response['message'] = "Required field '$field' is missing";
-                echo json_encode($response);
-                exit;
-            }
-        }
+        // Add validation as needed
     }
     
     // Get database connection
@@ -67,8 +78,7 @@ try {
         // Use existing program
         $programId = $inputData['programId'];
     } else if (isset($inputData['programName']) && !empty($inputData['programName'])) {
-        // Create new program entry (this would be in a programs table in a real implementation)
-        // For now, we'll just use the name as an identifier
+        // Create new program entry
         $programId = uniqid('prog_');
     }
     
@@ -89,10 +99,11 @@ try {
             'date' => $inputData['statusDate'] ?? date('Y-m-d'),
             'completionPercentage' => $inputData['completionPercentage'] ?? 0,
             'notes' => $inputData['statusNotes'] ?? '',
-            'challenges' => $inputData['challenges'] ?? ''
+            'challenges' => $inputData['challenges'] ?? '',
+            'color' => $inputData['statusColor'] ?? null
         ],
         'lastUpdated' => date('Y-m-d H:i:s'),
-        'status' => isset($inputData['isDraft']) && $inputData['isDraft'] ? 'draft' : 'submitted',
+        'status' => $inputData['status'] ?? 'draft',
         'submittedBy' => $_SESSION['username'],
         'userId' => $_SESSION['user_id']
     ];
@@ -113,8 +124,7 @@ try {
     
     $metricId = $conn->lastInsertId();
     
-    // Handle file uploads if present (separate table would be better)
-    // This is a simplified implementation
+    // Handle file uploads if present
     if (isset($_FILES['supportingFiles']) && !empty($_FILES['supportingFiles']['name'][0])) {
         $uploadDir = '../../uploads/metrics/';
         
@@ -136,14 +146,13 @@ try {
             
             // Upload file
             if (move_uploaded_file($fileTmpName, $targetFilePath)) {
-                // In a real implementation, we would store file references in a separate table
-                // For simplicity, we're just acknowledging the upload here
+                // Success
             }
         }
     }
     
     // Log the action
-    $actionType = isset($inputData['isDraft']) && $inputData['isDraft'] ? 'draft_metric' : 'submit_metric';
+    $actionType = $inputData['status'] === 'draft' ? 'draft_metric' : 'submit_metric';
     $stmt = $conn->prepare('
         INSERT INTO logs (user_id, action, entity_type, entity_id, details, ip_address)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -163,7 +172,7 @@ try {
     
     $response = [
         'success' => true,
-        'message' => isset($inputData['isDraft']) && $inputData['isDraft'] ? 'Draft saved successfully' : 'Data submitted successfully',
+        'message' => $inputData['status'] === 'draft' ? 'Draft saved successfully' : 'Data submitted successfully',
         'metricId' => $metricId
     ];
     
@@ -177,5 +186,8 @@ try {
     error_log('Error in save_target_status.php: ' . $e->getMessage());
 }
 
+// Clear any buffered output before sending the JSON response
+ob_end_clean();
 echo json_encode($response);
+exit;
 ?>

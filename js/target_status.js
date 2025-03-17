@@ -14,8 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const newProgramName = document.getElementById('newProgramName');
     const programDescGroup = document.getElementById('programDescGroup');
     const programDesc = document.getElementById('programDesc');
-    const metricTypeSelect = document.getElementById('metricType');
-    const metricTypeHint = document.getElementById('metricTypeHint');
+    // Remove metricTypeSelect and metricTypeHint references
+    // const metricTypeSelect = document.getElementById('metricType');
+    // const metricTypeHint = document.getElementById('metricTypeHint');
     const targetForm = document.getElementById('targetForm');
     const targetUnitSelect = document.getElementById('targetUnit');
     const customUnitGroup = document.getElementById('customUnitGroup');
@@ -81,10 +82,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Functions
     function init() {
-        // Get mock data mode status
-        const useMockData = window.PCDS_MOCK_DATA === true;
-        console.log('Initializing with ' + (useMockData ? 'mock' : 'real') + ' data');
-
         // Load current user data
         loadCurrentUser();
         
@@ -92,22 +89,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function loadCurrentUser() {
-        // Get mock data mode status
-        const useMockData = window.PCDS_MOCK_DATA === true;
-
-        // Use the appropriate data source
-        const fetchPromise = useMockData ?
-            window.fetchCurrentUser() :
-            fetch('php/auth/get_current_user.php')
-                .then(response => response.json())
-                .then(data => data.user);
-
-        fetchPromise
-            .then(userData => {
-                if (!userData || !userData.id) {
+        // Connect to the database through PHP endpoint
+        fetch('php/auth/get_current_user.php')
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success || !data.user) {
                     showNotification('Failed to load user data', 'error');
                     return;
                 }
+
+                const userData = data.user;
 
                 // Set current user data
                 currentUser.id = userData.id;
@@ -121,7 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 agencyBadge.textContent = currentUser.agencyName;
                 
                 // Now that we have user data, load everything else
-                loadMetricTypes();
+                // Remove loadMetricTypes call since we removed the field
+                // loadMetricTypes();
                 loadPrograms();
             })
             .catch(error => {
@@ -130,55 +122,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    function loadMetricTypes() {
-        const useMockData = window.PCDS_MOCK_DATA === true;
-        
-        // Fetch agency-specific allowed metric types
-        const fetchPromise = useMockData ?
-            window.fetchAgencyMetricTypes(currentUser.agencyId) :
-            fetch(`php/metrics/get_agency_metric_types.php?agencyId=${currentUser.agencyId}`)
-                .then(response => response.json());
-
-        fetchPromise
-            .then(data => {
-                if (!data.success) {
-                    throw new Error(data.message || 'Failed to load metric types');
-                }
-                
-                // Store allowed metric types
-                currentUser.allowedMetricTypes = data.data;
-                
-                // Clear existing options except the default one
-                metricTypeSelect.innerHTML = '<option value="">-- Select Sector --</option>';
-                
-                // Add options for each allowed metric type
-                data.data.forEach(type => {
-                    const option = document.createElement('option');
-                    option.value = type.id;
-                    option.textContent = type.name;
-                    metricTypeSelect.appendChild(option);
-                });
-                
-                // Update hint text
-                metricTypeHint.textContent = `Your agency can only submit data for: ${data.data.map(t => t.name).join(', ')}`;
-            })
-            .catch(error => {
-                console.error('Error loading metric types:', error);
-                showNotification('Could not load sector data. Please try again.', 'error');
-            });
-    }
+    // Remove the loadMetricTypes function since we no longer need it
 
     function loadPrograms() {
-        // Get mock data mode status
-        const useMockData = window.PCDS_MOCK_DATA === true;
-
-        // Use the appropriate data source
-        const fetchPromise = useMockData ?
-            window.fetchPrograms(currentUser.agencyId) :
-            fetch(`php/metrics/get_programs.php?agencyId=${currentUser.agencyId}`)
-                .then(response => response.json());
-
-        fetchPromise
+        // Fetch programs for this agency from database
+        fetch(`php/metrics/get_programs.php?agencyId=${currentUser.agencyId}`)
+            .then(response => response.json())
             .then(data => {
                 if (!data.success || !data.data) {
                     showNotification('Failed to load programs', 'error');
@@ -201,16 +150,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function editSubmission(submissionId) {
-        // Get mock data mode status
-        const useMockData = window.PCDS_MOCK_DATA === true;
-
-        // Use the appropriate data source
-        const fetchPromise = useMockData ?
-            window.fetchSubmissionDetails(submissionId) :
-            fetch(`php/metrics/get_submission_details.php?id=${submissionId}`)
-                .then(response => response.json());
-
-        fetchPromise
+        // Fetch submission details from database
+        fetch(`php/metrics/get_submission_details.php?id=${submissionId}`)
+            .then(response => response.json())
             .then(data => {
                 if (!data.success || !data.data) {
                     showNotification('Failed to load submission for editing', 'error');
@@ -232,9 +174,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     programSelect.add(newOption, 1); // Add after the default option
                     programSelect.value = newOption.value;
                 }
-
-                // Set metric type
-                metricTypeSelect.value = submission.metricType;
 
                 // Set target form fields
                 document.getElementById('targetYear').value = submission.year;
@@ -370,11 +309,12 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
-        // Simulate API call to submit data
+        // Submit data to database
         submitData(formData, 'submitted')
             .then(response => {
                 if (response.success) {
-                    showNotification(response.message || 'Data submitted successfully', 'success');
+                    // Enhanced success message with link to view submissions
+                    showEnhancedNotification(response.message || 'Data submitted successfully', 'success');
                     resetForms();
                 } else {
                     showNotification(response.message || 'Error submitting data', 'error');
@@ -391,6 +331,25 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    // Add enhanced notification with a link to view submissions
+    function showEnhancedNotification(message, type) {
+        notification.innerHTML = `
+            ${message} 
+            <div class="notification-action">
+                <a href="view_uploads.html" class="notification-link">View All Submissions <i class="fas fa-arrow-right"></i></a>
+            </div>
+        `;
+        notification.className = 'notification'; // Reset classes
+        notification.classList.add(type);
+        notification.classList.add('with-action'); // Add a class for styling
+        notification.style.display = 'block';
+
+        // Hide after 8 seconds (longer due to action link)
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 8000);
+    }
+
     function saveAsDraft() {
         // Collect data without complete validation
         const formData = collectFormData(true);
@@ -401,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function() {
         draftBtn.disabled = true;
         draftBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-        // Simulate API call to save as draft
+        // Submit as draft
         submitData(formData, 'draft')
             .then(response => {
                 if (response.success) {
@@ -434,11 +393,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
 
-        // Check if metric type is selected
-        if (!metricTypeSelect.value) {
-            return false;
-        }
-
         // Validate target form
         const requiredTargetFields = targetForm.querySelectorAll('[required]');
         for (const field of requiredTargetFields) {
@@ -446,27 +400,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
         }
-        // Check if we're in mock mode from mock_data.js
-        const useMockData = window.PCDS_MOCK_DATA === true;
 
-        if (useMockData) {
-            // Use mock data function
-            return window.saveSubmission(formData);
-        } else {
-            // Real API call
-            formData.status = status;
-
-            // In a real implementation, we would properly handle file uploads with FormData
-            // For this example, we're using JSON
-            return fetch('php/metrics/save_target_status.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            })
-            .then(response => response.json());
+        // Check status form required fields
+        const requiredStatusFields = statusForm.querySelectorAll('[required]');
+        for (const field of requiredStatusFields) {
+            if (!field.value.trim()) {
+                return false;
+            }
         }
+
+        // If we got here, all required fields are filled
+        return true;
     }
 
     function resetForms() {
@@ -508,10 +452,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Updated to handle qualitative/quantitative data types
         const targetYear = document.getElementById('targetYear').value;
         const targetQuarter = document.getElementById('targetQuarter').value;
-        const indicatorName = document.getElementById('indicatorName').value;
         const targetDescription = document.getElementById('targetDescription').value;
         const targetType = document.getElementById('targetType').value;
         const targetDeadline = document.getElementById('targetDeadline').value;
+        
+        // Extract program information correctly
+        let programId = '';
+        let programName = '';
+        let programDescription = '';
+        
+        // Check if a new program is being created
+        if (programSelect.value === 'new') {
+            programId = 'new_' + Date.now(); // Generate a temporary ID for new programs
+            programName = document.getElementById('newProgramName').value;
+            programDescription = document.getElementById('programDesc').value;
+        } else if (programSelect.value.startsWith('existing_')) {
+            // Handle case where we're editing and selected an existing program not in dropdown
+            programId = programSelect.value;
+            programName = programSelect.options[programSelect.selectedIndex].text;
+        } else {
+            // Get existing program info from selected option
+            programId = programSelect.value;
+            programName = programSelect.options[programSelect.selectedIndex].text;
+        }
         
         // Only collect these if target type is quantitative
         const targetValue = targetType === 'quantitative' ? document.getElementById('targetValue').value : '';
@@ -564,11 +527,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return {
             programId,
             programName,
-            programDescription: programDesc,
-            metricType: metricTypeSelect.value,
+            programDescription,
+            // Use a default value for metricType or remove it entirely if not needed by the backend
+            metricType: currentUser.allowedMetricTypes.length > 0 ? currentUser.allowedMetricTypes[0].id : 'default',
             year: targetYear,
             quarter: targetQuarter,
-            indicator: indicatorName,
+            // Use targetDescription as indicator name or a default value
+            indicator: targetDescription.substring(0, 50), // Use first 50 chars of description as the indicator
             targetDescription,
             targetType,
             targetValue,
@@ -601,5 +566,31 @@ document.addEventListener('DOMContentLoaded', function() {
             'draft': 'Draft'
         };
         return statusNames[category] || category;
+    }
+
+    function submitData(formData, status) {
+        // Set the status
+        formData.status = status;
+        
+        // Handle file uploads with FormData
+        const form = new FormData();
+        
+        // Append JSON data
+        form.append('data', JSON.stringify(formData));
+        
+        // Append files if available
+        const fileInput = document.getElementById('supportingFiles');
+        if (fileInput.files.length > 0) {
+            for (let i = 0; i < fileInput.files.length; i++) {
+                form.append('supportingFiles[]', fileInput.files[i]);
+            }
+        }
+        
+        // Send data to server
+        return fetch('php/metrics/save_target_status.php', {
+            method: 'POST',
+            body: form
+        })
+        .then(response => response.json());
     }
 });

@@ -57,14 +57,7 @@
                     </div>
                 </div>
                 
-                <div class="form-group" id="metricTypeGroup">
-                    <label for="metricType">Sector <span class="required">*</span></label>
-                    <select id="metricType" required>
-                        <option value="">-- Select Sector --</option>
-                        <!-- Will be populated via JavaScript based on agency's allowed metric types -->
-                    </select>
-                    <small id="metricTypeHint" class="form-hint">Your agency can only submit data for specific sectors</small>
-                </div>
+                <!-- Sector field removed -->
                 
                 <div class="form-group" id="programDescGroup" style="display: none;">
                     <label for="programDesc">Program Description</label>
@@ -104,10 +97,7 @@
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="indicatorName">Target Name <span class="required">*</span></label>
-                    <input type="text" id="indicatorName" placeholder="Enter target name (e.g., 'Organize workshop', 'Plant trees')" required>
-                </div>
+                <!-- Target Name field removed -->
 
                 <div class="form-group">
                     <label for="targetDescription">Target Details <span class="required">*</span></label>
@@ -203,6 +193,23 @@
                 <!-- Remove status category dropdown and replace with improved color indicator -->
                 <div class="form-group">
                     <label for="statusColor">Status Indicator</label>
+                    
+                    <!-- Add status legend -->
+                    <div class="status-legend">
+                        <div class="status-legend-item">
+                            <div class="status-circle completed"></div> Monthly target achieved, Project on track
+                        </div>
+                        <div class="status-legend-item">
+                            <div class="status-circle progress"></div> Miss in target but still on track for 2024
+                        </div>
+                        <div class="status-legend-item">
+                            <div class="status-circle warning"></div> Severe delays
+                        </div>
+                        <div class="status-legend-item">
+                            <div class="status-circle draft"></div> Not started
+                        </div>
+                    </div>
+                    
                     <div class="color-selector">
                         <label class="color-option">
                             <input type="radio" name="statusColor" value="completed" checked>
@@ -247,6 +254,8 @@
                     <button type="submit" class="primary-button"><i class="fas fa-paper-plane"></i> Submit Data</button>
                 </div>
             </form>
+            
+            <!-- Remove the redundant "View All Submissions" button -->
         </div>
     </div>
     
@@ -266,8 +275,6 @@
         <div class="copyright">&copy; 2025 PCDS2030. All rights reserved.</div>
     </footer>
     
-    <!-- Include mock_data.js for testing -->
-    <script src="js/mock_data.js"></script>
     <!-- Include target_status.js for form functionality -->
     <script src="js/target_status.js"></script>
     <!-- Include mobile.js for responsive behavior -->

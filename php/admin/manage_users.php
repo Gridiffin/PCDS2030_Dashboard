@@ -175,10 +175,6 @@ switch ($operation) {
                 // Start transaction
                 $conn->beginTransaction();
                 
-                // Delete from user_profiles if it exists
-                $stmt = $conn->prepare("DELETE FROM user_profiles WHERE user_id = ?");
-                $stmt->execute([$userId]);
-                
                 // Delete user
                 $stmt = $conn->prepare("DELETE FROM users WHERE UserID = ?");
                 $stmt->execute([$userId]);

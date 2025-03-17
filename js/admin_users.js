@@ -287,6 +287,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td><span class="${statusClass}">${user.status === 'active' ? 'Active' : 'Inactive'}</span></td>
                 <td class="action-cell">
                     <!-- ...existing buttons... -->
+                    <button class="delete-btn" data-id="${user.UserID}">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
                 </td>
             `;
             usersTableBody.appendChild(row);
@@ -447,14 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (passwordToggle) {
             passwordToggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
         }
-        
-        // Hide password after a delay
-        setTimeout(() => {
-            passwordField.type = 'password';
-            if (passwordToggle) {
-                passwordToggle.innerHTML = '<i class="fas fa-eye"></i>';
-            }
-        }, 3000);
     }
     
     function togglePasswordVisibility() {

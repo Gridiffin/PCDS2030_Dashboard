@@ -138,6 +138,20 @@
     border-color: #b9ad9b;
 }
 
+/* Section actions for buttons at the bottom of sections */
+.section-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+    gap: 15px;
+}
+
+.section-actions .primary-button,
+.section-actions .secondary-button {
+    min-width: 180px;
+    justify-content: center;
+}
+
 /* Data points container for statistics page */
 .data-points-container {
     margin-bottom: 15px;
@@ -413,6 +427,425 @@ input.password-visible {
     width: 100%;
 }
 
+/* Form hints */
+.form-hint {
+    color: #75706a;
+    font-size: 12px;
+    margin-top: 3px;
+    display: block;
+}
+
+/* Agency badge */
+.agency-badge {
+    font-size: 12px;
+    background-color: #5c564d;
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-left: 5px;
+}
+
+/* Range input styling */
+.range-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.range-input-container input[type="range"] {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;  /* Add standard property for compatibility */
+    height: 10px;
+    border-radius: 5px;
+    background: #e3ded7;
+    outline: none;
+}
+
+.range-input-container input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;  /* Add standard property for compatibility */
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #a69b8b;
+    cursor: pointer;
+}
+
+.range-input-container input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #a69b8b;
+    cursor: pointer;
+    border: none;
+}
+
+.range-input-container output {
+    width: 45px;
+    text-align: right;
+    font-weight: 600;
+    color: #5c564d;
+}
+
+/* No data message */
+.no-data-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #75706a;
+    background-color: #f8f6f5;
+    border-radius: 8px;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.no-data-message i {
+    font-size: 40px;
+    color: #d5cdc3;
+}
+
+/* Modal for details */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal.active {
+    display: block;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 700px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.modal.active .modal-content {
+    transform: translateY(0);
+}
+
+.close-modal {
+    color: #75706a;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    line-height: 1;
+}
+
+.close-modal:hover {
+    color: #5c564d;
+}
+
+/* Modal section styling */
+.modal-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e3ded7;
+}
+
+.modal-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.modal-section h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #5c564d;
+    margin-bottom: 12px;
+}
+
+.modal-section p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+    white-space: pre-line; /* Preserve line breaks in text */
+}
+
+.modal-section p strong {
+    color: #5c564d;
+    font-weight: 600;
+}
+
+.modal-section .progress-bar {
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.modal-section .file-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-section .file-list li {
+    margin-bottom: 6px;
+}
+
+.modal-section .file-list a {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #a69b8b;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.modal-section .file-list a:hover {
+    color: #5c564d;
+}
+
+.modal-section .file-list i {
+    font-size: 16px;
+}
+
+/* Notification */
+.notification {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-weight: 500;
+    z-index: 1001;
+    max-width: 350px;
+    transition: all 0.3s ease;
+}
+
+.notification.success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 4px solid #28a745;
+}
+
+.notification.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 4px solid #dc3545;
+}
+
+.notification.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left: 4px solid #ffc107;
+}
+
+/* Status circle indicators */
+.status-circle {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+    position: relative;
+    top: 1px;
+}
+
+.status-circle.completed {
+    background-color: #28a745; /* Green */
+}
+
+.status-circle.progress {
+    background-color: #ffc107; /* Yellow/Amber */
+}
+
+.status-circle.pending {
+    background-color: #17a2b8; /* Blue */
+}
+
+.status-circle.warning {
+    background-color: #dc3545; /* Red */
+}
+
+.status-circle.draft {
+    background-color: #6c757d; /* Gray */
+}
+
+/* Status legend styles */
+.status-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 10px 0;
+    font-size: 13px;
+}
+
+.status-legend-item {
+    display: flex;
+    align-items: center;
+}
+
+.status-legend-item .status-circle {
+    margin-right: 4px;
+}
+
+/* Status badges for qualitative updates */
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.status-badge.completed {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-badge.nearly-complete {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.in-progress {
+    background-color: #cce5ff;
+    color: #004085;
+}
+
+.status-badge.not-started {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.status-badge.delayed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.cancelled {
+    background-color: #6c757d;
+    color: #ffffff;
+}
+
+/* Target and status summary text styling */
+.target-summary, .status-summary {
+    font-size: 14px;
+    line-height: 1.4;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Color selector for status indicators - improved version */
+.color-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 12px;
+}
+
+.color-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-width: 90px;
+    background-color: #f8f6f5;
+    border: 2px solid transparent;
+}
+
+.color-option:hover {
+    background-color: #f1eeeb;
+}
+
+.color-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.color-option .color-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease;
+}
+
+.color-option .status-label {
+    font-size: 13px;
+    color: #4a453e;
+    font-weight: 500;
+}
+
+/* When radio is checked, style the option */
+.color-option input[type="radio"]:checked + .color-circle {
+    transform: scale(1.2);
+}
+
+.color-option input[type="radio"]:checked ~ .status-label {
+    font-weight: 600;
+    color: #000;
+}
+
+.color-option input[type="radio"]:checked + .color-circle::after {
+    content: "\2713"; /* Checkmark */
+    position: absolute;
+    font-size: 14px;
+    color: white;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Highlight the entire option when selected */
+.color-option input[type="radio"]:checked {
+    box-shadow: 0 0 0 2px rgba(92, 86, 77, 0.3);
+}
+
+.color-option:has(input[type="radio"]:checked) {
+    border-color: #5c564d;
+    background-color: white;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Maintain the status circle colors with their meanings */
+.status-circle.completed {
+    background-color: #28a745; /* Green - Monthly target achieved, Project on track */
+}
+
+.status-circle.progress {
+    background-color: #ffc107; /* Yellow - Miss in target but still on track for 2024 */
+}
+
+.status-circle.warning {
+    background-color: #dc3545; /* Red - Severe delays */
+}
+
+.status-circle.draft, .status-circle.not-started {
+    background-color: #6c757d; /* Gray - Not started */
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 768px) {
     .form-row {
@@ -456,5 +889,20 @@ input.password-visible {
     
     .schedule-actions {
         margin-top: 15px;
+    }
+
+    .color-selector {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .section-actions {
+        flex-direction: column;
+    }
+    
+    .section-actions .primary-button,
+    .section-actions .secondary-button {
+        width: 100%;
     }
 }

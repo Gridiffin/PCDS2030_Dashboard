@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>View Submissions</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/user_dashboard.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img class="logo" src="assets/images/logo.png" alt="logo">
+        </div>
+        <div class="header-right">
+            <span class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="username">User</span>
+                <span id="agency-badge" class="agency-badge">Agency</span>
+            </span>
+            <a class="cta" href="user_dashboard.html"><button><i class="fas fa-home"></i> Dashboard</button></a>
+            <!-- Logout button removed - only accessible from main dashboard -->
+        </div>
+    </header>
+    
+    <div class="dashboard-container">
+        <div class="welcome-banner">
+            <h1>Your Submissions</h1>
+            <p>View and manage targets and status updates for your agency's programs</p>
+        </div>
+        
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-list-alt"></i> All Submissions</h3>
+            </div>
+            
+            <div class="filter-container">
+                <div class="filter-group">
+                    <label for="viewYear">Year</label>
+                    <select id="viewYear">
+                        <option value="">All Years</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="viewQuarter">Quarter</label>
+                    <select id="viewQuarter">
+                        <option value="">All Quarters</option>
+                        <option value="Q1">Q1</option>
+                        <option value="Q2">Q2</option>
+                        <option value="Q3">Q3</option>
+                        <option value="Q4">Q4</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="viewMetricType">Sector</label>
+                    <select id="viewMetricType">
+                        <option value="">All Sectors</option>
+                        <!-- Will be populated via JavaScript based on all available sectors -->
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="viewAgency">Agency</label>
+                    <select id="viewAgency">
+                        <option value="">All Agencies</option>
+                        <!-- Will be populated via JavaScript from agencies table -->
+                    </select>
+                </div>
+                
+                <div class="filter-actions">
+                    <button type="button" id="refreshSubmissions" class="secondary-button">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Add status legend -->
+            <div class="status-legend">
+                <div class="status-legend-item">
+                    <div class="status-circle completed"></div> Monthly target achieved, Project on track
+                </div>
+                <div class="status-legend-item">
+                    <div class="status-circle progress"></div> Miss in target but still on track for 2024
+                </div>
+                <div class="status-legend-item">
+                    <div class="status-circle warning"></div> Severe delays
+                </div>
+                <div class="status-legend-item">
+                    <div class="status-circle draft"></div> Not started
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="data-table" id="submissionsTable">
+                    <thead>
+                        <tr>
+                            <th>Program <i class="fas fa-sort"></i></th>
+                            <th>Year/Quarter <i class="fas fa-sort"></i></th>
+                            <th>Sector <i class="fas fa-sort"></i></th>
+                            <th>Agency <i class="fas fa-sort"></i></th>
+                            <th>Target <i class="fas fa-sort"></i></th>
+                            <th>Current Status <i class="fas fa-sort"></i></th>
+                            <th>Last Updated <i class="fas fa-sort"></i></th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="noDataMessage" class="no-data-message" style="display: none;">
+                <i class="fas fa-info-circle"></i>
+                <p>No submissions found. Please adjust filters or create new entries.</p>
+            </div>
+            
+            <div class="pagination">
+                <button class="pagination-button" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+                <div class="page-numbers">
+                    <button class="page-number active">1</button>
+                </div>
+                <button class="pagination-button">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
+            
+            <div class="section-actions">
+                <a href="target_status.html" class="primary-button">
+                    <i class="fas fa-plus-circle"></i> Add New Submission
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for viewing details -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 id="modalTitle">Program Details</h3>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+    
+    <!-- Notification element -->
+    <div id="notification" class="notification"></div>
+    
+    <footer>
+        <div class="copyright">&copy; 2025 PCDS2030. All rights reserved.</div>
+    </footer>
+    
+    <!-- Include mock_data.js for testing -->
+    <script src="js/mock_data.js"></script>
+    <!-- Include view_uploads.js for functionality -->
+    <script src="js/view_uploads.js"></script>
+    <!-- Include mobile.js for responsive behavior -->
+    <script src="js/mobile.js"></script>
+</body>
+</html>

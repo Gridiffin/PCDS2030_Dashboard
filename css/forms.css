@@ -1211,3 +1211,26 @@ optgroup {
 .simple-button:hover {
     background-color: #8c8273;
 }
+
+/* Custom metrics container styling */
+.custom-metrics-container {
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px dashed #d5cdc3;
+}
+
+.custom-metrics-header {
+    margin-bottom: 15px;
+}
+
+.custom-metrics-header h4 {
+    color: #5c564d;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.custom-metrics-header p {
+    color: #75706a;
+    font-size: 14px;
+}

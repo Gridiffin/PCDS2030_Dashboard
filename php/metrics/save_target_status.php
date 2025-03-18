@@ -121,6 +121,8 @@ try {
             'challenges' => $inputData['challenges'] ?? '',
             'color' => $inputData['statusColor'] ?? null
         ],
+        // Store custom metrics data if provided
+        'customMetrics' => $inputData['customMetrics'] ?? null,
         'lastUpdated' => date('Y-m-d H:i:s'),
         'status' => $inputData['status'] ?? 'draft',
         'submittedBy' => $_SESSION['username'],

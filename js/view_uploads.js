@@ -12,11 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const submissionsTable = document.getElementById('submissionsTable').querySelector('tbody');
     const noDataMessage = document.getElementById('noDataMessage');
     const detailModal = document.getElementById('detailModal');
-    const modalBody = document.getElementById('modalBody'); // This is the correct element to use
-    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody'); // Updated: Changed from modalContent to modalBody
     const notification = document.getElementById('notification');
-    // Remove the reference to modalContent as it doesn't exist in the HTML
-    // const modalContent = document.getElementById('modalContent');
     const refreshSubmissionsBtn = document.getElementById('refreshSubmissions');
     const viewMetricTypeSelect = document.getElementById('viewMetricType');
     const viewAgencySelect = document.getElementById('viewAgency');
@@ -30,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event listeners
     document.querySelector('.close-modal').addEventListener('click', () => detailModal.classList.remove('active'));
-    document.querySelector('.modal-footer .modal-button').addEventListener('click', () => detailModal.classList.remove('active'));
     refreshSubmissionsBtn.addEventListener('click', loadSubmissions);
     document.getElementById('viewYear').addEventListener('change', loadSubmissions);
     document.getElementById('viewQuarter').addEventListener('change', loadSubmissions);
@@ -120,15 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.textContent = type.name;
                     viewMetricTypeSelect.appendChild(option);
                 });
-                
-                // Update the sector filter hint to explain the social viewing behavior
-                const sectorFilterHint = document.getElementById('sectorFilterHint');
-                if (sectorFilterHint) {
-                    sectorFilterHint.textContent = 'Filter by sector - you can see all submissions but only edit your agency\'s.';
-                    
-                    // Remove the automatic sector selection and disabling
-                    // This allows users to view all sectors' submissions
-                }
             })
             .catch(error => {
                 console.error('Error loading all metric types:', error);
@@ -203,11 +190,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     const row = document.createElement('tr');
-                    
-                    // Add a class to highlight the user's own agency submissions
-                    if (submission.agencyId === currentUser.agencyId) {
-                        row.classList.add('own-agency');
-                    }
 
                     // Use the statusColor if provided, otherwise fall back to status mapping
                     let statusClass, statusText;
@@ -272,9 +254,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <i class="fas fa-trash"></i>
                             </button>
                         ` : `
-                            <span class="icon-button view-only-indicator" title="View Only (${submission.agencyName})">
-                                <i class="fas fa-eye-slash"></i>
-                            </span>
+                            <button type="button" class="icon-button edit-btn" disabled title="Can't edit (different agency)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="icon-button delete-btn" disabled title="Can't delete (different agency)">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         `}
                     `;
 
@@ -434,8 +419,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        modalTitle.textContent = "Confirm Deletion";
-        modalBody.innerHTML = confirmHtml;
+        document.getElementById('modalTitle').textContent = "Confirm Deletion";
+        modalBody.innerHTML = confirmHtml; // Updated: Use modalBody instead of modalContent
         detailModal.classList.add('active');
         
         // Add event listeners for the buttons
@@ -466,8 +451,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        modalTitle.textContent = "Confirm Draft Deletion";
-        modalBody.innerHTML = confirmHtml;
+        document.getElementById('modalTitle').textContent = "Confirm Draft Deletion";
+        modalBody.innerHTML = confirmHtml; // Updated: Use modalBody instead of modalContent
         detailModal.classList.add('active');
         
         // Add event listeners
@@ -554,10 +539,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const submission = data.data;
 
                 // Set modal title
-                modalTitle.textContent = submission.programName;
+                document.getElementById('modalTitle').textContent = submission.programName;
 
                 // Format modal content - adjust for qualitative targets/statuses
-                const content = `
+                let content = `
                     <div class="modal-section">
                         <h4>Program Information</h4>
                         <p><strong>Description:</strong> ${submission.description || 'No description provided'}</p>
@@ -570,41 +555,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         <h4>Target Information</h4>
                         <p><strong>Target:</strong> ${submission.indicator}</p>
                         ${submission.targetDescription ? `<p><strong>Details:</strong> ${submission.targetDescription}</p>` : ''}
-                        ${submission.isQuantitative ? `
-                            <p><strong>Target Value:</strong> ${submission.targetValue} ${submission.targetUnit}</p>
-                        ` : ''}
                         ${submission.targetDeadline ? `<p><strong>Deadline:</strong> ${formatDate(submission.targetDeadline)}</p>` : ''}
                     </div>
 
                     <div class="modal-section">
                         <h4>Current Status</h4>
                         ${submission.statusNotes ? `<p><strong>Status Update:</strong> ${submission.statusNotes}</p>` : ''}
-                        ${submission.isQuantitative ? `
-                            <p><strong>Current Value:</strong> ${submission.currentValue} ${submission.targetUnit} (as of ${formatDate(submission.statusDate)})</p>
-                            <p><strong>Completion:</strong> ${submission.completionPercentage}%</p>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: ${submission.completionPercentage}%"></div>
-                                <span>${submission.completionPercentage}%</span>
-                            </div>
-                        ` : `
-                            <p><strong>Status Date:</strong> ${formatDate(submission.statusDate)}</p>
-                        `}
-                        ${submission.challenges ? `<p><strong>Challenges:</strong> ${submission.challenges}</p>` : ''}
-                    </div>
-
-                    <!-- Remove supporting files section -->
-                    
-                    <div class="modal-actions">
-                        ${submission.isEditable ? `
-                            <a href="target_status.html?edit=${submission.id}" class="secondary-button">
-                                <i class="fas fa-edit"></i> Edit Submission
-                            </a>
-                        ` : ''}
-                    </div>
-                `;
-
+                        <p><strong>Status Date:</strong> ${formatDate(submission.statusDate)}</p>
+                    </div>`;
+                
                 // Set modal content
-                modalBody.innerHTML = content;
+                document.getElementById('modalBody').innerHTML = content;
 
                 // Show modal
                 detailModal.classList.add('active');
@@ -638,4 +599,40 @@ document.addEventListener('DOMContentLoaded', function() {
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById("detailModal");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody = document.getElementById("modalBody");
+    const closeBtn = document.querySelector(".close-modal");
+    const footerBtn = document.querySelector(".modal-footer .modal-button");
+
+    // Close when clicking the x button
+    if (closeBtn) {
+        closeBtn.addEventListener("click", function () {
+            modal.classList.remove("active");
+        });
+    }
+
+    // Close when clicking the footer button
+    if (footerBtn) {
+        footerBtn.addEventListener("click", function () {
+            modal.classList.remove("active");
+        });
+    }
+
+    // Close when clicking outside the modal content
+    window.addEventListener("click", function (event) {
+        if (event.target === modal) {
+            modal.classList.remove("active");
+        }
+    });
+
+    // Function to open modal (can be called from other parts of your code)
+    window.openModal = function (title, content) {
+        modalTitle.textContent = title;
+        modalBody.innerHTML = content; // Insert content into the body section
+        modal.classList.add("active");
+    };
 });

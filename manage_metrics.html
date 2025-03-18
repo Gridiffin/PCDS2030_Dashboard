@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Manage Metrics</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/user_dashboard.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/manage_metrics.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img class="logo" src="assets/images/logo.png" alt="logo">
+        </div>
+        <div class="header-right">
+            <span class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="username">User</span>
+                <span id="agency-badge" class="agency-badge">Agency</span>
+            </span>
+            <a class="cta" href="user_dashboard.html"><button><i class="fas fa-home"></i> Dashboard</button></a>
+        </div>
+    </header>
+    
+    <div class="dashboard-container">
+        <div class="welcome-banner">
+            <h1>Custom Metrics</h1>
+            <p>Define and report on metrics specific to your agency's reporting needs</p>
+        </div>
+        
+        <!-- Tabs Navigation -->
+        <div class="tab-container">
+            <button class="tab active" data-tab="define">
+                <i class="fas fa-tools"></i> Define Metrics
+            </button>
+            <button class="tab" data-tab="report">
+                <i class="fas fa-chart-bar"></i> Report Data
+            </button>
+        </div>
+        
+        <!-- Tab 1: Define Metrics -->
+        <div id="define-tab" class="tab-content active">
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-tools"></i> Custom Metrics Definition</h3>
+                </div>
+                
+                <div id="metrics-loading" class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                
+                <div class="table-container" id="metricsTableContainer" style="display: none;">
+                    <table class="data-table" id="metricsTable">
+                        <thead>
+                            <tr>
+                                <th>Metric Name</th>
+                                <th>Data Type</th>
+                                <th>Unit</th>
+                                <th>Required?</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="noMetricsMessage" class="no-data-message" style="display: none;">
+                    <p>No custom metrics defined yet. Add your first metric below.</p>
+                </div>
+                
+                <div class="section-actions">
+                    <button type="button" id="addMetricBtn" class="primary-button">
+                        <i class="fas fa-plus-circle"></i> Add New Metric
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Metric Form - Initially Hidden -->
+            <div class="dashboard-section" id="metricFormSection" style="display: none;">
+                <!-- ...existing metric form content... -->
+                <div class="section-header">
+                    <h3 id="formTitle"><i class="fas fa-plus"></i> Add New Metric</h3>
+                </div>
+                
+                <form id="metricForm" class="data-form">
+                    <input type="hidden" id="metricId" value="">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="metricName">Metric Name <span class="required">*</span></label>
+                            <input type="text" id="metricName" required placeholder="e.g., Timber Export Value">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="metricType">Data Type <span class="required">*</span></label>
+                            <select id="metricType" required>
+                                <option value="">Select Type</option>
+                                <option value="number">Number</option>
+                                <option value="text">Text</option>
+                                <option value="currency">Currency</option>
+                                <option value="percentage">Percentage</option>
+                                <option value="date">Date</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="metricUnit">Unit</label>
+                            <input type="text" id="metricUnit" placeholder="e.g., USD, hectares, permits">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="isRequired">Required Field?</label>
+                            <div class="checkbox-item" style="margin-top: 10px;">
+                                <input type="checkbox" id="isRequired">
+                                <label for="isRequired">Make this a required field in reports</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="metricDescription">Description</label>
+                        <textarea id="metricDescription" rows="3" placeholder="Describe what this metric measures and how it should be reported"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="cancelMetricBtn" class="secondary-button">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                        <button type="submit" class="primary-button">
+                            <i class="fas fa-save"></i> Save Metric
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tab 2: Report Data -->
+        <div id="report-tab" class="tab-content">
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-chart-bar"></i> Report Metric Data</h3>
+                </div>
+                
+                <div id="report-loading" class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                
+                <form id="reportForm" class="data-form" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="reportYear">Year <span class="required">*</span></label>
+                            <select id="reportYear" required>
+                                <option value="">Select Year</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportQuarter">Quarter <span class="required">*</span></label>
+                            <select id="reportQuarter" required>
+                                <option value="">Select Quarter</option>
+                                <option value="Q1">Q1 (Jan-Mar)</option>
+                                <option value="Q2">Q2 (Apr-Jun)</option>
+                                <option value="Q3">Q3 (Jul-Sep)</option>
+                                <option value="Q4">Q4 (Oct-Dec)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reportDate">Report Date <span class="required">*</span></label>
+                            <input type="date" id="reportDate" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Metric Values</label>
+                        <div id="metricValuesContainer" class="metrics-grid">
+                            <!-- Will be dynamically populated with metrics -->
+                            <div class="no-data-message" id="noMetricsForReportMessage">
+                                <p>No custom metrics defined yet. Please define metrics in the "Define Metrics" tab first.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="reportNotes">Additional Notes</label>
+                        <textarea id="reportNotes" rows="3" placeholder="Any additional context or explanations for this reporting period"></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="saveAsDraftBtn" class="secondary-button">
+                            <i class="fas fa-save"></i> Save as Draft
+                        </button>
+                        <button type="submit" class="primary-button">
+                            <i class="fas fa-paper-plane"></i> Submit Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Previous Reports Section -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-history"></i> Previous Reports</h3>
+                </div>
+                
+                <div id="reports-loading" class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </div>
+                
+                <div class="table-container" id="reportsTableContainer" style="display: none;">
+                    <table class="data-table" id="reportsTable">
+                        <thead>
+                            <tr>
+                                <th>Year/Quarter</th>
+                                <th>Report Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="noReportsMessage" class="no-data-message" style="display: none;">
+                    <p>No reports submitted yet. Complete the form above to submit your first report.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for viewing details -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Details</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-button">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Updated toast notification element -->
+    <div id="toast-notification" class="toast-notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="toast-message"></span>
+    </div>
+    
+    <footer>
+        <div class="copyright">&copy; 2025 PCDS2030. All rights reserved.</div>
+    </footer>
+    
+    <script src="js/manage_metrics.js" type="module"></script>
+    <script src="js/mobile.js"></script>
+</body>
+</html>

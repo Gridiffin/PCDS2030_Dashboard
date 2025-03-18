@@ -120,6 +120,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.textContent = type.name;
                     viewMetricTypeSelect.appendChild(option);
                 });
+                
+                // Update the sector filter hint to explain the social viewing behavior
+                const sectorFilterHint = document.getElementById('sectorFilterHint');
+                if (sectorFilterHint) {
+                    sectorFilterHint.textContent = 'Filter by sector - you can see all submissions but only edit your agency\'s.';
+                    
+                    // Remove the automatic sector selection and disabling
+                    // This allows users to view all sectors' submissions
+                }
             })
             .catch(error => {
                 console.error('Error loading all metric types:', error);
@@ -194,6 +203,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     const row = document.createElement('tr');
+                    
+                    // Add a class to highlight the user's own agency submissions
+                    if (submission.agencyId === currentUser.agencyId) {
+                        row.classList.add('own-agency');
+                    }
 
                     // Use the statusColor if provided, otherwise fall back to status mapping
                     let statusClass, statusText;
@@ -258,12 +272,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <i class="fas fa-trash"></i>
                             </button>
                         ` : `
-                            <button type="button" class="icon-button edit-btn" disabled title="Can't edit (different agency)">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button type="button" class="icon-button delete-btn" disabled title="Can't delete (different agency)">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <span class="icon-button view-only-indicator" title="View Only (${submission.agencyName})">
+                                <i class="fas fa-eye-slash"></i>
+                            </span>
                         `}
                     `;
 

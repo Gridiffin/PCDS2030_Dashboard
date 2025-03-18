@@ -625,7 +625,9 @@ document.addEventListener('DOMContentLoaded', function() {
             programId,
             programName,
             programDescription,
-            metricType: currentUser.allowedMetricTypes.length > 0 ? currentUser.allowedMetricTypes[0].id : 'default',
+            metricType: currentUser.allowedMetricTypes.length > 0 ? 
+                currentUser.allowedMetricTypes[0].id : 
+                currentUser.agencyId.toString(), // Use agency ID as fallback if no metric types,
             year: targetYear,
             quarter: targetQuarter,
             indicator: targetDescription.substring(0, 50), // Use first 50 chars of description as the indicator

@@ -83,6 +83,14 @@ try {
     $agencyId = $_SESSION['agency_id'] ?? 1; // Default to 1 if not set
     error_log('Using agency ID: ' . $agencyId);
     
+    // Get the agency's sector from the database
+    $stmt = $conn->prepare("SELECT Sector FROM agencies WHERE AgencyID = ?");
+    $stmt->execute([$agencyId]);
+    $agencySector = $stmt->fetchColumn();
+    
+    // Use the agency's sector instead of a user-selected one
+    $metricType = $agencySector ?: ($inputData['metricType'] ?? 'default');
+    
     // Process program data
     $programId = null;
     if (isset($inputData['programId']) && !empty($inputData['programId']) && $inputData['programId'] !== 'new') {
@@ -167,14 +175,14 @@ try {
         }
         error_log('JSON data size: ' . strlen($jsonData) . ' bytes');
         
-        // Insert new record
+        // Insert new record with the agency's sector as the metric type
         $stmt = $conn->prepare('
             INSERT INTO Metrics (MetricType, Data, Quarter, Year, AgencyID) 
             VALUES (?, ?, ?, ?, ?)
         ');
         
         $stmt->execute([
-            $inputData['metricType'] ?? 'default',
+            $metricType, // Use agency sector
             $jsonData,
             $inputData['quarter'] ?? 'Q1',
             $inputData['year'] ?? date('Y'),

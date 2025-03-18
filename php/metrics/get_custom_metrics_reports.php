@@ -22,6 +22,9 @@ if (!isAuthenticated()) {
 $agencyId = $_SESSION['agency_id'];
 error_log("Agency ID: " . $agencyId);
 
+// Check if specific metric ID is provided
+$metricId = isset($_GET['metricId']) ? $_GET['metricId'] : null;
+
 // Default response
 $response = [
     'success' => false,
@@ -33,50 +36,30 @@ try {
     // Get database connection
     $conn = getDbConnection();
     
-    // Check for the timestamp column - get all available columns first
-    $columns = [];
-    try {
-        $stmt = $conn->query("DESCRIBE Metrics");
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $columns[] = $row['Field'];
-        }
-        error_log("Available columns in Metrics table: " . implode(", ", $columns));
-    } catch (Exception $e) {
-        error_log("Failed to get table structure: " . $e->getMessage());
-    }
-    
-    // Determine which timestamp column to use - try common names
-    $timestampColumn = null;
-    $possibleColumns = ['DateCreated', 'LastUpdated', 'CreateDate', 'Timestamp', 'Created', 'Modified'];
-    
-    foreach ($possibleColumns as $column) {
-        if (in_array($column, $columns)) {
-            $timestampColumn = $column;
-            error_log("Using timestamp column: " . $timestampColumn);
-            break;
-        }
-    }
-    
-    // If we couldn't find a timestamp column, just don't include it in the results
-    if ($timestampColumn) {
+    // Build query based on whether we have a metric ID filter
+    if ($metricId) {
+        // Get reports for specific metric only
         $stmt = $conn->prepare("
-            SELECT MetricID, Data, Quarter, Year, UNIX_TIMESTAMP($timestampColumn) as timestamp 
+            SELECT MetricID as id, Data, Quarter, Year
             FROM Metrics 
-            WHERE AgencyID = ? AND MetricType = 'custom_metrics_report'
-            ORDER BY Year DESC, Quarter DESC, $timestampColumn DESC
-        ");
-    } else {
-        // Fall back to not using a timestamp in the query
-        error_log("No timestamp column found, proceeding without timestamp ordering");
-        $stmt = $conn->prepare("
-            SELECT MetricID, Data, Quarter, Year
-            FROM Metrics 
-            WHERE AgencyID = ? AND MetricType = 'custom_metrics_report'
+            WHERE AgencyID = ? 
+            AND MetricType = 'single_custom_metric'
+            AND JSON_EXTRACT(Data, '$.metricId') = ?
             ORDER BY Year DESC, Quarter DESC
         ");
+        $stmt->execute([$agencyId, $metricId]);
+    } else {
+        // Get all single metric reports
+        $stmt = $conn->prepare("
+            SELECT MetricID as id, Data, Quarter, Year
+            FROM Metrics 
+            WHERE AgencyID = ? 
+            AND MetricType = 'single_custom_metric'
+            ORDER BY Year DESC, Quarter DESC
+        ");
+        $stmt->execute([$agencyId]);
     }
     
-    $stmt->execute([$agencyId]);
     $reports = [];
     $count = 0;
     
@@ -84,16 +67,19 @@ try {
         $data = json_decode($row['Data'], true);
         $count++;
         
-        // Format report for display - use lastUpdated from JSON if no timestamp column
+        // Get metric name from the data
+        $metricName = $data['metricName'] ?? 'Unknown Metric';
+        
+        // Format report for display
         $report = [
-            'id' => $row['MetricID'],
+            'id' => $row['id'],
             'year' => $row['Year'],
             'quarter' => $row['Quarter'],
+            'metricId' => $data['metricId'] ?? null,
+            'metricName' => $metricName,
             'reportDate' => $data['reportDate'] ?? null,
             'isDraft' => $data['isDraft'] ?? false,
-            'lastUpdated' => isset($row['timestamp']) ? 
-                date('Y-m-d H:i:s', $row['timestamp']) : 
-                ($data['lastUpdated'] ?? date('Y-m-d H:i:s'))
+            'lastUpdated' => $data['lastUpdated'] ?? date('Y-m-d H:i:s')
         ];
         
         $reports[] = $report;

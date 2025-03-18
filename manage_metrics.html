@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="css/tables.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/manage_metrics.css">
+    <link rel="stylesheet" href="css/metric_selector.css"> <!-- Add the new CSS file -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
@@ -148,9 +149,37 @@
         
         <!-- Tab 2: Report Data -->
         <div id="report-tab" class="tab-content">
-            <div class="dashboard-section">
+            <!-- Metric Selector Section -->
+            <div id="metricSelectorSection" class="dashboard-section">
                 <div class="section-header">
-                    <h3><i class="fas fa-chart-bar"></i> Report Metric Data</h3>
+                    <h3><i class="fas fa-list-alt"></i> Report Metric Data</h3>
+                </div>
+                
+                <p class="section-instructions">Select a metric to report data for:</p>
+                
+                <div class="form-group">
+                    <select id="metricSelector">
+                        <option value="">Select a metric to report</option>
+                        <!-- Will be populated via JavaScript -->
+                    </select>
+                </div>
+                
+                <div id="noMetricsForSelectorMessage" class="no-data-message" style="display: none;">
+                    <i class="fas fa-info-circle"></i>
+                    <p>No custom metrics defined yet. Please define metrics in the "Define Metrics" tab first.</p>
+                </div>
+            </div>
+            
+            <!-- Single Metric Report Form -->
+            <div id="singleMetricReportSection" class="dashboard-section" style="display: none;">
+                <div class="section-header">
+                    <h3>
+                        <i class="fas fa-chart-bar"></i> 
+                        Report Data: <span id="selectedMetricInfo">Selected Metric</span>
+                        <button id="backToMetricsBtn" class="icon-button" title="Back to Metrics List" style="margin-left: 10px;">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                    </h3>
                 </div>
                 
                 <div id="report-loading" class="loading-spinner">
@@ -189,12 +218,9 @@
                     </div>
                     
                     <div class="form-group">
-                        <label>Metric Values</label>
+                        <label>Metric Value</label>
                         <div id="metricValuesContainer" class="metrics-grid">
-                            <!-- Will be dynamically populated with metrics -->
-                            <div class="no-data-message" id="noMetricsForReportMessage">
-                                <p>No custom metrics defined yet. Please define metrics in the "Define Metrics" tab first.</p>
-                            </div>
+                            <!-- Will be dynamically populated with the selected metric -->
                         </div>
                     </div>
                     
@@ -228,6 +254,7 @@
                     <table class="data-table" id="reportsTable">
                         <thead>
                             <tr>
+                                <th>Metric</th>
                                 <th>Year/Quarter</th>
                                 <th>Report Date</th>
                                 <th>Status</th>

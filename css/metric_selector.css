@@ -1,0 +1,119 @@
+/* Styles for the metric selector dropdown and related UI */
+
+#metricSelectorSection {
+    margin-bottom: 30px;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+#metricSelector {
+    padding: 12px;
+    border: 1px solid #d5cdc3;
+    border-radius: 6px;
+    width: 100%;
+    font-size: 16px;
+    margin-top: 15px;
+}
+
+.section-instructions {
+    color: #75706a;
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+/* Metric selector animation */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(166, 155, 139, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(166, 155, 139, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(166, 155, 139, 0); }
+}
+
+#metricSelector:focus {
+    animation: pulse 1.5s infinite;
+    outline: none;
+    border-color: #a69b8b;
+}
+
+/* Selected metric info */
+#selectedMetricInfo {
+    font-weight: 600;
+    color: #5c564d;
+}
+
+/* Back button */
+#backToMetricsBtn {
+    background-color: #f8f6f5;
+    border: 1px solid #d5cdc3;
+    color: #5c564d;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+#backToMetricsBtn:hover {
+    background-color: #e3ded7;
+    transform: translateX(-3px);
+}
+
+/* Single metric report section */
+#singleMetricReportSection {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+/* Emphasize required fields */
+.form-group label .required {
+    color: #dc3545;
+    margin-left: 3px;
+    font-weight: 700;
+}
+
+/* Metric value styling */
+.metrics-grid {
+    margin-top: 15px;
+}
+
+/* Custom style for input with unit */
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+.input-group input {
+    border-radius: 6px 0 0 6px;
+    border-right: none;
+    flex: 1;
+    padding: 10px 15px;
+}
+
+.input-group-text {
+    padding: 10px 15px;
+    background-color: #f8f6f5;
+    border: 1px solid #d5cdc3;
+    border-left: none;
+    border-radius: 0 6px 6px 0;
+    color: #75706a;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    #metricSelector {
+        font-size: 14px;
+    }
+    
+    #backToMetricsBtn {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+    
+    .input-group-text {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+}

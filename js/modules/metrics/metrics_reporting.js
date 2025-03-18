@@ -15,13 +15,17 @@ export default function initMetricsReportingTab() {
         reportsContainer: document.getElementById('reportsTableContainer'),
         reportsLoading: document.getElementById('reports-loading'),
         noReportsMessage: document.getElementById('noReportsMessage'),
-        saveAsDraftBtn: document.getElementById('saveAsDraftBtn')
+        saveAsDraftBtn: document.getElementById('saveAsDraftBtn'),
+        selectedMetricInfo: document.getElementById('selectedMetricInfo'),
+        metricSelector: document.getElementById('metricSelector'),
+        backToMetricsBtn: document.getElementById('backToMetricsBtn')
     };
     
     // State tracking
     const state = {
         metricsLoaded: false,
-        loadingInProgress: false
+        loadingInProgress: false,
+        selectedMetricId: null
     };
     
     /**
@@ -33,15 +37,28 @@ export default function initMetricsReportingTab() {
         console.log("Initializing metrics reporting tab...");
         setupEventListeners();
         
-        // Clear any existing metric cards to prevent duplication issues
-        if (elements.metricValuesContainer) {
-            elements.metricValuesContainer.innerHTML = '';
+        // Check for selected metric from definition tab
+        const selectedMetricId = sessionStorage.getItem('selectedMetricId');
+        const selectedMetricName = sessionStorage.getItem('selectedMetricName');
+        
+        if (selectedMetricId && selectedMetricName) {
+            // Clear session storage to avoid persisting between page loads
+            sessionStorage.removeItem('selectedMetricId');
+            sessionStorage.removeItem('selectedMetricName');
+            
+            // Set as selected metric
+            state.selectedMetricId = selectedMetricId;
+            setSelectedMetric(selectedMetricId, selectedMetricName);
+        } else {
+            // Show metric selector mode
+            showMetricSelector();
         }
         
         // Initialize if already on the report tab
         if (document.getElementById('report-tab')?.classList.contains('active')) {
             setTimeout(() => {
-                loadAllData();
+                loadAvailableMetrics();
+                loadPreviousReports();
             }, 100);
         }
     }
@@ -57,109 +74,193 @@ export default function initMetricsReportingTab() {
             elements.saveAsDraftBtn.addEventListener('click', saveReportAsDraft);
         }
         
+        // Back button to return to metric selector
+        if (elements.backToMetricsBtn) {
+            elements.backToMetricsBtn.addEventListener('click', showMetricSelector);
+        }
+        
+        // Metric selector change
+        if (elements.metricSelector) {
+            elements.metricSelector.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                if (this.value) {
+                    setSelectedMetric(this.value, selectedOption.textContent);
+                }
+            });
+        }
+        
         // Tab activation
         document.addEventListener('tabactivated', (e) => {
             if (e.detail.tabId === 'report') {
-                loadAllData();
+                loadAvailableMetrics();
+                loadPreviousReports();
             }
         });
     }
     
-    // Load all data for the reporting tab
-    function loadAllData() {
-        if (!state.loadingInProgress && 
-            (!elements.metricValuesContainer.children.length || 
-             !state.metricsLoaded)) {
-            renderMetricInputFields();
-        }
-        loadPreviousReports();
-    }
-    
-    /**
-     * METRIC FIELDS RENDERING
-     */
-    
-    // Load metrics for the report form
-    async function renderMetricInputFields() {
-        if (!elements.metricValuesContainer || state.loadingInProgress) return;
-        
-        state.loadingInProgress = true;
-        
+    // Load available metrics for the selector
+    async function loadAvailableMetrics() {
         try {
-            // Show loading, hide form
-            setLoadingState(true);
+            const response = await fetch('php/metrics/manage_custom_metrics.php?operation=getMetrics');
+            const data = await response.json();
             
-            // Clear container & fetch metrics
-            elements.metricValuesContainer.innerHTML = '';
-            const data = await fetchMetrics();
-            
-            // Process response
-            if (!data.success || !data.data || data.data.length === 0) {
-                showNoMetricsMessage();
-                return;
+            if (data.success && data.data && data.data.length > 0) {
+                // Store metrics for later use
+                currentUser.customMetrics = data.data;
+                console.log(`Loaded ${data.data.length} metrics`, data.data);
+                
+                // Update the metric selector dropdown
+                if (elements.metricSelector) {
+                    // Clear existing options except the default
+                    elements.metricSelector.innerHTML = '<option value="">Select a metric to report</option>';
+                    
+                    // Add metrics to selector
+                    data.data.forEach(metric => {
+                        const option = document.createElement('option');
+                        option.value = metric.MetricID;
+                        option.textContent = metric.MetricName;
+                        elements.metricSelector.appendChild(option);
+                    });
+                    
+                    // Show metric selector section
+                    document.getElementById('metricSelectorSection').style.display = 'block';
+                    
+                    // Hide any error messages
+                    if (document.getElementById('noMetricsForSelectorMessage')) {
+                        document.getElementById('noMetricsForSelectorMessage').style.display = 'none';
+                    }
+                }
+            } else {
+                // No metrics available
+                console.log('No metrics available or error in response');
+                if (elements.noMetricsMessage) {
+                    elements.noMetricsMessage.style.display = 'block';
+                }
+                document.getElementById('metricSelectorSection').style.display = 'block';
+                document.getElementById('noMetricsForSelectorMessage').style.display = 'block';
             }
-            
-            // Store metrics and create cards
-            currentUser.customMetrics = data.data;
-            if (elements.noMetricsMessage) {
-                elements.noMetricsMessage.style.display = 'none';
-            }
-            
-            renderMetricCards(data.data);
-            state.metricsLoaded = true;
-            
         } catch (error) {
-            console.error('Error loading metrics:', error);
+            console.error('Error loading available metrics:', error);
             showNotification('Error loading metrics: ' + error.message, 'error');
-        } finally {
-            setLoadingState(false);
-            state.loadingInProgress = false;
         }
     }
     
-    // Fetch metrics from server
-    function fetchMetrics() {
-        return fetch('php/metrics/manage_custom_metrics.php?operation=getMetrics')
-            .then(response => response.json());
+    // Show the metric selector view
+    function showMetricSelector() {
+        // Hide report form and show selector
+        state.selectedMetricId = null;
+        document.getElementById('metricSelectorSection').style.display = 'block';
+        document.getElementById('singleMetricReportSection').style.display = 'none';
+        
+        // Reset form if it exists
+        if (elements.reportForm) {
+            elements.reportForm.reset();
+        }
     }
     
-    // Display no metrics message
-    function showNoMetricsMessage() {
-        if (elements.noMetricsMessage) {
-            elements.noMetricsMessage.style.display = 'block';
+    // Set the selected metric and show the report form
+    function setSelectedMetric(metricId, metricName) {
+        state.selectedMetricId = metricId;
+        
+        // Update the selected metric info display
+        if (elements.selectedMetricInfo) {
+            elements.selectedMetricInfo.textContent = metricName;
         }
         
-        elements.metricValuesContainer.innerHTML = `
-            <div class="no-data-message" style="display: block;">
-                <p>No custom metrics defined yet. Please define metrics in the "Define Metrics" tab first.</p>
-            </div>
-        `;
-    }
-    
-    // Set loading state for the form
-    function setLoadingState(isLoading) {
+        // Show the report section and hide selector
+        document.getElementById('metricSelectorSection').style.display = 'none';
+        document.getElementById('singleMetricReportSection').style.display = 'block';
+        
+        // Show loading state while rendering the field
         if (elements.reportLoading) {
-            elements.reportLoading.style.display = isLoading ? 'flex' : 'none';
+            elements.reportLoading.style.display = 'flex';
         }
         
         if (elements.reportForm) {
-            elements.reportForm.style.display = isLoading ? 'none' : 'block';
+            elements.reportForm.style.display = 'none';
         }
+        
+        // Add a slight delay to ensure DOM updates
+        setTimeout(() => {
+            // Render the form field for this specific metric
+            renderSelectedMetricField();
+        }, 50);
     }
     
-    // Render all metric cards
-    function renderMetricCards(metrics) {
-        metrics.forEach((metric, index) => {
-            createMetricCard(metric, index);
-        });
+    // Render the input field for the selected metric
+    function renderSelectedMetricField() {
+        if (!elements.metricValuesContainer || !state.selectedMetricId) {
+            console.error("Missing container element or metric ID");
+            return;
+        }
+        
+        console.log(`Rendering field for metric ID: ${state.selectedMetricId}`);
+        
+        // Clear the container
+        elements.metricValuesContainer.innerHTML = '';
+        
+        // Find the selected metric in our stored metrics
+        const metric = currentUser.customMetrics.find(m => m.MetricID == state.selectedMetricId);
+        
+        if (!metric) {
+            console.error('Selected metric not found in currentUser.customMetrics');
+            elements.metricValuesContainer.innerHTML = '<p>Error: Selected metric not found</p>';
+            
+            // Hide loading and show form even on error
+            if (elements.reportLoading) {
+                elements.reportLoading.style.display = 'none';
+            }
+            
+            if (elements.reportForm) {
+                elements.reportForm.style.display = 'block';
+            }
+            
+            return;
+        }
+        
+        console.log('Found metric:', metric);
+        
+        // Create a card for this metric
+        createMetricCard(metric, 0);
+        
+        // Hide loading and show form
+        if (elements.reportLoading) {
+            elements.reportLoading.style.display = 'none';
+        }
+        
+        if (elements.reportForm) {
+            elements.reportForm.style.display = 'block';
+        }
+        
+        // Auto-set today's date if the date field is empty
+        const dateField = document.getElementById('reportDate');
+        if (dateField && !dateField.value) {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            dateField.value = `${yyyy}-${mm}-${dd}`;
+        }
+        
+        // Focus on the first input field
+        setTimeout(() => {
+            const firstInput = elements.metricValuesContainer.querySelector('input, textarea, select');
+            if (firstInput) {
+                firstInput.focus();
+            }
+        }, 100);
     }
     
     // Create a single metric card
     function createMetricCard(metric, index) {
         // Skip if card already exists
-        if (document.querySelector(`.metric-card[data-metric-id="${metric.MetricID}"]`)) {
+        const existingCard = document.querySelector(`.metric-card[data-metric-id="${metric.MetricID}"]`);
+        if (existingCard) {
+            console.log(`Metric card ${metric.MetricID} already exists, skipping`);
             return;
         }
+        
+        console.log(`Creating card for metric: ${metric.MetricName}`);
         
         const metricCard = document.createElement('div');
         metricCard.className = 'metric-card animated-row';
@@ -295,7 +396,12 @@ export default function initMetricsReportingTab() {
             if (response.success) {
                 showNotification('Report submitted successfully', 'success');
                 elements.reportForm.reset();
-                setTimeout(loadPreviousReports, 500);
+                
+                // Reset to metric selector after successful submission
+                setTimeout(() => {
+                    showMetricSelector();
+                    loadPreviousReports();
+                }, 500);
             } else {
                 showNotification(response.message || 'Error submitting report', 'error');
             }
@@ -353,7 +459,7 @@ export default function initMetricsReportingTab() {
         return true;
     }
     
-    // Collect report form data
+    // Collect report form data - modified to include only the selected metric
     function collectReportData(isDraft) {
         const data = {
             year: document.getElementById('reportYear').value,
@@ -361,7 +467,8 @@ export default function initMetricsReportingTab() {
             reportDate: document.getElementById('reportDate').value,
             notes: document.getElementById('reportNotes').value,
             metricsData: {},
-            isDraft
+            isDraft,
+            metricId: state.selectedMetricId // Add the specific metric ID
         };
         
         // Add report ID if editing a draft
@@ -370,13 +477,14 @@ export default function initMetricsReportingTab() {
             data.reportId = reportId;
         }
         
-        // Collect metrics data
-        currentUser.customMetrics.forEach(metric => {
-            const field = document.getElementById(`metric_${metric.MetricID}`);
+        // Only collect data for the selected metric
+        const selectedMetric = currentUser.customMetrics.find(m => m.MetricID == state.selectedMetricId);
+        if (selectedMetric) {
+            const field = document.getElementById(`metric_${selectedMetric.MetricID}`);
             if (field && field.value.trim() !== '') {
-                data.metricsData[metric.MetricKey] = field.value.trim();
+                data.metricsData[selectedMetric.MetricKey] = field.value.trim();
             }
-        });
+        }
         
         return data;
     }
@@ -395,7 +503,7 @@ export default function initMetricsReportingTab() {
      * PREVIOUS REPORTS TABLE
      */
     
-    // Load previous reports
+    // Load previous reports - modified to filter by selected metric when one is selected
     async function loadPreviousReports() {
         if (!elements.reportsTable) return;
         
@@ -404,9 +512,13 @@ export default function initMetricsReportingTab() {
             elements.reportsLoading.style.display = 'flex';
             elements.reportsContainer.style.display = 'none';
             
-            // Fetch reports
-            const data = await fetch('php/metrics/get_custom_metrics_reports.php')
-                .then(response => response.json());
+            // Fetch reports, include metric ID if one is selected
+            let url = 'php/metrics/get_custom_metrics_reports.php';
+            if (state.selectedMetricId) {
+                url += `?metricId=${state.selectedMetricId}`;
+            }
+            
+            const data = await fetch(url).then(response => response.json());
             
             // Hide loading state
             elements.reportsLoading.style.display = 'none';
@@ -434,7 +546,7 @@ export default function initMetricsReportingTab() {
         } catch (error) {
             console.error('Error loading reports:', error);
             elements.reportsLoading.style.display = 'none';
-            elements.reportsTable.innerHTML = `<tr><td colspan="4">Error loading reports: ${error.message}</td></tr>`;
+            elements.reportsTable.innerHTML = `<tr><td colspan="5">Error loading reports: ${error.message}</td></tr>`;
         }
     }
     
@@ -473,6 +585,7 @@ export default function initMetricsReportingTab() {
         `;
         
         row.innerHTML = `
+            <td>${escapeHtml(report.metricName || 'Unknown Metric')}</td>
             <td>${report.year} ${report.quarter}</td>
             <td>${formatDate(report.reportDate)}</td>
             <td>${statusBadge}</td>
@@ -782,13 +895,15 @@ export default function initMetricsReportingTab() {
     function resetMetricsState() {
         state.metricsLoaded = false;
         state.loadingInProgress = false;
+        state.selectedMetricId = null;
     }
     
     // Return public API
     return {
         init,
-        renderMetricInputFields,
         loadPreviousReports,
-        resetMetricsState
+        resetMetricsState,
+        showMetricSelector,
+        setSelectedMetric
     };
 }

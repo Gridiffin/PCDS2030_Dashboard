@@ -271,6 +271,21 @@ function initModal() {
     };
 }
 
+// Add a debug logging utility to help track down the issue
+function debug(message, data = null) {
+    const debugEnabled = true; // Set to false in production
+    
+    if (!debugEnabled) return;
+    
+    const timestamp = new Date().toISOString().slice(11, 19); // HH:MM:SS
+    
+    if (data !== null) {
+        console.log(`[${timestamp}] 🔍 ${message}`, data);
+    } else {
+        console.log(`[${timestamp}] 🔍 ${message}`);
+    }
+}
+
 // Export functions and objects for use in other modules
 export {
     currentUser,
@@ -280,5 +295,6 @@ export {
     formatDataType,
     loadCurrentUser,
     initTabSystem,
-    initModal
+    initModal,
+    debug
 };

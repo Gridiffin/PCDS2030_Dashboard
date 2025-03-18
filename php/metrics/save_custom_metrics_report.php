@@ -5,7 +5,7 @@ require_once '../auth/check_session.php';
 // Set content type to JSON
 header('Content-Type: application/json');
 
-// Debug logging - write to error log for debugging
+// Debug logging
 error_log("save_custom_metrics_report.php called");
 
 // Check if user is authenticated
@@ -58,16 +58,24 @@ try {
     $conn = getDbConnection();
     
     // Basic validation
-    if (empty($inputData['year']) || empty($inputData['quarter']) || empty($inputData['reportDate'])) {
-        throw new Exception('Year, quarter, and report date are required');
+    if (empty($inputData['year']) || empty($inputData['quarter']) || empty($inputData['reportDate']) || empty($inputData['metricId'])) {
+        throw new Exception('Year, quarter, report date, and metric ID are required');
     }
     
     // Begin transaction
     $conn->beginTransaction();
     
+    // Get metric details
+    $metricStmt = $conn->prepare("SELECT * FROM CustomMetrics WHERE MetricID = ? AND AgencyID = ?");
+    $metricStmt->execute([$inputData['metricId'], $agencyId]);
+    $metric = $metricStmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$metric) {
+        throw new Exception('Metric not found or you do not have access to it');
+    }
+    
     // Check if this is a draft
     $isDraft = isset($inputData['isDraft']) && $inputData['isDraft'];
-    error_log("Is draft: " . ($isDraft ? "yes" : "no"));  // Debug log
     
     // Prepare the metric data for storage
     $metricData = [
@@ -79,7 +87,9 @@ try {
         'isDraft' => $isDraft,
         'lastUpdated' => date('Y-m-d H:i:s'),
         'submittedBy' => $_SESSION['username'],
-        'userId' => $userId
+        'userId' => $userId,
+        'metricId' => $inputData['metricId'],
+        'metricName' => $metric['MetricName']
     ];
     
     // Check if this is an update to an existing report
@@ -87,15 +97,13 @@ try {
     $reportId = $isUpdate ? $inputData['reportId'] : null;
     
     if ($isUpdate) {
-        error_log("Updating existing report: " . $reportId);  // Debug log
-        
         // Verify the report exists and belongs to the user's agency
         $checkStmt = $conn->prepare("
             SELECT MetricID 
             FROM Metrics 
             WHERE MetricID = ? 
             AND AgencyID = ? 
-            AND MetricType = 'custom_metrics_report'
+            AND MetricType = 'single_custom_metric'
         ");
         $checkStmt->execute([$reportId, $agencyId]);
         
@@ -116,19 +124,15 @@ try {
             $inputData['year'],
             $reportId
         ]);
-        
-        error_log("Report updated successfully");  // Debug log
     } else {
-        error_log("Creating new report");  // Debug log
-        
-        // Insert into the Metrics table with a special metric type for custom metrics reports
+        // Insert a new report using the single metric type
         $stmt = $conn->prepare('
             INSERT INTO Metrics (MetricType, Data, Quarter, Year, AgencyID) 
             VALUES (?, ?, ?, ?, ?)
         ');
         
         $stmt->execute([
-            'custom_metrics_report', // Special metric type to distinguish from regular metrics
+            'single_custom_metric', // Use special type for individual metric reports
             json_encode($metricData),
             $inputData['quarter'],
             $inputData['year'],
@@ -136,11 +140,10 @@ try {
         ]);
         
         $reportId = $conn->lastInsertId();
-        error_log("New report created with ID: " . $reportId);  // Debug log
     }
     
     // Log the action
-    $actionType = $isDraft ? ($isUpdate ? 'update_metrics_draft' : 'save_metrics_draft') : 'submit_metrics_report';
+    $actionType = $isDraft ? ($isUpdate ? 'update_single_metric_draft' : 'save_single_metric_draft') : 'submit_single_metric_report';
     $stmt = $conn->prepare('
         INSERT INTO logs (user_id, action, entity_type, entity_id, details, ip_address)
         VALUES (?, ?, ?, ?, ?, ?)
@@ -149,9 +152,9 @@ try {
     $stmt->execute([
         $userId,
         $actionType,
-        'metrics_report',
+        'single_metric_report',
         $reportId,
-        "Custom metrics report for {$inputData['quarter']} {$inputData['year']}",
+        "Single metric report for {$metric['MetricName']} - {$inputData['quarter']} {$inputData['year']}",
         $_SERVER['REMOTE_ADDR']
     ]);
     
@@ -161,10 +164,9 @@ try {
     $response = [
         'success' => true,
         'message' => $isDraft ? ($isUpdate ? 'Draft updated successfully' : 'Draft saved successfully') : 'Report submitted successfully',
-        'reportId' => $reportId
+        'reportId' => $reportId,
+        'metricName' => $metric['MetricName']
     ];
-    
-    error_log("Response: " . json_encode($response));  // Debug log
     
 } catch (Exception $e) {
     // Rollback transaction on error
@@ -172,7 +174,7 @@ try {
         $conn->rollBack();
     }
     
-    error_log("Error: " . $e->getMessage());  // Debug log
+    error_log("Error: " . $e->getMessage());
     $response['message'] = 'Error: ' . $e->getMessage();
 }
 

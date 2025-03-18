@@ -159,6 +159,11 @@
 .action-cell {
     white-space: nowrap;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    min-width: 120px; /* Ensures enough space for action buttons */
 }
 
 .icon-button {
@@ -169,6 +174,11 @@
     cursor: pointer;
     border-radius: 4px;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
 }
 
 .icon-button:hover {
@@ -350,5 +360,16 @@
     .pagination {
         flex-direction: column;
         gap: 10px;
+    }
+    
+    .data-table td.action-cell {
+        padding-left: 15px;
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+    
+    .icon-button {
+        padding: 12px; /* Larger touch targets for mobile */
     }
 }

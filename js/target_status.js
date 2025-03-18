@@ -14,26 +14,48 @@ document.addEventListener('DOMContentLoaded', function() {
     const newProgramName = document.getElementById('newProgramName');
     const programDescGroup = document.getElementById('programDescGroup');
     const programDesc = document.getElementById('programDesc');
-    // Remove metricTypeSelect and metricTypeHint references
-    // const metricTypeSelect = document.getElementById('metricType');
-    // const metricTypeHint = document.getElementById('metricTypeHint');
     const targetForm = document.getElementById('targetForm');
-    // Remove references to targetUnitSelect and customUnitGroup
     const statusForm = document.getElementById('statusForm');
     const saveAsDraftBtn = document.getElementById('saveAsDraft');
-    // Remove references to completionPercentage and completionOutput
     const detailModal = document.getElementById('detailModal');
     const modalContent = document.getElementById('modalContent');
     const notification = document.getElementById('notification');
     const usernameElement = document.getElementById('username');
     const agencyBadge = document.getElementById('agency-badge');
 
-    // Additional DOM elements for new fields - removed statusTypeSelect
-    // Remove references to targetTypeSelect and quantitativeFields
+    // Modal elements for the simple modal
+    const modalTitle = document.getElementById('modalTitle');
+    const closeModalBtn = document.querySelector('.simple-close');
+    const modalFooterBtn = document.querySelector('.simple-modal-footer .simple-button');
 
     // Initialize app
     init();
 
+    // Event listeners
+    programSelect.addEventListener('change', handleProgramSelect);
+    statusForm.addEventListener('submit', handleSubmit);
+    saveAsDraftBtn.addEventListener('click', saveAsDraft);
+    
+    // Set up modal event listeners
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', function() {
+            detailModal.classList.remove('active');
+        });
+    }
+    
+    if (modalFooterBtn) {
+        modalFooterBtn.addEventListener('click', function() {
+            detailModal.classList.remove('active');
+        });
+    }
+    
+    // Close modal when clicking outside the content
+    window.addEventListener('click', function(event) {
+        if (event.target === detailModal) {
+            detailModal.classList.remove('active');
+        }
+    });
+    
     // Function to get URL parameters
     function getUrlParameter(name) {
         name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
@@ -54,24 +76,10 @@ document.addEventListener('DOMContentLoaded', function() {
         loadDraft(draftId);
     }
 
-    // Event listeners
-    programSelect.addEventListener('change', handleProgramSelect);
-    // Remove targetUnitSelect event listener
-    statusForm.addEventListener('submit', handleSubmit);
-    document.querySelector('.close-modal').addEventListener('click', () => detailModal.classList.remove('active'));
-    saveAsDraftBtn.addEventListener('click', saveAsDraft);
-    
-    // Add event listeners for new fields - removed statusTypeSelect listener
-    // Remove the targetTypeSelect event listener
-
-    // Remove file upload event listener
-
     // Functions
     function init() {
         // Load current user data
         loadCurrentUser();
-        
-        // The rest of initialization will be done after user data is loaded
     }
 
     function loadCurrentUser() {
@@ -98,8 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 agencyBadge.textContent = currentUser.agencyName;
                 
                 // Now that we have user data, load everything else
-                // Remove loadMetricTypes call since we removed the field
-                // loadMetricTypes();
                 loadPrograms();
             })
             .catch(error => {
@@ -107,8 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification('Error loading user data: ' + error.message, 'error');
             });
     }
-
-    // Remove the loadMetricTypes function since we no longer need it
 
     function loadPrograms() {
         // Fetch programs for this agency from database
@@ -139,8 +143,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     programSelect.appendChild(draftsOptGroup);
                 }
-                
-                // Remove the section that adds existing programs - users will always create new programs
             })
             .catch(error => {
                 console.error('Error loading programs:', error);
@@ -289,16 +291,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (draft.year) document.getElementById('targetYear').value = draft.year;
                 if (draft.quarter) document.getElementById('targetQuarter').value = draft.quarter;
                 
-                // Remove code related to target type
-                
                 if (draft.targetDescription) document.getElementById('targetDescription').value = draft.targetDescription;
                 if (draft.targetDeadline) document.getElementById('targetDeadline').value = draft.targetDeadline;
                 
                 // Set status form fields
                 if (draft.statusDate) document.getElementById('statusDate').value = draft.statusDate;
                 if (draft.statusNotes) document.getElementById('statusNotes').value = draft.statusNotes;
-                
-                // Remove challenges field reference
                 
                 // Set the status color radio button if it exists
                 if (draft.statusColor) {
@@ -335,12 +333,6 @@ document.addEventListener('DOMContentLoaded', function() {
             programDescGroup.style.display = 'none';
         }
     }
-
-    // Removed handleUnitChange function
-
-    // Removed handleTargetTypeChange function
-
-    // Remove the updateCompletionOutput function since we no longer need it
 
     function handleSubmit(e) {
         e.preventDefault();
@@ -535,9 +527,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const hints = programSelect.parentElement.querySelectorAll('.form-hint');
             hints.forEach(hint => hint.remove());
         }
-        
-        // File info element no longer exists, remove this line
-        // document.querySelector('.file-info').textContent = 'No files selected';
     }
 
     function showNotification(message, type) {
@@ -711,4 +700,53 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+
+    function closeModal() {
+        detailModal.classList.remove('active');
+    }
+    
+    // Function to open modal (can be called from other parts of your code)
+    window.openModal = function(title, content) {
+        if (modalTitle) modalTitle.textContent = title;
+        if (modalContent) modalContent.innerHTML = content;
+        if (detailModal) detailModal.classList.add('active');
+    };
+});
+
+// Update modal functionality to work with the new modal design
+document.addEventListener('DOMContentLoaded', function() {
+    // Modal functionality for the redesigned modal
+    const modal = document.getElementById("detailModal");
+    const closeBtn = document.querySelector(".close-modal");
+    const footerBtn = document.querySelector(".modal-footer .modal-button");
+    
+    // Close when clicking the x button
+    if (closeBtn) {
+        closeBtn.addEventListener("click", function() {
+            modal.classList.remove("active");
+        });
+    }
+    
+    // Close when clicking the footer button
+    if (footerBtn) {
+        footerBtn.addEventListener("click", function() {
+            modal.classList.remove("active");
+        });
+    }
+    
+    // Close when clicking outside the modal content
+    window.addEventListener("click", function(event) {
+        if (event.target == modal) {
+            modal.classList.remove("active");
+        }
+    });
+    
+    // Function to open modal (can be called from other parts of your code)
+    window.openModal = function(title, content) {
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalBody").innerHTML = content; // Insert content into the body section
+        modal.classList.add("active");
+    };
+    
+    // Add any other modal-related functionality...
 });

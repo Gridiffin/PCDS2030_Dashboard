@@ -12,8 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const submissionsTable = document.getElementById('submissionsTable').querySelector('tbody');
     const noDataMessage = document.getElementById('noDataMessage');
     const detailModal = document.getElementById('detailModal');
-    const modalContent = document.getElementById('modalContent');
+    const modalBody = document.getElementById('modalBody'); // This is the correct element to use
+    const modalTitle = document.getElementById('modalTitle');
     const notification = document.getElementById('notification');
+    // Remove the reference to modalContent as it doesn't exist in the HTML
+    // const modalContent = document.getElementById('modalContent');
     const refreshSubmissionsBtn = document.getElementById('refreshSubmissions');
     const viewMetricTypeSelect = document.getElementById('viewMetricType');
     const viewAgencySelect = document.getElementById('viewAgency');
@@ -27,6 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Event listeners
     document.querySelector('.close-modal').addEventListener('click', () => detailModal.classList.remove('active'));
+    document.querySelector('.modal-footer .modal-button').addEventListener('click', () => detailModal.classList.remove('active'));
     refreshSubmissionsBtn.addEventListener('click', loadSubmissions);
     document.getElementById('viewYear').addEventListener('change', loadSubmissions);
     document.getElementById('viewQuarter').addEventListener('change', loadSubmissions);
@@ -419,8 +423,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        document.getElementById('modalTitle').textContent = "Confirm Deletion";
-        modalContent.innerHTML = confirmHtml;
+        modalTitle.textContent = "Confirm Deletion";
+        modalBody.innerHTML = confirmHtml;
         detailModal.classList.add('active');
         
         // Add event listeners for the buttons
@@ -451,8 +455,8 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        document.getElementById('modalTitle').textContent = "Confirm Draft Deletion";
-        modalContent.innerHTML = confirmHtml;
+        modalTitle.textContent = "Confirm Draft Deletion";
+        modalBody.innerHTML = confirmHtml;
         detailModal.classList.add('active');
         
         // Add event listeners
@@ -539,7 +543,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const submission = data.data;
 
                 // Set modal title
-                document.getElementById('modalTitle').textContent = submission.programName;
+                modalTitle.textContent = submission.programName;
 
                 // Format modal content - adjust for qualitative targets/statuses
                 const content = `
@@ -589,7 +593,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
 
                 // Set modal content
-                modalContent.innerHTML = content;
+                modalBody.innerHTML = content;
 
                 // Show modal
                 detailModal.classList.add('active');

@@ -175,15 +175,22 @@
         </div>
     </div>
     
-    <!-- Modal for viewing details -->
+    <!-- Updated Modal Structure -->
     <div id="detailModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h3 id="modalTitle">Program Details</h3>
-            <div id="modalContent"></div>
+            <div class="modal-header">
+                <h3 id="modalTitle">Details</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-button">Close</button>
+            </div>
         </div>
     </div>
-    
+
     <!-- Notification element -->
     <div id="notification" class="notification"></div>
     

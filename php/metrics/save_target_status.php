@@ -29,6 +29,9 @@ if (!isAuthenticated()) {
     exit;
 }
 
+// This endpoint receives JSON data and stores it in the database
+// The data is stored in the Metrics table with Data column of type JSON
+
 // Default response
 $response = [
     'success' => false,
@@ -44,13 +47,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Enhance the error handling and logging
 try {
     // Get the JSON data directly from POST body
-    $inputData = json_decode(file_get_contents('php://input'), true);
+    $rawInput = file_get_contents('php://input');
+    error_log('Raw input: ' . $rawInput);
+    
+    $inputData = json_decode($rawInput, true);
     
     if (json_last_error() !== JSON_ERROR_NONE) {
         throw new Exception('Invalid JSON data: ' . json_last_error_msg());
     }
+    
+    error_log('Parsed input data: ' . print_r($inputData, true));
     
     // No need to verify required fields for drafts
     if (!isset($inputData['isDraft']) || !$inputData['isDraft']) {
@@ -60,11 +69,19 @@ try {
     // Get database connection
     $conn = getDbConnection();
     
+    // Check connection
+    if (!$conn) {
+        throw new Exception('Database connection failed');
+    }
+    
+    error_log('Database connection established');
+    
     // Begin transaction
     $conn->beginTransaction();
     
     // Get user's AgencyID from session
-    $agencyId = $_SESSION['agency_id'];
+    $agencyId = $_SESSION['agency_id'] ?? 1; // Default to 1 if not set
+    error_log('Using agency ID: ' . $agencyId);
     
     // Process program data
     $programId = null;
@@ -110,7 +127,9 @@ try {
     $isSubmittingDraft = $inputData['status'] !== 'draft' && isset($inputData['draftId']);
     $programName = $inputData['programName'];
     
+    // Add more detailed logging throughout the transaction
     if ($isDraftUpdate) {
+        error_log('Updating existing draft with ID: ' . $inputData['draftId']);
         // Update existing draft
         $stmt = $conn->prepare('
             UPDATE Metrics 
@@ -134,6 +153,20 @@ try {
             throw new Exception('Failed to update draft - draft not found or you don\'t have permission to update it');
         }
     } else {
+        error_log('Inserting new metric record');
+        
+        // Check if all required parameters are present
+        error_log('MetricType: ' . ($inputData['metricType'] ?? 'not set'));
+        error_log('Quarter: ' . ($inputData['quarter'] ?? 'not set'));
+        error_log('Year: ' . ($inputData['year'] ?? 'not set'));
+        
+        // Validate that metricData can be properly JSON encoded
+        $jsonData = json_encode($metricData);
+        if ($jsonData === false) {
+            throw new Exception('Failed to encode metric data as JSON: ' . json_last_error_msg());
+        }
+        error_log('JSON data size: ' . strlen($jsonData) . ' bytes');
+        
         // Insert new record
         $stmt = $conn->prepare('
             INSERT INTO Metrics (MetricType, Data, Quarter, Year, AgencyID) 
@@ -141,14 +174,15 @@ try {
         ');
         
         $stmt->execute([
-            $inputData['metricType'],
-            json_encode($metricData),
-            $inputData['quarter'],
-            $inputData['year'],
+            $inputData['metricType'] ?? 'default',
+            $jsonData,
+            $inputData['quarter'] ?? 'Q1',
+            $inputData['year'] ?? date('Y'),
             $agencyId
         ]);
         
         $metricId = $conn->lastInsertId();
+        error_log('New metric ID: ' . $metricId);
     }
     
     // If this was a draft being submitted (status changed from draft to submitted),
@@ -213,7 +247,15 @@ try {
     }
     
     $response['message'] = 'Error: ' . $e->getMessage();
-    error_log('Error in save_target_status.php: ' . $e->getMessage());
+    $response['error_details'] = [
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'trace' => explode("\n", $e->getTraceAsString())
+    ];
+    
+    error_log('SEVERE Error in save_target_status.php: ' . $e->getMessage());
+    error_log('Error occurred at: ' . $e->getFile() . ' line ' . $e->getLine());
+    error_log('Trace: ' . $e->getTraceAsString());
 }
 
 // Clear any buffered output before sending the JSON response

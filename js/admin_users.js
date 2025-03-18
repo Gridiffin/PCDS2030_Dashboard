@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load agencies dropdown
     loadAgencies();
     
+    // Load sectors for filtering
+    loadSectors();
+    
     // Load initial user data
     loadUsers();
     
@@ -112,25 +115,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function loadUsers() {
-        // Add a loader to the table body while loading
         usersTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading users...</td></tr>';
         
-        // Fetch users from the server - use correct relative path
-        fetch('/pcds2030_dashboard/php/admin/manage_users.php?operation=get')  // Changed to absolute path
+        console.log('Loading users data - start of function');
+        
+        fetch('/pcds2030_dashboard/php/admin/manage_users.php?operation=get')
             .then(response => {
+                console.log('Users response status:', response.status);
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
                 return response.text();
             })
             .then(text => {
-                console.log("Raw user data response:\n", text); // Debug log raw response
-                const data = JSON.parse(text);
-                if (data.success) {
-                    renderUsersTable(data.data);
-                } else {
-                    usersTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Failed to load users: ' + 
-                        (data.message || 'Unknown error') + '</td></tr>';
+                console.log("Raw user data response preview:", text.substring(0, 500));
+                try {
+                    const data = JSON.parse(text);
+                    if (data.success) {
+                        renderUsersTable(data.data);
+                    } else {
+                        console.error('Failed to load users:', data.message);
+                        usersTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Failed to load users: ' + 
+                            (data.message || 'Unknown error') + '</td></tr>';
+                    }
+                } catch (err) {
+                    console.error("JSON parse error:", err, "Raw response preview:", text.substring(0, 100));
+                    usersTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Error parsing user data</td></tr>';
                 }
             })
             .catch(error => {
@@ -280,28 +290,89 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
     
+    // Function to load sectors for filtering
+    function loadSectors() {
+        console.log('Loading sectors - start of function');
+        
+        fetch('/pcds2030_dashboard/php/admin/manage_users.php?operation=getSectors')
+            .then(response => {
+                console.log('Sectors response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(text => {
+                try {
+                    console.log("Raw sectors API response:", text);
+                    
+                    const data = JSON.parse(text);
+                    console.log('Sectors data received:', data);
+                    
+                    // Update the filter dropdown
+                    if (data.success && data.data) {
+                        const filterSectorSelect = document.getElementById('filterDepartment');
+                        if (filterSectorSelect) {
+                            filterSectorSelect.innerHTML = '<option value="">All Sectors</option>';
+                            
+                            if (data.data.length === 0) {
+                                console.warn('No sectors found in database');
+                            }
+                            
+                            data.data.forEach(sector => {
+                                const option = document.createElement('option');
+                                option.value = sector.id || sector.name;
+                                option.textContent = sector.name;
+                                filterSectorSelect.appendChild(option);
+                            });
+                        }
+                    } else {
+                        console.error('Failed to load sectors:', data.message || 'Unknown error');
+                    }
+                } catch (err) {
+                    console.error("JSON parse error:", err, "Raw response preview:", text);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading sectors:', error);
+                // Use fallback options for the sectors dropdown
+            });
+    }
+    
     function renderUsersTable(users) {
         usersTableBody.innerHTML = '';
         if (!users || users.length === 0) {
             const row = document.createElement('tr');
-            row.innerHTML = '<td colspan="7" class="text-center">No users found</td>';
+            row.innerHTML = '<td colspan="7" style="text-align: center;">No users found</td>';
             usersTableBody.appendChild(row);
             return;
         }
+        
+        console.log("User data for debugging:", users);
+        
         users.forEach(user => {
             const row = document.createElement('tr');
             const statusClass = user.status === 'active' ? 'status-success' : 'status-warning';
             
+            // Access sector name with various case possibilities
+            const sectorName = user.SectorName || user.sectorName || user.Sector || user.sector || 'N/A';
+            
             row.innerHTML = `
                 <td>${escapeHtml(user.username || '')}</td>
-                <td>${escapeHtml(user.AgencyName || 'N/A')}</td>
-                <td>${escapeHtml(user.RoleName || 'N/A')}</td>
+                <td>${escapeHtml(user.AgencyName || '')}</td>
+                <td>${escapeHtml(sectorName)}</td>
+                <td>${escapeHtml(user.RoleName || '')}</td>
                 <td>${escapeHtml(user.last_login || 'Never')}</td>
                 <td><span class="${statusClass}">${user.status === 'active' ? 'Active' : 'Inactive'}</span></td>
                 <td class="action-cell">
-                    <!-- ...existing buttons... -->
-                    <button class="delete-btn" data-id="${user.UserID}">
-                        <i class="fas fa-trash-alt"></i> Delete
+                    <button class="icon-button edit-btn" data-id="${user.UserID}" title="Edit User">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="icon-button delete-btn" data-id="${user.UserID}" title="Delete User">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="icon-button reset-pwd-btn" data-id="${user.UserID}" title="Reset Password">
+                        <i class="fas fa-key"></i>
                     </button>
                 </td>
             `;
@@ -373,6 +444,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function filterUsers() {
         const searchTerm = searchUserInput.value.toLowerCase();
         const roleFilter = filterRoleSelect.value;
+        const sectorFilter = filterDepartmentSelect.value; // This is actually the sector filter
         
         // Get all table rows
         const rows = usersTableBody.querySelectorAll('tr');
@@ -380,17 +452,21 @@ document.addEventListener('DOMContentLoaded', function() {
         rows.forEach(row => {
             const username = row.cells[0]?.textContent.toLowerCase() || '';
             const agency = row.cells[1]?.textContent.toLowerCase() || '';
-            const role = row.cells[2]?.textContent.toLowerCase() || '';
+            const sector = row.cells[2]?.textContent.toLowerCase() || '';
+            const role = row.cells[3]?.textContent.toLowerCase() || '';
             
             // Check if row matches all filters
             const matchesSearch = username.includes(searchTerm) || 
-                                  agency.includes(searchTerm);
+                                agency.includes(searchTerm);
             
             const matchesRole = !roleFilter || 
-                                role === document.querySelector(`#filterRole option[value="${roleFilter}"]`)?.textContent.toLowerCase();
+                               role === document.querySelector(`#filterRole option[value="${roleFilter}"]`)?.textContent.toLowerCase();
+            
+            const matchesSector = !sectorFilter || 
+                                 sector.includes(sectorFilter.toLowerCase());
             
             // Show or hide row
-            row.style.display = (matchesSearch && matchesRole) ? '' : 'none';
+            row.style.display = (matchesSearch && matchesRole && matchesSector) ? '' : 'none';
         });
     }
     

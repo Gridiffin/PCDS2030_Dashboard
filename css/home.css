@@ -590,7 +590,7 @@ button[type="submit"]:hover i {
     font-style: italic;
 }
 
-/* Password toggle icon - updated positioning */
+/* Password toggle button - combined and cleaned up */
 .password-toggle {
     position: absolute;
     right: 12px;
@@ -611,39 +611,23 @@ button[type="submit"]:hover i {
     background-color: rgba(164, 152, 133, 0.1);
 }
 
-/* Adjust right padding for password input to make room for the eye icon */
-.input-group .input-with-icon input[type="password"],
-.input-group .input-with-icon input[type="text"] {
-    padding-right: 45px;
-}
-
-/* Password toggle icon */
-.password-toggle {
-    position: absolute;
-    right: 12px;
-    color: #999;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.password-toggle:hover {
-    color: #24252A;
+/* Eye icon states */
+.password-toggle .fa-eye-slash {
+    display: none;
 }
 
 .password-toggle.visible .fa-eye {
     display: none;
 }
 
-.password-toggle:not(.visible) .fa-eye-slash {
-    display: none;
+.password-toggle.visible .fa-eye-slash {
+    display: inline-block;
 }
 
 /* Adjust right padding for password input to make room for the eye icon */
-.input-group:has(#password) .input-with-icon input {
-    padding-right: 40px;
+.input-group .input-with-icon input[type="password"],
+.input-group .input-with-icon input[type="text"] {
+    padding-right: 45px;
 }
 
 .dashboard-button, .admin-dashboard-button {

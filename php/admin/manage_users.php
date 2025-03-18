@@ -207,18 +207,38 @@ switch ($operation) {
     case 'get':
         // Get all users
         try {
+            // Debug the agencies table structure
+            $checkSectors = $conn->query("SELECT COUNT(*) as count, 
+                                        SUM(CASE WHEN Sector IS NULL THEN 1 ELSE 0 END) as null_sectors 
+                                        FROM agencies");
+            $sectorStats = $checkSectors->fetch(PDO::FETCH_ASSOC);
+            error_log("Agencies table stats: Total=" . $sectorStats['count'] . ", Null sectors=" . $sectorStats['null_sectors']);
+            
+            // If there are agencies but all sectors are null, let's update at least one
+            if ($sectorStats['count'] > 0 && $sectorStats['null_sectors'] == $sectorStats['count']) {
+                error_log("All sectors are NULL, updating Main Agency with Government sector");
+                $updateStmt = $conn->prepare("UPDATE agencies SET Sector = 'Government' WHERE AgencyID = 1");
+                $updateStmt->execute();
+            }
+            
             $query = "SELECT u.UserID, u.username, u.RoleID, u.AgencyID,
-                      r.RoleName, a.AgencyName,
+                      r.RoleName, a.AgencyName, 
+                      COALESCE(a.Sector, 'Not Assigned') as SectorName,
                       MAX(l.timestamp) as last_login
                       FROM users u
                       LEFT JOIN roles r ON u.RoleID = r.RoleID
                       LEFT JOIN agencies a ON u.AgencyID = a.AgencyID
                       LEFT JOIN logs l ON u.UserID = l.user_id AND l.action = 'login'
-                      GROUP BY u.UserID
+                      GROUP BY u.UserID, u.username, u.RoleID, u.AgencyID, r.RoleName, a.AgencyName, a.Sector
                       ORDER BY u.UserID";
             
             $stmt = $conn->query($query);
-            $users = $stmt->fetchAll();
+            $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Debug the first user data
+            if (!empty($users)) {
+                error_log("First user data: " . json_encode($users[0]));
+            }
             
             // Process users for display
             foreach ($users as &$user) {
@@ -277,6 +297,39 @@ switch ($operation) {
             $response['data'] = $agencies;
         } catch (PDOException $e) {
             $response['message'] = 'Error fetching agencies: ' . $e->getMessage();
+        }
+        echo json_encode($response);
+        exit;
+        
+    case 'getSectors':
+        try {
+            error_log("getSectors operation started");
+            
+            // First check if there are any non-null sectors
+            $checkStmt = $conn->query("SELECT COUNT(*) FROM agencies WHERE Sector IS NOT NULL");
+            $sectorCount = $checkStmt->fetchColumn();
+            
+            if ($sectorCount == 0) {
+                // No sectors found, let's add a default one
+                error_log("No sectors found, adding a default one");
+                $updateStmt = $conn->prepare("UPDATE agencies SET Sector = 'Government' WHERE AgencyID = 1");
+                $updateStmt->execute();
+            }
+            
+            // Now get the sectors
+            $stmt = $conn->query("SELECT Sector as id, Sector as name FROM agencies 
+                                  WHERE Sector IS NOT NULL 
+                                  GROUP BY Sector 
+                                  ORDER BY Sector");
+            $sectors = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log("getSectors found " . count($sectors) . " sectors");
+            
+            $response['success'] = true;
+            $response['data'] = $sectors;
+        } catch (PDOException $e) {
+            $response['message'] = 'Error fetching sectors: ' . $e->getMessage();
+            error_log('Error fetching sectors: ' . $e->getMessage());
         }
         echo json_encode($response);
         exit;

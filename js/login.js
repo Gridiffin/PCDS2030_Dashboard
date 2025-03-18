@@ -1,10 +1,10 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('errorMessage');
     const notification = document.getElementById('notification');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
 
     // Add input event listeners for interactive validation
     usernameInput.addEventListener('input', function() {
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000);
     }
 
-    // Add password toggle functionality - improved with animation
+    // Add password toggle functionality - only keep this implementation
     if (passwordInput) {
         // Get the existing button if it exists
         let toggleBtn = document.getElementById('betterTogglePassword');

@@ -177,28 +177,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Set target form fields
                 document.getElementById('targetYear').value = submission.year;
                 document.getElementById('targetQuarter').value = submission.quarter;
-                document.getElementById('indicatorName').value = submission.indicator;
-                document.getElementById('targetValue').value = submission.targetValue;
-                document.getElementById('targetUnit').value = submission.targetUnit === 'other' ? 'other' : submission.targetUnit;
-
-                if (submission.targetUnit === 'other') {
-                    document.getElementById('customUnit').value = submission.targetUnit;
-                    customUnitGroup.style.display = 'block';
+                
+                // Set target description if it exists
+                if (submission.description) {
+                    document.getElementById('targetDescription').value = submission.description;
                 }
-
+                
+                // Set target deadline if it exists
                 if (submission.targetDeadline) {
                     document.getElementById('targetDeadline').value = submission.targetDeadline;
                 }
 
-                document.getElementById('targetDescription').value = submission.description || '';
-
                 // Set status form fields
-                document.getElementById('currentValue').value = submission.currentValue;
                 document.getElementById('statusDate').value = submission.statusDate;
-                document.getElementById('completionPercentage').value = submission.completionPercentage;
-                completionOutput.textContent = `${submission.completionPercentage}%`;
                 document.getElementById('statusNotes').value = submission.statusNotes;
-                document.getElementById('challenges').value = submission.challenges || '';
 
                 // Set the status color radio button
                 if (submission.statusColor) {
@@ -214,8 +206,6 @@ document.addEventListener('DOMContentLoaded', function() {
                             defaultColor = 'completed';
                             break;
                         case 'nearly-complete':
-                            defaultColor = 'progress';
-                            break;
                         case 'in-progress':
                             defaultColor = 'progress';
                             break;
@@ -304,16 +294,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (draft.targetDescription) document.getElementById('targetDescription').value = draft.targetDescription;
                 if (draft.targetDeadline) document.getElementById('targetDeadline').value = draft.targetDeadline;
                 
-                // Remove the code that sets target value and unit fields
-                
                 // Set status form fields
                 if (draft.statusDate) document.getElementById('statusDate').value = draft.statusDate;
                 if (draft.statusNotes) document.getElementById('statusNotes').value = draft.statusNotes;
                 
-                // Remove the code setting current value and completion percentage
+                // Remove challenges field reference
                 
-                if (draft.challenges) document.getElementById('challenges').value = draft.challenges;
-
                 // Set the status color radio button if it exists
                 if (draft.statusColor) {
                     const colorRadio = document.querySelector(`input[name="statusColor"][value="${draft.statusColor}"]`);
@@ -535,11 +521,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('targetForm').reset();
         document.getElementById('statusForm').reset();
         
-        // Reset UI state
-        customUnitGroup.style.display = 'none';
+        // Reset UI state - remove reference to customUnitGroup
         newProgramGroup.style.display = 'none';
         programDescGroup.style.display = 'none';
-        // Remove setting completionOutput.textContent
         
         // Remove the draft program name input if it exists
         const draftProgramNameInput = document.getElementById('draftProgramName');
@@ -614,8 +598,6 @@ document.addEventListener('DOMContentLoaded', function() {
             programName = programSelect.options[programSelect.selectedIndex].text;
         }
         
-        // Remove collection of target value and unit
-        
         const statusDate = document.getElementById('statusDate').value;
         const statusNotes = document.getElementById('statusNotes').value;
         
@@ -641,8 +623,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 statusCategory = 'in-progress';
         }
         
-        const challenges = document.getElementById('challenges').value;
-        
         // Create a summarized version of the target for display in table
         const targetSummary = (targetDescription.length > 30) ? 
             targetDescription.substring(0, 30) + '...' : 
@@ -651,7 +631,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Create a summarized version of the status for display in table
         const statusSummary = statusNotes.length > 30 ? statusNotes.substring(0, 30) + '...' : statusNotes;
 
-        // Create the data object without target value and unit
+        // Create the data object without target value and unit and without challenges field
         const formData = {
             programId,
             programName,
@@ -668,7 +648,6 @@ document.addEventListener('DOMContentLoaded', function() {
             statusSummary,
             statusCategory, // Derived from statusColor
             statusColor,    // Directly from radio selection
-            challenges,
             isDraft
         };
 

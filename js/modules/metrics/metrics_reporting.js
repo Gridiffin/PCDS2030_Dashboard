@@ -46,11 +46,11 @@ export default function initMetricsReportingTab() {
             sessionStorage.removeItem('selectedMetricId');
             sessionStorage.removeItem('selectedMetricName');
             
-            // Set as selected metric
+            // Set as selected metric and skip the metric selector entirely
             state.selectedMetricId = selectedMetricId;
             setSelectedMetric(selectedMetricId, selectedMetricName);
         } else {
-            // Show metric selector mode
+            // Show metric selector mode (only when there's no specific metric selected)
             showMetricSelector();
         }
         
@@ -98,7 +98,7 @@ export default function initMetricsReportingTab() {
         });
     }
     
-    // Load available metrics for the selector
+    // Load available metrics for the selector - modified to return a Promise
     async function loadAvailableMetrics() {
         try {
             const response = await fetch('php/metrics/manage_custom_metrics.php?operation=getMetrics');
@@ -122,8 +122,10 @@ export default function initMetricsReportingTab() {
                         elements.metricSelector.appendChild(option);
                     });
                     
-                    // Show metric selector section
-                    document.getElementById('metricSelectorSection').style.display = 'block';
+                    // Show metric selector section only if no specific metric is selected
+                    if (!state.selectedMetricId) {
+                        document.getElementById('metricSelectorSection').style.display = 'block';
+                    }
                     
                     // Hide any error messages
                     if (document.getElementById('noMetricsForSelectorMessage')) {
@@ -139,9 +141,12 @@ export default function initMetricsReportingTab() {
                 document.getElementById('metricSelectorSection').style.display = 'block';
                 document.getElementById('noMetricsForSelectorMessage').style.display = 'block';
             }
+            
+            return true;
         } catch (error) {
             console.error('Error loading available metrics:', error);
             showNotification('Error loading metrics: ' + error.message, 'error');
+            return false;
         }
     }
     
@@ -167,7 +172,7 @@ export default function initMetricsReportingTab() {
             elements.selectedMetricInfo.textContent = metricName;
         }
         
-        // Show the report section and hide selector
+        // Show the report section and hide selector - always hide selector when a metric is selected
         document.getElementById('metricSelectorSection').style.display = 'none';
         document.getElementById('singleMetricReportSection').style.display = 'block';
         
@@ -180,11 +185,20 @@ export default function initMetricsReportingTab() {
             elements.reportForm.style.display = 'none';
         }
         
-        // Add a slight delay to ensure DOM updates
-        setTimeout(() => {
-            // Render the form field for this specific metric
-            renderSelectedMetricField();
-        }, 50);
+        // Ensure metrics are loaded even if we bypassed the selector
+        if (!currentUser.customMetrics || currentUser.customMetrics.length === 0) {
+            loadAvailableMetrics().then(() => {
+                renderSelectedMetricField();
+            });
+        } else {
+            // Add a slight delay to ensure DOM updates
+            setTimeout(() => {
+                renderSelectedMetricField();
+            }, 50);
+        }
+        
+        // Also load previous reports filtered for this specific metric
+        loadPreviousReports();
     }
     
     // Render the input field for the selected metric

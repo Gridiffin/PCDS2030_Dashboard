@@ -84,10 +84,6 @@ export default function initMetricsDefinitionTab() {
                     <button type="button" class="icon-button edit-btn" data-id="${metric.MetricID}" title="Edit Metric">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button type="button" class="icon-button report-btn" data-id="${metric.MetricID}" 
-                            data-name="${escapeHtml(metric.MetricName)}" title="Report Data">
-                        <i class="fas fa-chart-line"></i>
-                    </button>
                     <button type="button" class="icon-button delete-btn" data-id="${metric.MetricID}" 
                             data-name="${escapeHtml(metric.MetricName)}" title="Delete Metric">
                         <i class="fas fa-trash"></i>
@@ -120,31 +116,6 @@ export default function initMetricsDefinitionTab() {
                 confirmDeleteMetric(metricId, metricName);
             });
         });
-        
-        // Add report data button listeners
-        document.querySelectorAll('.report-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const metricId = this.getAttribute('data-id');
-                const metricName = this.getAttribute('data-name');
-                redirectToReportForm(metricId, metricName);
-            });
-        });
-    }
-    
-    // Function to redirect to the report form for a specific metric
-    function redirectToReportForm(metricId, metricName) {
-        // Navigate to the report tab with the selected metric ID
-        const reportTab = document.querySelector('.tab[data-tab="report"]');
-        if (reportTab) {
-            // Store selected metric in sessionStorage
-            sessionStorage.setItem('selectedMetricId', metricId);
-            sessionStorage.setItem('selectedMetricName', metricName);
-            
-            // Trigger click on the report tab
-            reportTab.click();
-        } else {
-            console.error('Report tab not found');
-        }
     }
     
     // Form functions

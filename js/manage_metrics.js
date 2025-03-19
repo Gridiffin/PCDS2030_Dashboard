@@ -27,6 +27,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     metricsReporting.init();
     console.log("Metrics reporting tab initialized");
     
+    // Event listener for tab changes that need special handling
+    document.addEventListener('tabactivated', (e) => {
+        console.log(`Tab activated: ${e.detail.tabId}`);
+        // If moving to report tab with a metric already selected via definition tab
+        if (e.detail.tabId === 'report' && sessionStorage.getItem('selectedMetricId')) {
+            console.log('Direct metric reporting selected');
+            // The metrics_reporting module will handle the selected metric internally
+        }
+    });
+    
     // Fix the modal close button and prevent default behavior
     const modal = document.getElementById('detailModal');
     const closeModalBtn = document.querySelector('.close-modal');

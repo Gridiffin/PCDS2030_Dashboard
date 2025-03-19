@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Time Series Metrics</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/user_dashboard.css">
+    <link rel="stylesheet" href="css/forms.css">
+    <link rel="stylesheet" href="css/tables.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/time_series.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <div class="header-left">
+            <img class="logo" src="assets/images/logo.png" alt="logo">
+        </div>
+        <div class="header-right">
+            <span class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="username">User</span>
+                <span id="agency-badge" class="agency-badge">Agency</span>
+            </span>
+            <a class="cta" href="user_dashboard.html"><button><i class="fas fa-home"></i> Dashboard</button></a>
+        </div>
+    </header>
+    
+    <div class="dashboard-container">
+        <div class="welcome-banner">
+            <h1>Time Series Metrics</h1>
+            <p>Report and track monthly or quarterly data using efficient table-based entry</p>
+        </div>
+        
+        <!-- Metric Selector Section -->
+        <div id="metricSelectorSection" class="dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-list-alt"></i> Select Time Series Metric</h3>
+            </div>
+            
+            <p class="section-instructions">Select a metric to report monthly or quarterly values:</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <select id="metricSelector" class="full-width">
+                        <option value="">Select a metric</option>
+                        <!-- Will be populated via JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="yearSelector" class="full-width">
+                        <option value="">Select year</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="noMetricsMessage" class="no-data-message" style="display: none;">
+                <i class="fas fa-info-circle"></i>
+                <p>No time series metrics available for your agency. Please contact an administrator.</p>
+            </div>
+        </div>
+        
+        <!-- Time Series Data Entry Section -->
+        <div id="timeSeriesEntrySection" class="dashboard-section" style="display: none;">
+            <div class="section-header">
+                <h3>
+                    <button id="backToMetricsBtn" class="icon-button back-button" title="Back to Metrics List">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <span id="selectedMetricInfo">Selected Metric</span> - <span id="selectedYear">Year</span>
+                </h3>
+            </div>
+            
+            <div id="dataEntry-loading" class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            
+            <form id="timeSeriesForm" style="display: none;">
+                <div class="time-series-table-container">
+                    <table class="time-series-table" id="timeSeriesTable">
+                        <thead>
+                            <tr>
+                                <th class="month-header">Month</th>
+                                <th class="value-header">Value <span class="unit-display"></span></th>
+                                <th class="notes-header">Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Will be populated via JavaScript -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td><strong>Total</strong></td>
+                                <td><span id="totalValue">0</span> <span class="unit-display"></span></td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="form-group">
+                    <label for="annualNotes">Annual Notes</label>
+                    <textarea id="annualNotes" rows="3" placeholder="Add any notes that apply to the entire year"></textarea>
+                </div>
+                
+                <div class="chart-preview">
+                    <h4><i class="fas fa-chart-line"></i> Chart Preview</h4>
+                    <div id="chartContainer" class="chart-container">
+                        <canvas id="timeSeriesChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="saveAsDraftBtn" class="secondary-button">
+                        <i class="fas fa-save"></i> Save as Draft
+                    </button>
+                    <button type="submit" class="primary-button">
+                        <i class="fas fa-paper-plane"></i> Submit Data
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Previous Reports Section -->
+        <div id="previousReportsSection" class="dashboard-section">
+            <div class="section-header">
+                <h3><i class="fas fa-history"></i> Previous Submissions</h3>
+            </div>
+            
+            <div id="reports-loading" class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            
+            <div class="table-container" id="reportsTableContainer" style="display: none;">
+                <table class="data-table" id="reportsTable">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Year</th>
+                            <th>Last Updated</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Will be populated via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="noReportsMessage" class="no-data-message" style="display: none;">
+                <p>No reports submitted yet. Select a metric and year above to submit data.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for viewing details -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Details</h3>
+                <span class="close-modal">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be dynamically inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-button">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast notification element -->
+    <div id="toast-notification" class="toast-notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="toast-message"></span>
+    </div>
+    
+    <footer>
+        <div class="copyright">&copy; 2025 PCDS2030. All rights reserved.</div>
+    </footer>
+    
+    <script src="js/time_series_metrics.js" type="module"></script>
+    <script src="js/mobile.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+</body>
+</html>

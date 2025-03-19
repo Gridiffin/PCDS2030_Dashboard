@@ -1,0 +1,150 @@
+/* Styles for time series data entry */
+
+.time-series-table-container {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.time-series-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: #fff;
+}
+
+.time-series-table th,
+.time-series-table td {
+    padding: 12px 15px;
+    border: 1px solid #e3ded7;
+    text-align: left;
+}
+
+.time-series-table thead th {
+    background-color: #f8f6f5;
+    color: #5c564d;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+}
+
+.time-series-table tbody tr:hover {
+    background-color: #f8f6f5;
+}
+
+.time-series-table tfoot {
+    background-color: #f8f6f5;
+    font-weight: 600;
+}
+
+.time-series-table tfoot tr td {
+    border-top: 2px solid #d5cdc3;
+}
+
+/* Column widths */
+.month-header {
+    width: 120px;
+}
+
+.value-header {
+    width: 150px;
+}
+
+.notes-header {
+    width: auto;
+}
+
+/* Input styling */
+.time-series-table input[type="number"],
+.time-series-table input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #d5cdc3;
+    border-radius: 4px;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease;
+}
+
+.time-series-table input[type="number"]:focus,
+.time-series-table input[type="text"]:focus {
+    border-color: #a69b8b;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(166, 155, 139, 0.2);
+}
+
+/* Unit display */
+.unit-display {
+    color: #75706a;
+    font-size: 0.9em;
+    font-weight: normal;
+}
+
+/* Month name styling */
+.month-name {
+    font-weight: 500;
+}
+
+/* Quarter separator */
+.quarter-separator td {
+    background-color: #f1eeeb;
+    text-align: left;
+    font-weight: 600;
+    color: #5c564d;
+    padding: 8px 15px;
+}
+
+/* Chart preview */
+.chart-preview {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 20px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.chart-preview h4 {
+    margin-top: 0;
+    color: #5c564d;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.chart-container {
+    height: 300px;
+    width: 100%;
+    position: relative;
+}
+
+/* Highlight empty cells */
+.time-series-table input.empty-cell {
+    background-color: #fff8f8;
+    border-color: #f8d7da;
+}
+
+/* Change detection */
+.time-series-table input.changed {
+    background-color: #f0f7ff;
+    border-color: #90cdf4;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .time-series-table th,
+    .time-series-table td {
+        padding: 8px 10px;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    .month-header {
+        width: 90px;
+    }
+    
+    .value-header {
+        width: 90px;
+    }
+}

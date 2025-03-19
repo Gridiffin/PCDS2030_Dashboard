@@ -57,7 +57,7 @@ try {
     }
     
     if (isset($_GET['metricType']) && !empty($_GET['metricType'])) {
-        $whereConditions[] = 'MetricType = ?';
+        $whereConditions[] = 'm.MetricTypeID = ?';
         $params[] = $_GET['metricType'];
     }
     
@@ -76,7 +76,8 @@ try {
     $sql = "
         SELECT 
             m.MetricID, 
-            m.MetricType, 
+            m.MetricTypeID, 
+            mt.TypeName AS MetricTypeName, 
             m.Data, 
             m.Quarter, 
             m.Year, 
@@ -84,6 +85,8 @@ try {
             a.AgencyName
         FROM 
             Metrics m
+        LEFT JOIN 
+            MetricTypes mt ON m.MetricTypeID = mt.MetricTypeID
         JOIN 
             agencies a ON m.AgencyID = a.AgencyID
         $whereClause
@@ -109,7 +112,7 @@ try {
         $isEditable = ($metric['AgencyID'] == $userAgencyId);
         
         // Extract metric type name (in a real application, this would come from a lookup table)
-        $metricTypeName = ucfirst($metric['MetricType']);
+        $metricTypeName = ucfirst($metric['MetricTypeName']);
         
         // Process target value and current value safely
         $targetValue = '';
@@ -136,7 +139,7 @@ try {
             'programName' => $data['programName'] ?? 'Unnamed Program',
             'year' => $metric['Year'],
             'quarter' => $metric['Quarter'],
-            'metricType' => $metric['MetricType'],
+            'metricType' => $metric['MetricTypeID'],
             'metricTypeName' => $metricTypeName,
             'agencyId' => $metric['AgencyID'],
             'agencyName' => $metric['AgencyName'],

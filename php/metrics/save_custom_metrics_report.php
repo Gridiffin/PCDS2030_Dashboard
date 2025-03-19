@@ -1,6 +1,7 @@
 <?php
 require_once '../config/db_connect.php';
 require_once '../auth/check_session.php';
+require_once '../config/metric_type_helpers.php';  // Add helper functions
 
 // Set content type to JSON
 header('Content-Type: application/json');
@@ -96,6 +97,13 @@ try {
     $isUpdate = isset($inputData['reportId']) && !empty($inputData['reportId']);
     $reportId = $isUpdate ? $inputData['reportId'] : null;
     
+    // Get MetricTypeID for 'single_custom_metric'
+    $metricTypeID = getMetricTypeIDFromKey($conn, 'single_custom_metric');
+    
+    if (!$metricTypeID) {
+        throw new Exception("Could not find MetricTypeID for 'single_custom_metric'");
+    }
+
     if ($isUpdate) {
         // Verify the report exists and belongs to the user's agency
         $checkStmt = $conn->prepare("
@@ -125,14 +133,14 @@ try {
             $reportId
         ]);
     } else {
-        // Insert a new report using the single metric type
+        // Insert a new report using the MetricTypeID instead of string
         $stmt = $conn->prepare('
-            INSERT INTO Metrics (MetricType, Data, Quarter, Year, AgencyID) 
+            INSERT INTO Metrics (MetricTypeID, Data, Quarter, Year, AgencyID) 
             VALUES (?, ?, ?, ?, ?)
         ');
         
         $stmt->execute([
-            'single_custom_metric', // Use special type for individual metric reports
+            $metricTypeID,
             json_encode($metricData),
             $inputData['quarter'],
             $inputData['year'],

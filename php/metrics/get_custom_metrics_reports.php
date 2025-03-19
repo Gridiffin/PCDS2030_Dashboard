@@ -1,6 +1,7 @@
 <?php
 require_once '../config/db_connect.php';
 require_once '../auth/check_session.php';
+require_once '../config/metric_type_helpers.php'; // Add the helpers
 
 // Set content type to JSON
 header('Content-Type: application/json');
@@ -36,6 +37,13 @@ try {
     // Get database connection
     $conn = getDbConnection();
     
+    // Get the MetricTypeID for 'single_custom_metric'
+    $singleMetricTypeID = getMetricTypeIDFromKey($conn, 'single_custom_metric');
+    
+    if (!$singleMetricTypeID) {
+        throw new Exception("Could not find MetricTypeID for 'single_custom_metric'");
+    }
+    
     // Build query based on whether we have a metric ID filter
     if ($metricId) {
         // Get reports for specific metric only
@@ -43,21 +51,21 @@ try {
             SELECT MetricID as id, Data, Quarter, Year
             FROM Metrics 
             WHERE AgencyID = ? 
-            AND MetricType = 'single_custom_metric'
+            AND MetricTypeID = ?
             AND JSON_EXTRACT(Data, '$.metricId') = ?
             ORDER BY Year DESC, Quarter DESC
         ");
-        $stmt->execute([$agencyId, $metricId]);
+        $stmt->execute([$agencyId, $singleMetricTypeID, $metricId]);
     } else {
         // Get all single metric reports
         $stmt = $conn->prepare("
             SELECT MetricID as id, Data, Quarter, Year
             FROM Metrics 
             WHERE AgencyID = ? 
-            AND MetricType = 'single_custom_metric'
+            AND MetricTypeID = ?
             ORDER BY Year DESC, Quarter DESC
         ");
-        $stmt->execute([$agencyId]);
+        $stmt->execute([$agencyId, $singleMetricTypeID]);
     }
     
     $reports = [];

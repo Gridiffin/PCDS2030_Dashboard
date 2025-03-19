@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 18, 2025 at 03:07 AM
+-- Generation Time: Mar 19, 2025 at 02:23 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -30,17 +30,62 @@ SET time_zone = "+00:00";
 CREATE TABLE `agencies` (
   `AgencyID` int(10) NOT NULL,
   `AgencyName` varchar(255) NOT NULL,
-  `Sector` varchar(255) DEFAULT NULL,
-  `ContactInfo` varchar(255) DEFAULT NULL,
-  `Description` varchar(255) DEFAULT NULL
+  `Description` varchar(255) DEFAULT NULL,
+  `SectorID` int(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `agencies`
 --
 
-INSERT INTO `agencies` (`AgencyID`, `AgencyName`, `Sector`, `ContactInfo`, `Description`) VALUES
-(1, 'Main Agency', 'Government', 'contact@example.com', 'Default Agency Description');
+INSERT INTO `agencies` (`AgencyID`, `AgencyName`, `Description`, `SectorID`) VALUES
+(1, 'Main Agency', 'Default Agency Description', NULL),
+(2, 'Forestry Department', 'National department responsible for managing forest resources', 1),
+(3, 'Department of Agriculture', 'Agency responsible for agricultural development and food security', 2),
+(4, 'Land Development Authority', 'Authority for land use planning and management', 3),
+(5, 'Water Resources Management', 'Agency for water conservation and management', 4),
+(6, 'Biodiversity Conservation Agency', 'Responsible for conservation of flora and fauna', 5);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `custommetrics`
+--
+
+CREATE TABLE `custommetrics` (
+  `MetricID` int(10) NOT NULL,
+  `AgencyID` int(10) DEFAULT NULL,
+  `MetricName` varchar(255) NOT NULL,
+  `MetricKey` varchar(100) NOT NULL,
+  `DataType` varchar(50) NOT NULL,
+  `Unit` varchar(50) DEFAULT NULL,
+  `IsRequired` tinyint(1) DEFAULT 0,
+  `Description` text DEFAULT NULL,
+  `SortOrder` int(3) DEFAULT 0,
+  `DateCreated` timestamp NOT NULL DEFAULT current_timestamp(),
+  `SectorID` int(10) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `custommetrics`
+--
+
+INSERT INTO `custommetrics` (`MetricID`, `AgencyID`, `MetricName`, `MetricKey`, `DataType`, `Unit`, `IsRequired`, `Description`, `SortOrder`, `DateCreated`, `SectorID`) VALUES
+(6, 1, 'Timber Export Value', 'timber_export_value', 'currency', 'USD', 1, 'Total value of timber exports for the reporting period', 0, '2025-03-19 00:58:02', 1),
+(7, 1, 'Reforestation Area', 'reforestation_area', 'number', 'hectares', 1, 'Total area reforested during the reporting period', 0, '2025-03-19 00:58:02', 1),
+(8, 1, 'Sustainable Forestry Compliance', 'sustainable_forestry_compliance', 'percentage', '%', 0, 'Percentage of logging operations compliant with sustainable forestry practices', 0, '2025-03-19 00:58:02', 1),
+(9, 2, 'Crop Production Volume', 'crop_production_volume', 'number', 'tonnes', 1, 'Total crop production for the reporting period', 0, '2025-03-19 00:58:02', 2),
+(10, 2, 'Agricultural Export Value', 'agricultural_export_value', 'currency', 'USD', 1, 'Value of agricultural exports for the reporting period', 0, '2025-03-19 00:58:02', 2),
+(11, 2, 'Sustainable Farming Adoption', 'sustainable_farming_adoption', 'percentage', '%', 0, 'Percentage of farmers adopting sustainable farming practices', 0, '2025-03-19 00:58:02', 2),
+(12, 3, 'Land Allocated for Development', 'land_allocated_development', 'number', 'hectares', 1, 'Total land area allocated for development projects', 0, '2025-03-19 00:58:02', 3),
+(13, 3, 'Development Permits Issued', 'development_permits', 'number', 'permits', 1, 'Number of development permits issued during the reporting period', 0, '2025-03-19 00:58:02', 3),
+(14, 3, 'Green Space Preservation', 'green_space_preservation', 'percentage', '%', 0, 'Percentage of development areas allocated to green spaces', 0, '2025-03-19 00:58:02', 3),
+(15, 4, 'Water Quality Index', 'water_quality_index', 'number', 'index value', 1, 'Measured water quality index for key waterways', 0, '2025-03-19 00:58:02', 4),
+(16, 4, 'Water Conservation Projects', 'water_conservation_projects', 'number', 'projects', 0, 'Number of active water conservation projects', 0, '2025-03-19 00:58:02', 4),
+(17, 4, 'Sustainable Water Usage', 'sustainable_water_usage', 'percentage', '%', 1, 'Percentage of water usage meeting sustainability targets', 0, '2025-03-19 00:58:02', 4),
+(18, 5, 'Protected Species Count', 'protected_species_count', 'number', 'species', 1, 'Number of protected species under conservation programs', 0, '2025-03-19 00:58:02', 5),
+(19, 5, 'Conservation Area', 'conservation_area', 'number', 'hectares', 1, 'Total area under conservation management', 0, '2025-03-19 00:58:02', 5),
+(20, 5, 'Biodiversity Index', 'biodiversity_index', 'number', 'index value', 0, 'Measured biodiversity index for protected areas', 0, '2025-03-19 00:58:02', 5);
 
 -- --------------------------------------------------------
 
@@ -193,7 +238,36 @@ INSERT INTO `logs` (`log_id`, `user_id`, `action`, `entity_type`, `entity_id`, `
 (112, 1, 'login', NULL, NULL, NULL, '::1', '2025-03-18 00:42:57'),
 (113, 1, 'login', NULL, NULL, NULL, '::1', '2025-03-18 00:48:20'),
 (114, 1, 'login', NULL, NULL, NULL, '::1', '2025-03-18 01:26:50'),
-(115, 2, 'login', NULL, NULL, NULL, '::1', '2025-03-18 01:38:20');
+(115, 2, 'login', NULL, NULL, NULL, '::1', '2025-03-18 01:38:20'),
+(116, 2, 'submit_metric', 'metric', 23, 'Metric data for governance - afas (QQ3 2026)', '::1', '2025-03-18 02:17:01'),
+(117, 1, 'login', NULL, NULL, NULL, '::1', '2025-03-18 02:43:43'),
+(118, 2, 'login', NULL, NULL, NULL, '::1', '2025-03-18 02:49:34'),
+(119, 2, 'login', NULL, NULL, NULL, '::1', '2025-03-18 02:58:35'),
+(120, 2, 'submit_metric', 'metric', 24, 'Metric data for governance - ada (QQ1 2025)', '::1', '2025-03-18 05:44:35'),
+(121, 2, 'submit_metrics_report', 'metrics_report', 25, 'Custom metrics report for Q1 2024', '::1', '2025-03-18 05:45:11'),
+(122, 1, 'submit_metrics_report', 'metrics_report', 26, 'Custom metrics report for Q1 2024', '::1', '2025-03-18 06:12:57'),
+(123, 1, 'submit_metrics_report', 'metrics_report', 27, 'Custom metrics report for Q1 2025', '::1', '2025-03-18 06:13:29'),
+(124, 2, 'submit_metrics_report', 'metrics_report', 28, 'Custom metrics report for Q1 2024', '::1', '2025-03-18 06:14:07'),
+(125, 2, 'submit_metrics_report', 'metrics_report', 29, 'Custom metrics report for Q1 2024', '::1', '2025-03-18 06:22:24'),
+(126, 2, 'submit_metrics_report', 'metrics_report', 30, 'Custom metrics report for Q2 2024', '::1', '2025-03-18 06:25:52'),
+(127, 2, 'submit_metrics_report', 'metrics_report', 31, 'Custom metrics report for Q2 2027', '::1', '2025-03-18 06:32:53'),
+(128, 2, 'delete_metrics_report', 'metrics_report', 31, 'Deleted custom metrics report for Q2 2027', '::1', '2025-03-18 06:36:06'),
+(129, 2, 'delete_metrics_report', 'metrics_report', 27, 'Deleted custom metrics report for Q1 2025', '::1', '2025-03-18 06:36:07'),
+(130, 2, 'submit_metrics_report', 'metrics_report', 32, 'Custom metrics report for Q2 2028', '::1', '2025-03-18 06:36:22'),
+(131, 2, 'delete_metrics_report', 'metrics_report', 26, 'Deleted custom metrics report for Q1 2024', '::1', '2025-03-18 06:49:58'),
+(132, 2, 'submit_single_metric_report', 'single_metric_report', 33, 'Single metric report for Timber Export Value - Q2 2024', '::1', '2025-03-18 07:27:25'),
+(133, 2, 'submit_single_metric_report', 'single_metric_report', 34, 'Single metric report for metric3 - Q2 2026', '::1', '2025-03-18 07:28:09'),
+(134, 2, 'login', NULL, NULL, NULL, '::1', '2025-03-18 08:07:56'),
+(135, 1, 'login', NULL, NULL, NULL, '::1', '2025-03-18 08:09:14'),
+(136, 2, 'login', NULL, NULL, NULL, '::1', '2025-03-18 08:10:03'),
+(137, 2, 'login', NULL, NULL, NULL, '127.0.0.1', '2025-03-19 00:01:48'),
+(138, 2, 'submit_metric', 'metric', 35, 'Metric data for governance - ihui (QQ3 2030)', '127.0.0.1', '2025-03-19 00:05:02'),
+(139, 1, 'login', NULL, NULL, NULL, '127.0.0.1', '2025-03-19 00:10:51'),
+(140, 2, 'login', NULL, NULL, NULL, '127.0.0.1', '2025-03-19 00:12:07'),
+(141, 2, 'login', NULL, NULL, NULL, '::1', '2025-03-19 00:21:47'),
+(142, 2, 'login', NULL, NULL, NULL, '127.0.0.1', '2025-03-19 00:22:30'),
+(143, 2, 'login', NULL, NULL, NULL, '127.0.0.1', '2025-03-19 00:24:07'),
+(144, 2, 'login', NULL, NULL, NULL, '127.0.0.1', '2025-03-19 00:24:40');
 
 -- --------------------------------------------------------
 
@@ -216,7 +290,17 @@ CREATE TABLE `metrics` (
 
 INSERT INTO `metrics` (`MetricID`, `MetricType`, `Data`, `Quarter`, `Year`, `AgencyID`) VALUES
 (21, 'test_metric', '{\"programId\":\"test_prog_1742263588\",\"programName\":\"Test Program\",\"target\":{\"indicator\":\"Test Indicator\",\"description\":\"Test Description\"},\"status\":\"draft\",\"lastUpdated\":\"2025-03-18 03:06:28\",\"submittedBy\":\"Debug Tool\",\"userId\":0}', 'Q1', '2025', 1),
-(22, 'test_metric', '{\"programId\":\"test_prog_1742263591\",\"programName\":\"Test Program\",\"target\":{\"indicator\":\"Test Indicator\",\"description\":\"Test Description\"},\"status\":\"draft\",\"lastUpdated\":\"2025-03-18 03:06:31\",\"submittedBy\":\"Debug Tool\",\"userId\":0}', 'Q1', '2025', 1);
+(22, 'test_metric', '{\"programId\":\"test_prog_1742263591\",\"programName\":\"Test Program\",\"target\":{\"indicator\":\"Test Indicator\",\"description\":\"Test Description\"},\"status\":\"draft\",\"lastUpdated\":\"2025-03-18 03:06:31\",\"submittedBy\":\"Debug Tool\",\"userId\":0}', 'Q1', '2025', 1),
+(23, 'governance', '{\"programId\":\"new_1742264221885\",\"programName\":\"afas\",\"programDescription\":\"afa\",\"target\":{\"indicator\":\"afas\",\"value\":\"\",\"unit\":\"\",\"deadline\":\"2025-03-11\",\"description\":\"afas\"},\"status\":\"submitted\",\"lastUpdated\":\"2025-03-18 03:17:01\",\"submittedBy\":\"user\",\"userId\":2}', 'Q3', '2026', 1),
+(24, 'Government', '{\"programId\":\"new_1742276675807\",\"programName\":\"adas\",\"programDescription\":\"asda\",\"target\":{\"indicator\":\"ada\",\"value\":\"\",\"unit\":\"\",\"deadline\":\"2025-03-11\",\"description\":\"ada\"},\"status\":\"submitted\",\"customMetrics\":null,\"lastUpdated\":\"2025-03-18 06:44:35\",\"submittedBy\":\"user\",\"userId\":2}', 'Q1', '2025', 1),
+(25, 'custom_metrics_report', '{\"year\":\"2024\",\"quarter\":\"Q1\",\"reportDate\":\"2025-03-18\",\"notes\":\"\",\"metricsData\":{\"timber_export_value\":\"700\"},\"isDraft\":false,\"lastUpdated\":\"2025-03-18 06:45:11\",\"submittedBy\":\"user\",\"userId\":2}', 'Q1', '2024', 1),
+(28, 'custom_metrics_report', '{\"year\":\"2024\",\"quarter\":\"Q1\",\"reportDate\":\"2025-03-18\",\"notes\":\"abc\",\"metricsData\":{\"timber_export_value\":\"900\"},\"isDraft\":false,\"lastUpdated\":\"2025-03-18 07:14:07\",\"submittedBy\":\"user\",\"userId\":2}', 'Q1', '2024', 1),
+(29, 'custom_metrics_report', '{\"year\":\"2024\",\"quarter\":\"Q1\",\"reportDate\":\"2025-03-18\",\"notes\":\"abc\",\"metricsData\":{\"timber_export_value\":\"900\"},\"isDraft\":false,\"lastUpdated\":\"2025-03-18 07:22:24\",\"submittedBy\":\"user\",\"userId\":2}', 'Q1', '2024', 1),
+(30, 'custom_metrics_report', '{\"year\":\"2024\",\"quarter\":\"Q2\",\"reportDate\":\"2025-03-18\",\"notes\":\"abc\",\"metricsData\":{\"timber_export_value\":\"900\"},\"isDraft\":false,\"lastUpdated\":\"2025-03-18 07:25:52\",\"submittedBy\":\"user\",\"userId\":2}', 'Q2', '2024', 1),
+(32, 'custom_metrics_report', '{\"year\":\"2028\",\"quarter\":\"Q2\",\"reportDate\":\"2025-03-18\",\"notes\":\"2323\",\"metricsData\":{\"timber_export_value\":\"3232\"},\"isDraft\":false,\"lastUpdated\":\"2025-03-18 07:36:22\",\"submittedBy\":\"user\",\"userId\":2}', 'Q2', '2028', 1),
+(33, 'single_custom_metric', '{\"year\":\"2024\",\"quarter\":\"Q2\",\"reportDate\":\"2025-03-18\",\"notes\":\"assfsa\",\"metricsData\":{\"timber_export_value\":\"63763\"},\"isDraft\":false,\"lastUpdated\":\"2025-03-18 08:27:25\",\"submittedBy\":\"user\",\"userId\":2,\"metricId\":\"3\",\"metricName\":\"Timber Export Value\"}', 'Q2', '2024', 1),
+(34, 'single_custom_metric', '{\"year\":\"2026\",\"quarter\":\"Q2\",\"reportDate\":\"2025-03-18\",\"notes\":\"afhfbaf\",\"metricsData\":{\"metric3\":\"89\"},\"isDraft\":false,\"lastUpdated\":\"2025-03-18 08:28:09\",\"submittedBy\":\"user\",\"userId\":2,\"metricId\":\"5\",\"metricName\":\"metric3\"}', 'Q2', '2026', 1),
+(35, 'Government', '{\"programId\":\"new_1742342702231\",\"programName\":\"yiu\",\"programDescription\":\"yui\",\"target\":{\"indicator\":\"ihui\",\"value\":\"\",\"unit\":\"\",\"deadline\":\"2025-03-12\",\"description\":\"ihui\"},\"status\":\"submitted\",\"customMetrics\":null,\"lastUpdated\":\"2025-03-19 01:05:02\",\"submittedBy\":\"user\",\"userId\":2}', 'Q3', '2030', 1);
 
 -- --------------------------------------------------------
 
@@ -256,6 +340,30 @@ INSERT INTO `roles` (`RoleID`, `RoleName`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `sectors`
+--
+
+CREATE TABLE `sectors` (
+  `SectorID` int(10) NOT NULL,
+  `SectorName` varchar(100) NOT NULL,
+  `Description` text DEFAULT NULL,
+  `SortOrder` int(3) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `sectors`
+--
+
+INSERT INTO `sectors` (`SectorID`, `SectorName`, `Description`, `SortOrder`) VALUES
+(1, 'Forestry', 'Forest management and timber industry', 1),
+(2, 'Agriculture', 'Agricultural activities and farming', 2),
+(3, 'Land Management', 'Land use planning and management', 3),
+(4, 'Water Resources', 'Water conservation and management', 4),
+(5, 'Biodiversity', 'Protection of species and ecosystems', 5);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -284,7 +392,16 @@ INSERT INTO `users` (`UserID`, `username`, `password`, `RoleID`, `AgencyID`) VAL
 -- Indexes for table `agencies`
 --
 ALTER TABLE `agencies`
-  ADD PRIMARY KEY (`AgencyID`);
+  ADD PRIMARY KEY (`AgencyID`),
+  ADD KEY `idx_agency_sector` (`SectorID`);
+
+--
+-- Indexes for table `custommetrics`
+--
+ALTER TABLE `custommetrics`
+  ADD PRIMARY KEY (`MetricID`),
+  ADD KEY `AgencyID` (`AgencyID`),
+  ADD KEY `idx_custom_metrics_sector` (`SectorID`);
 
 --
 -- Indexes for table `generatedreports`
@@ -323,6 +440,12 @@ ALTER TABLE `roles`
   ADD UNIQUE KEY `RoleName` (`RoleName`);
 
 --
+-- Indexes for table `sectors`
+--
+ALTER TABLE `sectors`
+  ADD PRIMARY KEY (`SectorID`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -339,7 +462,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `agencies`
 --
 ALTER TABLE `agencies`
-  MODIFY `AgencyID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `AgencyID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `custommetrics`
+--
+ALTER TABLE `custommetrics`
+  MODIFY `MetricID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `generatedreports`
@@ -351,13 +480,13 @@ ALTER TABLE `generatedreports`
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
 
 --
 -- AUTO_INCREMENT for table `metrics`
 --
 ALTER TABLE `metrics`
-  MODIFY `MetricID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `MetricID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `reports`
@@ -372,6 +501,12 @@ ALTER TABLE `roles`
   MODIFY `RoleID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `sectors`
+--
+ALTER TABLE `sectors`
+  MODIFY `SectorID` int(10) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -380,6 +515,19 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `agencies`
+--
+ALTER TABLE `agencies`
+  ADD CONSTRAINT `fk_agency_sector` FOREIGN KEY (`SectorID`) REFERENCES `sectors` (`SectorID`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `custommetrics`
+--
+ALTER TABLE `custommetrics`
+  ADD CONSTRAINT `custommetrics_ibfk_1` FOREIGN KEY (`AgencyID`) REFERENCES `agencies` (`AgencyID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_sector_id` FOREIGN KEY (`SectorID`) REFERENCES `sectors` (`SectorID`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `generatedreports`
@@ -417,4 +565,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-

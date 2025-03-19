@@ -28,21 +28,39 @@ $response = [
 ];
 
 try {
-    // In a real implementation, this would query a metric_types table
-    // and join with agency_metric_types to get allowed types per agency
+    // Get database connection
+    $conn = getDbConnection();
     
-    // For now, we'll return a static list of metric types
-    // In a real implementation, this would be filtered based on the agency
-    $metricTypes = [
-        ['id' => 'forestry', 'name' => 'Forestry'],
-        ['id' => 'conservation', 'name' => 'Conservation'],
-        ['id' => 'land', 'name' => 'Land Use'],
-        ['id' => 'water', 'name' => 'Water Resources'],
-        ['id' => 'energy', 'name' => 'Energy'],
-        ['id' => 'social', 'name' => 'Social Development'],
-        ['id' => 'economic', 'name' => 'Economic Development'],
-        ['id' => 'governance', 'name' => 'Governance']
-    ];
+    // Get filtering parameters
+    $sectorId = isset($_GET['sectorId']) ? intval($_GET['sectorId']) : null;
+    
+    // Build query based on filters
+    $sql = "SELECT 
+                mt.MetricTypeID as id,
+                mt.TypeKey as `key`,
+                mt.TypeName as name,
+                mt.Description as description,
+                mt.ChartType as chartType,
+                s.SectorName as sectorName,
+                s.SectorID as sectorId
+            FROM MetricTypes mt
+            LEFT JOIN Sectors s ON mt.SectorID = s.SectorID
+            WHERE 1=1";
+    
+    $params = [];
+    
+    // Add sector filter if specified
+    if ($sectorId) {
+        $sql .= " AND (mt.SectorID = ? OR mt.SectorID IS NULL)";
+        $params[] = $sectorId;
+    }
+    
+    $sql .= " ORDER BY mt.SortOrder, mt.TypeName";
+    
+    // Execute query
+    $stmt = $conn->prepare($sql);
+    $stmt->execute($params);
+    $metricTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     $response = [
         'success' => true,

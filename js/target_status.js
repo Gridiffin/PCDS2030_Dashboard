@@ -547,7 +547,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return unsafe
             .toString()
             .replace(/&/g, "&amp;")
-            .replace(/<//g, "&lt;")
+            .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
@@ -639,7 +639,8 @@ document.addEventListener('DOMContentLoaded', function() {
             statusSummary,
             statusCategory, // Derived from statusColor
             statusColor,    // Directly from radio selection
-            isDraft
+            isDraft,
+            sectorID: document.getElementById('sectorSelect')?.value || null
         };
 
         // When saving a draft, include the draft ID if we're editing an existing draft
@@ -752,3 +753,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add any other modal-related functionality...
 });
+
+function processResponse(data) {
+    // ...existing code...
+    
+    // If accessing sector data, make sure to use sectorID, not sector
+    const sectorID = data.sectorID || null;
+    
+    // ...existing code...
+}

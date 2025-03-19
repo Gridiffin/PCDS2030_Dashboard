@@ -47,16 +47,23 @@ try {
     $stmt = $conn->prepare("
         SELECT 
             m.MetricID, 
-            m.MetricType, 
+            mt.TypeKey AS MetricType, 
+            mt.TypeName AS MetricTypeName, 
             m.Data, 
             m.Quarter, 
             m.Year, 
             m.AgencyID,
-            a.AgencyName
+            a.AgencyName,
+            s.SectorName,  // Changed from Sector to SectorName
+            s.SectorID     // Added SectorID
         FROM 
             Metrics m
+        LEFT JOIN 
+            MetricTypes mt ON m.MetricTypeID = mt.MetricTypeID
         JOIN 
             agencies a ON m.AgencyID = a.AgencyID
+        LEFT JOIN
+            Sectors s ON a.SectorID = s.SectorID  // Joining through agencies to sectors
         WHERE 
             m.MetricID = ?
     ");
@@ -87,6 +94,8 @@ try {
         'metricTypeName' => ucfirst($metric['MetricType']),
         'agencyId' => $metric['AgencyID'],
         'agencyName' => $metric['AgencyName'],
+        'sectorID' => $metric['SectorID'],
+        'sectorName' => $metric['SectorName'],
         'indicator' => $data['target']['indicator'] ?? '',
         'targetValue' => $data['target']['value'] ?? '',
         'targetUnit' => $data['target']['unit'] ?? '',

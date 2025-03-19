@@ -161,6 +161,15 @@ export default function initMetricsReportingTab() {
         if (elements.reportForm) {
             elements.reportForm.reset();
         }
+        
+        // Reset the reports table title when returning to selector
+        const reportsTableTitle = document.getElementById('reportsTableTitle');
+        if (reportsTableTitle) {
+            reportsTableTitle.textContent = 'Previous Reports';
+        }
+        
+        // Load all reports (not just for a specific metric) when returning to selector
+        loadPreviousReports();
     }
     
     // Set the selected metric and show the report form
@@ -170,6 +179,12 @@ export default function initMetricsReportingTab() {
         // Update the selected metric info display
         if (elements.selectedMetricInfo) {
             elements.selectedMetricInfo.textContent = metricName;
+        }
+        
+        // Update the reports table title to include the metric name
+        const reportsTableTitle = document.getElementById('reportsTableTitle');
+        if (reportsTableTitle) {
+            reportsTableTitle.textContent = `Previous Reports for ${metricName}`;
         }
         
         // Show the report section and hide selector - always hide selector when a metric is selected
@@ -198,7 +213,53 @@ export default function initMetricsReportingTab() {
         }
         
         // Also load previous reports filtered for this specific metric
-        loadPreviousReports();
+        loadMetricSpecificReports(metricId);
+    }
+
+    // Add a new function to load reports for specific metric
+    function loadMetricSpecificReports(metricId) {
+        if (!elements.reportsTable) return;
+        
+        try {
+            // Show loading state
+            elements.reportsLoading.style.display = 'flex';
+            elements.reportsContainer.style.display = 'none';
+            
+            // Fetch reports for this specific metric
+            fetch(`php/metrics/get_custom_metrics_reports.php?metricId=${metricId}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Hide loading state
+                    elements.reportsLoading.style.display = 'none';
+                    elements.reportsContainer.style.display = 'block';
+                    
+                    // Clear existing rows
+                    elements.reportsTable.innerHTML = '';
+                    
+                    // Handle no reports case
+                    if (!data.success || !data.data || data.data.length === 0) {
+                        if (elements.noReportsMessage) {
+                            elements.noReportsMessage.style.display = 'block';
+                        }
+                        return;
+                    }
+                    
+                    // Hide no reports message
+                    if (elements.noReportsMessage) {
+                        elements.noReportsMessage.style.display = 'none';
+                    }
+                    
+                    // Render reports
+                    renderReportsTable(data.data);
+                })
+                .catch(error => {
+                    console.error('Error loading specific metric reports:', error);
+                    elements.reportsLoading.style.display = 'none';
+                    elements.reportsTable.innerHTML = `<tr><td colspan="5">Error loading reports: ${error.message}</td></tr>`;
+                });
+        } catch (error) {
+            console.error('Error in loadMetricSpecificReports:', error);
+        }
     }
     
     // Render the input field for the selected metric

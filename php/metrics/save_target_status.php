@@ -84,7 +84,7 @@ try {
     error_log('Using agency ID: ' . $agencyId);
     
     // Get the agency's sector from the database
-    $stmt = $conn->prepare("SELECT Sector FROM agencies WHERE AgencyID = ?");
+    $stmt = $conn->prepare("SELECT SectorID FROM agencies WHERE AgencyID = ?");
     $stmt->execute([$agencyId]);
     $agencySector = $stmt->fetchColumn();
     
@@ -179,12 +179,16 @@ try {
         
         // Insert new record with the agency's sector as the metric type
         $stmt = $conn->prepare('
-            INSERT INTO Metrics (MetricType, Data, Quarter, Year, AgencyID) 
+            INSERT INTO Metrics (MetricTypeID, Data, Quarter, Year, AgencyID) 
             VALUES (?, ?, ?, ?, ?)
         ');
-        
+
+        // Get the MetricTypeID from the TypeKey using the helper function
+        require_once '../config/metric_type_helpers.php';
+        $metricTypeID = getMetricTypeIDFromKey($conn, 'governance');
+
         $stmt->execute([
-            $metricType, // Use agency sector
+            $metricTypeID,  // Now using MetricTypeID instead of string 'governance'
             $jsonData,
             $inputData['quarter'] ?? 'Q1',
             $inputData['year'] ?? date('Y'),

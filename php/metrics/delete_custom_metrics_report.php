@@ -1,6 +1,7 @@
 <?php
 require_once '../config/db_connect.php';
 require_once '../auth/check_session.php';
+require_once '../config/metric_type_helpers.php'; // Add the helpers
 
 // Set content type to JSON
 header('Content-Type: application/json');
@@ -59,14 +60,21 @@ try {
     // Begin transaction
     $conn->beginTransaction();
     
+    // Get the MetricTypeID for 'custom_metrics_report'
+    $customReportTypeID = getMetricTypeIDFromKey($conn, 'custom_metrics_report');
+    
+    if (!$customReportTypeID) {
+        throw new Exception("Could not find MetricTypeID for 'custom_metrics_report'");
+    }
+    
     // Verify this is a custom metrics report and belongs to the user's agency
     $stmt = $conn->prepare("
-        SELECT MetricID, Data, MetricType 
+        SELECT MetricID, Data, MetricTypeID 
         FROM Metrics 
-        WHERE MetricID = ? AND AgencyID = ? AND MetricType = 'custom_metrics_report'
+        WHERE MetricID = ? AND AgencyID = ? AND MetricTypeID = ?
     ");
     
-    $stmt->execute([$reportId, $agencyId]);
+    $stmt->execute([$reportId, $agencyId, $customReportTypeID]);
     $report = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$report) {

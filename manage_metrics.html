@@ -174,11 +174,10 @@
             <div id="singleMetricReportSection" class="dashboard-section" style="display: none;">
                 <div class="section-header">
                     <h3>
-                        <i class="fas fa-chart-bar"></i> 
-                        Report Data: <span id="selectedMetricInfo">Selected Metric</span>
-                        <button id="backToMetricsBtn" class="icon-button" title="Back to Metrics List" style="margin-left: 10px;">
+                        <button id="backToMetricsBtn" class="icon-button back-button" title="Back to Metrics List">
                             <i class="fas fa-arrow-left"></i>
                         </button>
+                        Report Data: <span id="selectedMetricInfo">Selected Metric</span>
                     </h3>
                 </div>
                 
@@ -243,7 +242,10 @@
             <!-- Previous Reports Section -->
             <div class="dashboard-section">
                 <div class="section-header">
-                    <h3><i class="fas fa-history"></i> Previous Reports</h3>
+                    <h3>
+                        <i class="fas fa-history"></i> 
+                        <span id="reportsTableTitle">Previous Reports</span>
+                    </h3>
                 </div>
                 
                 <div id="reports-loading" class="loading-spinner">

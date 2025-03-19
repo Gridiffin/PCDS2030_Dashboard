@@ -58,6 +58,34 @@
     transform: translateX(-3px);
 }
 
+/* Better back button styling */
+#backToMetricsBtn.back-button {
+    background-color: #f8f6f5;
+    border: 1px solid #d5cdc3;
+    color: #5c564d;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    transition: all 0.2s ease;
+    position: relative;
+    top: -1px;
+}
+
+#backToMetricsBtn.back-button:hover {
+    background-color: #e3ded7;
+    transform: translateX(-3px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-header h3 {
+    display: flex;
+    align-items: center;
+}
+
 /* Single metric report section */
 #singleMetricReportSection {
     position: relative;

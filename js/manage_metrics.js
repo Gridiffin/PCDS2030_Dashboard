@@ -124,4 +124,21 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }, 600);
     }
+    
+    // Update any object literals or data processing that references metricType
+    const reportData = {
+        metricTypeID: getMetricTypeID('single_custom_metric'), // Define a helper function for this
+        // ...other fields
+    };
+    
+    // Add helper function:
+    function getMetricTypeID(typeKey) {
+        // This could be a lookup in a cached object or an async function that fetches from server
+        const metricTypes = {
+            'single_custom_metric': 3, // These should match your actual MetricTypeID values
+            'custom_metrics_report': 4,
+            // Add other mappings
+        };
+        return metricTypes[typeKey] || null;
+    }
 });

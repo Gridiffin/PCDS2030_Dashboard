@@ -1,6 +1,7 @@
 <?php
 require_once '../config/db_connect.php';
 require_once '../auth/check_session.php';
+require_once '../config/metric_type_helpers.php'; // Add the helpers
 
 // Set content type to JSON
 header('Content-Type: application/json');

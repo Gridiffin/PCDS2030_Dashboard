@@ -33,15 +33,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     const passwordField = document.getElementById('password');
-    if (passwordField) {
-        const newToggleBtn = document.createElement('button');
-        newToggleBtn.id = 'betterTogglePassword';
-        newToggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
-        newToggleBtn.type = 'button';
-        passwordField.parentElement.style.position = 'relative'; // Ensure parent is positioned
-        passwordField.parentElement.appendChild(newToggleBtn);
-
-        newToggleBtn.addEventListener('click', function() {
+    const togglePasswordBtn = document.getElementById('betterTogglePassword');
+    if (passwordField && togglePasswordBtn) {
+        togglePasswordBtn.addEventListener('click', function(e) {
+            e.preventDefault();
             const type = passwordField.type === 'password' ? 'text' : 'password';
             passwordField.type = type;
             this.innerHTML = type === 'text'
@@ -52,7 +47,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Set up role-based permission checkboxes logic
     const roleSelect = document.getElementById('userRole');
-    roleSelect.addEventListener('change', updatePermissionCheckboxes);
+    if (roleSelect) {
+        roleSelect.addEventListener('change', updatePermissionCheckboxes);
+    }
     
     // Functions
     function handleFormSubmit(e) {
@@ -96,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function validateForm(formData) {
         // Required fields - updated to match users table columns
-            const requiredFields = ['username', 'password', 'roleId', 'agencyId'];
+        const requiredFields = ['username', 'password', 'roleId', 'agencyId'];
         for (const field of requiredFields) {
             if (!formData.get(field) || formData.get(field).trim() === '') {
                 showNotification(`Please fill in all required fields: ${field.replace(/([A-Z])/g, ' $1').toLowerCase()} is missing`, 'error');
@@ -230,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Loading agencies...');
         
         // Show debugging message in the select element
-        const agencySelect = document.getElementById('agency');
+        const agencySelect = document.getElementById('userAgency'); // Fixed ID here
         if (agencySelect) {
             agencySelect.innerHTML = '<option value="">Loading agencies...</option>';
         }
@@ -253,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.log('Agencies data received:', data);
                     
                     if (data.success && data.data) {
-                        const agencySelect = document.getElementById('agency');
+                        const agencySelect = document.getElementById('userAgency'); // Fixed ID here
                         if (agencySelect) {
                             agencySelect.innerHTML = '<option value="">Select Agency</option>';
                             
@@ -279,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification('Failed to connect to server. Please check your network connection.', 'error');
                 
                 // Fallback to static options
-                const agencySelect = document.getElementById('agency');
+                const agencySelect = document.getElementById('userAgency'); // Fixed ID here
                 if (agencySelect) {
                     agencySelect.innerHTML = `
                         <option value="">Select Agency</option>
@@ -535,9 +532,9 @@ document.addEventListener('DOMContentLoaded', function() {
         passwordField.type = 'text'; // Temporarily show the password
         
         // Update toggle button state
-        const passwordToggle = document.getElementById('passwordToggle');
-        if (passwordToggle) {
-            passwordToggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+        const toggleBtn = document.getElementById('betterTogglePassword');
+        if (toggleBtn) {
+            toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
         }
     }
     

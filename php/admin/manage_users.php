@@ -209,7 +209,7 @@ switch ($operation) {
         try {
             // Debug the agencies table structure
             $checkSectors = $conn->query("SELECT COUNT(*) as count, 
-                                        SUM(CASE WHEN Sector IS NULL THEN 1 ELSE 0 END) as null_sectors 
+                                        SUM(CASE WHEN SectorID IS NULL THEN 1 ELSE 0 END) as null_sectors 
                                         FROM agencies");
             $sectorStats = $checkSectors->fetch(PDO::FETCH_ASSOC);
             error_log("Agencies table stats: Total=" . $sectorStats['count'] . ", Null sectors=" . $sectorStats['null_sectors']);
@@ -217,19 +217,21 @@ switch ($operation) {
             // If there are agencies but all sectors are null, let's update at least one
             if ($sectorStats['count'] > 0 && $sectorStats['null_sectors'] == $sectorStats['count']) {
                 error_log("All sectors are NULL, updating Main Agency with Government sector");
-                $updateStmt = $conn->prepare("UPDATE agencies SET Sector = 'Government' WHERE AgencyID = 1");
-                $updateStmt->execute();
+                $defaultSectorId = 1; // Assuming the first sector is a suitable default
+                $updateStmt = $conn->prepare("UPDATE agencies SET SectorID = ? WHERE AgencyID = 1");
+                $updateStmt->execute([$defaultSectorId]);
             }
             
             $query = "SELECT u.UserID, u.username, u.RoleID, u.AgencyID,
                       r.RoleName, a.AgencyName, 
-                      COALESCE(a.Sector, 'Not Assigned') as SectorName,
+                      s.SectorName,
                       MAX(l.timestamp) as last_login
                       FROM users u
                       LEFT JOIN roles r ON u.RoleID = r.RoleID
                       LEFT JOIN agencies a ON u.AgencyID = a.AgencyID
+                      LEFT JOIN sectors s ON a.SectorID = s.SectorID
                       LEFT JOIN logs l ON u.UserID = l.user_id AND l.action = 'login'
-                      GROUP BY u.UserID, u.username, u.RoleID, u.AgencyID, r.RoleName, a.AgencyName, a.Sector
+                      GROUP BY u.UserID, u.username, u.RoleID, u.AgencyID, r.RoleName, a.AgencyName, s.SectorName
                       ORDER BY u.UserID";
             
             $stmt = $conn->query($query);
@@ -242,6 +244,11 @@ switch ($operation) {
             
             // Process users for display
             foreach ($users as &$user) {
+                // Set default sector if null
+                if (!isset($user['SectorName']) || $user['SectorName'] === null) {
+                    $user['SectorName'] = 'Not Assigned';
+                }
+                
                 // Check if user has logged in within the last 30 days
                 $lastLogin = strtotime($user['last_login'] ?? '');
                 $thirtyDaysAgo = strtotime('-30 days');
@@ -278,7 +285,7 @@ switch ($operation) {
         break;
         
     case 'getRoles':
-            try {
+        try {
             $stmt = $conn->query("SELECT RoleID, RoleName FROM roles ORDER BY RoleID");
             $roles = $stmt->fetchAll();
             $response['success'] = true;
@@ -305,22 +312,19 @@ switch ($operation) {
         try {
             error_log("getSectors operation started");
             
-            // First check if there are any non-null sectors
-            $checkStmt = $conn->query("SELECT COUNT(*) FROM agencies WHERE Sector IS NOT NULL");
+            // Check if there are any sectors in the sectors table
+            $checkStmt = $conn->query("SELECT COUNT(*) FROM sectors");
             $sectorCount = $checkStmt->fetchColumn();
             
             if ($sectorCount == 0) {
                 // No sectors found, let's add a default one
                 error_log("No sectors found, adding a default one");
-                $updateStmt = $conn->prepare("UPDATE agencies SET Sector = 'Government' WHERE AgencyID = 1");
-                $updateStmt->execute();
+                $insertStmt = $conn->prepare("INSERT INTO sectors (SectorName, Description, SortOrder) VALUES (?, ?, ?)");
+                $insertStmt->execute(['Government', 'Default government sector', 1]);
             }
             
-            // Now get the sectors
-            $stmt = $conn->query("SELECT Sector as id, Sector as name FROM agencies 
-                                  WHERE Sector IS NOT NULL 
-                                  GROUP BY Sector 
-                                  ORDER BY Sector");
+            // Now get the sectors from the sectors table
+            $stmt = $conn->query("SELECT SectorID as id, SectorName as name FROM sectors ORDER BY SortOrder, SectorName");
             $sectors = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             error_log("getSectors found " . count($sectors) . " sectors");

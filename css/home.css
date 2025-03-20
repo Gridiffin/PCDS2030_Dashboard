@@ -641,3 +641,332 @@ button[type="submit"]:hover i {
     color: #A49885; /* Brand color for icons */
     /* ...existing code... */
 }
+
+/* Styles for home/login page */
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #f1eeeb;
+    font-family: 'Work Sans', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Decorative elements */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 15% 15%, rgba(166, 155, 139, 0.08) 0%, transparent 60%),
+        radial-gradient(circle at 85% 85%, rgba(166, 155, 139, 0.08) 0%, transparent 60%),
+        linear-gradient(135deg, rgba(166, 155, 139, 0.05) 0%, transparent 50%),
+        linear-gradient(45deg, rgba(166, 155, 139, 0.03) 0%, rgba(241, 238, 235, 0) 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+.home-container {
+    display: flex;
+    width: 90%;
+    max-width: 1200px;
+    height: 600px;
+    background-color: #ffffff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+/* Login section styling */
+.login-section {
+    width: 40%;
+    padding: 40px;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Decorative shapes for login section */
+.shape1, .shape2, .shape3 {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.shape1 {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(45deg, #A49885 0%, #b9ad9b 100%);
+    top: -20px;
+    right: -20px;
+    opacity: 0.1;
+}
+
+.shape2 {
+    width: 150px;
+    height: 150px;
+    border: 20px solid rgba(164, 152, 133, 0.1);
+    bottom: -40px;
+    left: -40px;
+}
+
+.shape3 {
+    width: 70px;
+    height: 70px;
+    background: rgba(164, 152, 133, 0.15);
+    top: 40%;
+    right: -20px;
+}
+
+/* Login form styling */
+.login-section form {
+    width: 100%;
+    z-index: 2;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.login-section h2 {
+    color: #4a453e;
+    margin-bottom: 10px;
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Merriweather', serif;
+}
+
+.login-subtitle {
+    color: #6c757d;
+    margin-bottom: 30px;
+    font-size: 15px;
+}
+
+.remember-forgot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+}
+
+.remember-me input {
+    margin-right: 8px;
+}
+
+.forgot-link {
+    color: #A49885;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.forgot-link:hover {
+    color: #5c564d;
+    text-decoration: underline;
+}
+
+.login-section button {
+    width: 100%;
+    padding: 12px;
+    background: #A49885;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.login-section button:hover {
+    background: #b9ad9b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.error-message {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+}
+
+/* Info section styling */
+.info-section {
+    width: 60%;
+    padding: 60px;
+    background: linear-gradient(135deg, #5c564d 0%, #4a453e 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.info-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('../assets/images/pattern.png');
+    opacity: 0.05;
+    z-index: 1;
+}
+
+.info-section h1, .info-section h2, .info-section p {
+    position: relative;
+    z-index: 2;
+}
+
+.info-section h1 {
+    font-size: 38px;
+    font-weight: 800;
+    margin-bottom: 0;
+    color: #ffffff;
+    font-family: 'Merriweather', serif;
+}
+
+.info-section h2 {
+    font-size: 24px;
+    font-weight: 300;
+    margin-bottom: 20px;
+    color: #A49885;
+    font-family: 'Merriweather', serif;
+}
+
+.info-section p {
+    font-size: 16px;
+    margin-bottom: 40px;
+    line-height: 1.6;
+    color: #d5cdc3;
+}
+
+.feature-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px 20px;
+    border-radius: 8px;
+    width: calc(50% - 10px);
+    backdrop-filter: blur(5px);
+    transition: transform 0.3s ease;
+}
+
+.feature:hover {
+    transform: translateY(-5px);
+}
+
+.feature i {
+    font-size: 20px;
+    color: #A49885;
+}
+
+.feature span {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Password toggle button styling */
+#betterTogglePassword {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    height: 100%;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+}
+
+#betterTogglePassword:hover, 
+#betterTogglePassword.visible {
+    color: #A49885;
+}
+
+/* Responsive design */
+@media screen and (max-width: 992px) {
+    .home-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .login-section, .info-section {
+        width: 100%;
+        padding: 40px 30px;
+    }
+
+    .info-section {
+        order: -1; /* Show info section first on mobile */
+    }
+
+    .feature {
+        width: 100%; /* Full width on mobile */
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .home-container {
+        width: 100%;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .login-section, .info-section {
+        padding: 30px 20px;
+    }
+
+    .info-section h1 {
+        font-size: 28px;
+    }
+
+    .info-section h2 {
+        font-size: 20px;
+    }
+}

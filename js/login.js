@@ -1,4 +1,13 @@
-document.addEventListener('DOMContentLoaded', function() {
+/**
+ * Login Page JavaScript
+ * Handles the login form submission and validation
+ */
+import notifications from './core/notifications.js';
+import apiClient from './core/api-client.js';
+
+// The rest of the code should be at the top level as well
+// This is required for ES modules
+const domReady = function() {
     const passwordInput = document.getElementById('password');
     const loginForm = document.getElementById('loginForm');
     const errorMessage = document.getElementById('errorMessage');
@@ -45,69 +54,111 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const username = usernameInput.value;
-        const password = passwordInput.value;
-
-        // Simple validation
-        if (!username || !password) {
-            showError('Please fill in all fields');
-            return;
+    if (loginForm) {
+        // Ensure this event listener uses preventDefault()
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // This prevents the form from submitting traditionally
+            handleLogin(e);
+        });
+    }
+    
+    /**
+     * Handle login form submission
+     * @param {Event} e - The submit event
+     */
+    function handleLogin(e) {
+        // Clear previous errors
+        if (errorMessage) {
+            errorMessage.textContent = '';
+            errorMessage.style.display = 'none';
         }
-
-        // Remove the button element from DOM on submit
+        
+        // Get form data
+        const formData = new FormData(loginForm);
         const submitButton = loginForm.querySelector('button[type="submit"]');
-        submitButton.remove();
-
-        // Make AJAX request to the server
-        const formData = new FormData();
-        formData.append('username', username);
-        formData.append('password', password);
-
+        
+        // Save original button text and show loading state
+        const originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+        
+        // Debug info to console
+        console.log('Login form submitted');
+        console.log('Username:', formData.get('username'));
+        console.log('Password length:', formData.get('password').length);
+        
+        // Send login request with more error handling
         fetch('php/auth/login.php', {
             method: 'POST',
-            body: formData
+            body: formData,
+            credentials: 'same-origin' // Ensure cookies are sent and received
         })
         .then(response => {
+            console.log('Response status:', response.status);
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
+            console.log('Login response data:', data);
+            
             if (data.success) {
-                showNotification(data.message, data.redirect);
+                notifications.show('Login successful! Redirecting...', 'success');
+                
+                // Get the redirect URL from the response
+                const redirectUrl = data.redirect || 'user_dashboard.php';
+                console.log('Redirecting to:', redirectUrl);
+                
+                // Use a simpler, more direct approach to redirecting
+                setTimeout(() => {
+                    // Try direct window.location approach (most reliable)
+                    window.location = redirectUrl;
+                    
+                    // Fallback: If after 500ms we're still on the same page, try another approach
+                    setTimeout(() => {
+                        if (window.location.href.includes('login.php')) {
+                            console.log('First redirect attempt failed, trying alternative...');
+                            window.location.href = redirectUrl;
+                            
+                            // Last resort - create and click a link
+                            setTimeout(() => {
+                                if (window.location.href.includes('login.php')) {
+                                    console.log('Second redirect attempt failed, using link click...');
+                                    const link = document.createElement('a');
+                                    link.href = redirectUrl;
+                                    link.style.display = 'none';
+                                    document.body.appendChild(link);
+                                    link.click();
+                                }
+                            }, 500);
+                        }
+                    }, 500);
+                }, 1000);
             } else {
-                showError(data.message);
+                // Show error message
+                if (errorMessage) {
+                    errorMessage.textContent = data.message || 'Login failed. Please check your credentials.';
+                    errorMessage.style.display = 'block';
+                } else {
+                    notifications.show(data.message || 'Login failed. Please check your credentials.', 'error');
+                }
+                
+                // Reset button state
                 submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
             }
         })
         .catch(error => {
-            showError('An error occurred. Please try again.');
-            console.error('Error:', error);
+            console.error('Login error:', error.message);
+            
+            // Show detailed error notification
+            notifications.show('Error connecting to server: ' + error.message, 'error');
+            
+            // Reset button state
             submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
         });
-    });
-
-    function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
-        setTimeout(() => {
-            errorMessage.style.display = 'none';
-        }, 3000);
-    }
-
-    function showNotification(message, redirectUrl) {
-        notification.textContent = message;
-        notification.style.display = 'block';
-        loadingSpinner.style.display = 'inline-block';
-        setTimeout(() => {
-            notification.style.display = 'none';
-            loadingSpinner.style.display = 'none';
-            window.location.href = redirectUrl;
-        }, 2000);
     }
 
     // Add password toggle functionality - only keep this implementation
@@ -141,4 +192,36 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
+    
+    // Handle URL parameters (to fix any existing URLs with query params)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('username')) {
+        const username = urlParams.get('username');
+        const password = urlParams.get('password');
+        
+        // Clear URL parameters without refreshing
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        // If we have both username and password, auto-fill and submit
+        if (username && password) {
+            usernameInput.value = username;
+            passwordInput.value = password;
+            
+            // Trigger validation
+            validateField(usernameInput);
+            validateField(passwordInput);
+            
+            // Submit the form automatically after a small delay
+            setTimeout(() => handleLogin(new Event('submit')), 500);
+        }
+    }
+};
+
+// Use 'DOMContentLoaded' event or execute immediately if DOM is already loaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', domReady);
+} else {
+    domReady();
+}

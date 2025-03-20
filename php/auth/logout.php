@@ -1,31 +1,36 @@
 <?php
 session_start();
 
-// Include database connection for logging
-require_once '../config/db_connect.php';
+// Set content type to JSON
+header('Content-Type: application/json');
 
-// Log the logout action if user was authenticated
-if (isset($_SESSION['user_id'])) {
-    try {
-        $conn = getDbConnection();
-        if ($conn) {
-            $stmt = $conn->prepare('INSERT INTO logs (user_id, action, ip_address) VALUES (?, ?, ?)');
-            $stmt->execute([
-                $_SESSION['user_id'],
-                'logout',
-                $_SERVER['REMOTE_ADDR']
-            ]);
-        }
-    } catch (Exception $e) {
-        error_log('Logout error: ' . $e->getMessage());
-    }
+// Log logout attempt (for debugging only, remove in production)
+$logFile = '../../login_attempts.log';
+file_put_contents($logFile, date('Y-m-d H:i:s') . " - Logout attempt for user: " . 
+                 ($_SESSION['username'] ?? 'unknown') . "\n", FILE_APPEND);
+
+// Destroy the session
+$_SESSION = array();
+
+// If a session cookie is used, destroy it
+if (ini_get("session.use_cookies")) {
+    $params = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 42000,
+        $params["path"], $params["domain"],
+        $params["secure"], $params["httponly"]
+    );
 }
 
 // Destroy the session
-session_unset();
 session_destroy();
 
-// Redirect to login page
-header('Location: ../../index.html');
-exit;
+// Log success
+file_put_contents($logFile, date('Y-m-d H:i:s') . " - Logout successful\n", FILE_APPEND);
+
+// Return success response
+echo json_encode([
+    'success' => true,
+    'message' => 'Logout successful',
+    'redirect' => 'login.php'
+]);
 ?>

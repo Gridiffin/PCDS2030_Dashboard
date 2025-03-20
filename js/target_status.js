@@ -386,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
         notification.innerHTML = `
             ${message} 
             <div class="notification-action">
-                <a href="view_uploads.html" class="notification-link">View All Submissions <i class="fas fa-arrow-right"></i></a>
+                <a href='view_uploads.php' class="notification-link">View All Submissions <i class="fas fa-arrow-right"></i></a>
             </div>
         `;
         notification.className = 'notification'; // Reset classes
@@ -696,7 +696,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(data => {
                         if (!data.exists) {
                             // This draft no longer exists, redirect to clean form
-                            window.location.href = 'target_status.html';
+                            window.location.href = 'target_status.php';
                         }
                     })
                     .catch(err => console.error('Error checking if draft exists:', err));

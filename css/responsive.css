@@ -164,3 +164,225 @@
     font-size: 16px; /* Prevents iOS zoom on focus */
   }
 }
+
+/* Responsive Styles - using base.css for common elements */
+
+/* Show mobile text only on mobile screens */
+.mobile-text {
+    display: none;
+}
+
+/* Basic responsive container */
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Responsive navigation */
+@media screen and (max-width: 992px) {
+    .header-right {
+        gap: 10px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    /* Header adjustments */
+    header {
+        padding: 10px 15px;
+    }
+    
+    .logo {
+        height: 35px;
+    }
+    
+    /* Dashboard containers */
+    .dashboard-container, 
+    .admin-dashboard-container {
+        margin-top: 80px;
+        padding: 0 15px;
+    }
+    
+    /* Typography adjustments */
+    h1 {
+        font-size: 24px;
+    }
+    
+    h2 {
+        font-size: 20px;
+    }
+    
+    h3 {
+        font-size: 18px;
+    }
+    
+    /* Buttons */
+    button {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    
+    /* Show mobile text, hide desktop text */
+    .mobile-text {
+        display: inline;
+    }
+    
+    .desktop-text {
+        display: none;
+    }
+    
+    /* Form adjustments */
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-group {
+        width: 100%;
+    }
+    
+    /* Table adjustments */
+    .data-table {
+        font-size: 14px;
+    }
+    
+    .data-table thead th,
+    .data-table td {
+        padding: 10px;
+    }
+    
+    /* Modal adjustments */
+    .modal-content {
+        width: 95%;
+        margin: 20px auto;
+    }
+    
+    /* Notification adjustments */
+    .notification {
+        width: 90%;
+        left: 5%;
+        right: 5%;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    /* Further size reduction for very small screens */
+    .dashboard-container,
+    .admin-dashboard-container {
+        padding: 0 10px;
+        margin-top: 70px;
+    }
+    
+    /* Small screen typography */
+    h1 {
+        font-size: 22px;
+    }
+    
+    h2 {
+        font-size: 18px;
+    }
+    
+    h3 {
+        font-size: 16px;
+    }
+    
+    /* Card and section adjustments */
+    .dashboard-section,
+    .admin-dashboard-section,
+    .summary-section {
+        padding: 15px;
+    }
+    
+    /* Smaller buttons for very small screens */
+    button {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+    
+    /* Reduce icon sizes */
+    .dashboard-button i,
+    .admin-dashboard-button i {
+        font-size: 18px;
+    }
+    
+    /* Tighter form spacing */
+    .form-group {
+        margin-bottom: 10px;
+    }
+    
+    label {
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+    
+    /* Further table adjustments */
+    .data-table thead th,
+    .data-table td {
+        padding: 8px 5px;
+        font-size: 13px;
+    }
+    
+    /* Stack filter elements */
+    .filter-group {
+        margin-bottom: 10px;
+    }
+    
+    /* Modal adjustments for very small screens */
+    .modal-header h3 {
+        font-size: 18px;
+    }
+}
+
+/* Print styles */
+@media print {
+    header, 
+    footer,
+    .no-print,
+    button:not(.print-button) {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        font-size: 12pt;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .dashboard-container,
+    .admin-dashboard-container {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+    
+    .dashboard-section,
+    .admin-dashboard-section {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        page-break-inside: avoid;
+        margin-bottom: 20px;
+    }
+    
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+    
+    /* Ensure background colors print */
+    .status-success,
+    .status-warning,
+    .status-danger,
+    .status-info,
+    .status-draft,
+    .status-pending,
+    .status-approved,
+    .status-rejected {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

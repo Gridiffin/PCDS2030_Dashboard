@@ -5,6 +5,7 @@
     display: flex;
     margin-bottom: 20px;
     border-bottom: 2px solid #d5cdc3;
+    margin-top: 20px; /* Add space above the first section */
 }
 
 .tab {
@@ -73,6 +74,10 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 
+.dashboard-section:not(:first-child) {
+    margin-top: 30px; /* Create visual separation between section elements */
+}
+
 /* Metrics grid layout */
 .metrics-grid {
     display: grid;
@@ -118,6 +123,12 @@ button .ripple {
     transform: scale(0);
     animation: ripple 0.6s linear;
     pointer-events: none; /* Ensure ripple doesn't interfere with clicks */
+}
+
+/* Button styles */
+#add-metric-button {
+    margin: 20px auto;
+    display: block;
 }
 
 /* Input group styling */
@@ -236,6 +247,7 @@ button .ripple {
     border-radius: 8px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     animation: modalSlideDown 0.3s forwards;
+    max-width: 600px; /* Custom modal sizing for metrics */
 }
 
 @keyframes modalSlideDown {
@@ -305,6 +317,76 @@ button .ripple {
     border-bottom: none;
 }
 
+/* Required field indicator */
+.required {
+    color: #dc3545;
+}
+
+/* Reports table formatting */
+#reports-table td {
+    vertical-align: middle;
+}
+
+#reports-table .metric-name {
+    font-weight: 600;
+    color: #5c564d;
+}
+
+#reports-table .metric-date {
+    white-space: nowrap;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+#reports-table .metric-value {
+    font-weight: 600;
+    font-family: 'Work Sans', monospace;
+    color: #4a453e;
+}
+
+#reports-table .metric-notes {
+    color: #6c757d;
+    font-style: italic;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Report form formatting */
+#metric-report-form {
+    background: #f9f8f7;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+/* Ensure buttons have proper spacing */
+#back-to-metrics {
+    margin-right: auto;
+}
+
+/* Display empty items differently */
+.empty-value {
+    color: #aaa;
+    font-style: italic;
+}
+
+/* Custom tab styling specific to the metrics page */
+.tab-container .tab i {
+    font-size: 16px;
+}
+
+/* Modal styling specific to metric forms */
+#modalBody .form-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Helpful class for margin top */
+.mt-20 {
+    margin-top: 20px;
+}
+
 /* Responsive adjustments */
 @media screen and (max-width: 768px) {
     .metrics-grid {
@@ -319,5 +401,27 @@ button .ripple {
     .modal-content {
         margin: 15% auto;
         width: 95%;
+    }
+
+    .tab-container {
+        flex-direction: column;
+        border-bottom: none;
+        gap: 10px;
+    }
+    
+    .tab {
+        border: 1px solid #d5cdc3;
+        border-radius: 8px;
+        margin-bottom: 0;
+    }
+    
+    .tab.active {
+        background-color: #A49885;
+        color: white;
+        border-color: #A49885;
+    }
+    
+    #metric-report-form {
+        padding: 15px;
     }
 }

@@ -267,6 +267,7 @@ button:active {
     border-radius: 12px;
     padding: 25px 0;
     width: 180px;
+    height: 140px; /* Add consistent height */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -276,6 +277,7 @@ button:active {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     overflow: hidden;
+    margin: 10px auto;
 }
 
 .dashboard-button::before {
@@ -285,7 +287,7 @@ button:active {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(164, 152, 133, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
     transition: left 0.7s ease;
 }
 
@@ -296,8 +298,12 @@ button:active {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
+.dashboard-button:hover::before {
+    left: 100%;
+}
+
 .dashboard-button i {
-    font-size: 24px;
+    font-size: 28px; /* Slightly larger icon */
     margin-bottom: 5px;
     color: #4a453e; /* Darker shade for icons */
     display: flex; /* Add flex display to improve icon centering */
@@ -312,11 +318,22 @@ button:active {
     font-weight: 600;
     font-size: 16px;
     color: #24252A; /* Make text color consistent */
-    padding: 0 5px; /* Add some side padding for text */
+    padding: 0 10px;
     width: 100%; /* Full width of button */
     overflow-wrap: break-word; /* Allow text to break */
     word-wrap: break-word; /* Ensure long words break properly */
     hyphens: auto; /* Enable hyphenation for very long words */
+    text-align: center;
+    line-height: 1.3;
+}
+
+/* Improved dashboard buttons layout */
+.dashboard-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: stretch; /* Make all buttons same height */
 }
 
 .summary-section {
@@ -408,18 +425,18 @@ copyright:not(footer .copyright) {
     }
     
     .dashboard-button {
-        width: 90%;
-        max-width: 300px;
-        padding: 20px 0; /* Slightly reduce padding on mobile */
+        width: 150px;
+        height: 120px;
+        padding: 20px 0;
     }
     
     .dashboard-button i {
-        font-size: 22px; /* Slightly reduce icon size on mobile */
+        font-size: 24px; /* Slightly reduce icon size on mobile */
         margin-bottom: 8px;
     }
     
     .dashboard-button span {
-        font-size: 15px; /* Slightly reduce text size on mobile */
+        font-size: 14px; /* Slightly reduce text size on mobile */
         line-height: 1.2; /* Better line height for text wrapping */
         max-width: 100%; /* Ensure text stays within button */
     }
@@ -509,4 +526,143 @@ copyright:not(footer .copyright) {
 
 .summary-section {
     animation-delay: 0.6s;
+}
+
+/* User Dashboard specific styles */
+/* This file contains styles specific to the user dashboard that aren't in base.css */
+
+/* User Dashboard Specific Styles */
+.dashboard-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+/* Dashboard buttons with consistent styling */
+.dashboard-button {
+    background-color: #A49885;
+    color: #24252A;
+    border: 2px solid #A49885;
+    border-radius: 12px;
+    padding: 25px 0;
+    width: 180px; /* Make consistent width */
+    height: 140px; /* Add consistent height */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+    overflow: hidden;
+    margin: 10px auto;
+}
+
+.dashboard-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.7s ease;
+}
+
+.dashboard-button:hover {
+    background-color: #b9ad9b;
+    border-color: #b9ad9b;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-button:hover::before {
+    left: 100%;
+}
+
+.dashboard-button i {
+    font-size: 28px; /* Slightly larger icon */
+    color: #24252A;
+    margin-bottom: 8px;
+    height: 30px; /* Fixed height for consistent spacing */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dashboard-button span {
+    font-family: 'Work Sans', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    color: #24252A;
+    text-align: center;
+    padding: 0 10px;
+    line-height: 1.3;
+}
+
+/* Improved dashboard buttons layout */
+.dashboard-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: stretch; /* Make all buttons same height */
+}
+
+.button-link {
+    text-decoration: none;
+    display: block;
+}
+
+.long-text-button {
+    width: 180px; /* Keep consistent width */
+}
+
+/* Summary section */
+.summary-section h2 i {
+    color: #A49885;
+}
+
+.chart-container {
+    padding: 10px;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chart-container img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .dashboard-button {
+        width: 150px;
+        height: 120px;
+        padding: 20px 0;
+    }
+    
+    .dashboard-button i {
+        font-size: 24px;
+    }
+    
+    .dashboard-button span {
+        font-size: 14px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .dashboard-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .dashboard-button {
+        width: 80%;
+        max-width: 250px;
+    }
 }

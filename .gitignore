@@ -1,0 +1,39 @@
+# PHP error logs
+php_error_log
+*.log
+
+# Environment-specific files
+.env
+config.local.php
+
+# User uploaded files
+uploads/*
+!uploads/.htaccess
+!uploads/index.php
+
+# Temporary files
+temp/*
+!temp/.htaccess
+!temp/index.php
+
+# IDE/Editor folders
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+.DS_Store
+
+# Composer dependencies (if used)
+/vendor/
+
+# NPM/Node.js (if used)
+/node_modules/
+package-lock.json
+
+# Other
+/bin/
+debug.php
+*.bak
+*.tmp
+Thumbs.db

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placeholder Chart</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+        .chart-container {
+            width: 600px;
+            height: 400px;
+            position: relative;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+        }
+        .chart-title {
+            text-align: center;
+            padding: 10px 0;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            color: #333;
+        }
+        .chart-grid {
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            right: 50px;
+            bottom: 50px;
+            border: 1px solid #ddd;
+            background-image: linear-gradient(#ddd 1px, transparent 1px),
+                            linear-gradient(90deg, #ddd 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        .chart-bar {
+            position: absolute;
+            bottom: 50px;
+            width: 40px;
+            background-color: #A49885;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <div class="chart-title">Placeholder Chart</div>
+        <div class="chart-grid"></div>
+        <div class="chart-bar" style="left: 80px; height: 120px;"></div>
+        <div class="chart-bar" style="left: 160px; height: 80px;"></div>
+        <div class="chart-bar" style="left: 240px; height: 160px;"></div>
+        <div class="chart-bar" style="left: 320px; height: 200px;"></div>
+        <div class="chart-bar" style="left: 400px; height: 100px;"></div>
+        <div class="chart-bar" style="left: 480px; height: 180px;"></div>
+    </div>
+</body>
+</html>

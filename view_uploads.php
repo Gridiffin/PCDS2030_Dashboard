@@ -6,7 +6,7 @@ require_login();
 
 // Variables for templates
 $pageVars = [
-    'pageTitle' => 'View Submissions',
+    'pageTitle' => 'View Submissions | PCDS 2030 Dashboard',
     'userType' => 'user',
     'showAgencyBadge' => true,
     'showLogout' => false,
@@ -26,9 +26,15 @@ $pageVars = [
         'js/view_uploads.js'
     ],
     'styles' => [
-        '/pcds2030_dashboard/css/view_uploads.css' // Use absolute path
+        'css/base.css',
+        'css/tables.css',
+        'css/view_uploads.css',
+        'css/styles.css'  // This is correctly included
     ]
 ];
+
+// Include Font Awesome for icons
+$includeFontAwesome = true;
 
 // Render the page
 render_page('content/view_uploads_content.php', $pageVars);

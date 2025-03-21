@@ -1,0 +1,231 @@
+/* Ensure proper alignment for table rows */
+.table-row {
+    display: flex;
+    align-items: center; /* Vertically align items */
+    border-bottom: 1px solid #e3e3e3;
+    transition: background-color 0.2s ease;
+}
+
+/* Remove badge-yours styles as they're no longer needed */
+
+/* Ensure icons are properly aligned */
+.icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin: 0 4px; /* Add spacing between icons */
+    font-size: 16px;
+    color: #A49885; /* Gold color for icons */
+    background-color: transparent;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    vertical-align: middle; /* Align with text */
+}
+
+.icon-button i {
+    display: inline-block;
+    vertical-align: middle; /* Align icon with text */
+}
+
+/* Add hover effect for icons */
+.icon-button:hover {
+    color: #ffffff;
+    background-color: #A49885; /* Gold background on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.icon-button[disabled] {
+    opacity: 0.5; /* Dim disabled buttons */
+    cursor: not-allowed; /* Show not-allowed cursor for disabled buttons */
+    pointer-events: none;
+}
+
+/* Ensure table cells have consistent padding */
+.table-cell {
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle; /* Align content vertically */
+}
+
+/* Adjust alignment for the "Last Updated" column */
+.table-cell-last-updated {
+    text-align: center; /* Center align the date */
+}
+
+/* Add spacing between rows */
+.table-row + .table-row {
+    margin-top: 8px; /* Add spacing between rows */
+}
+
+/* Ensure consistent alignment for action buttons */
+.action-cell {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center align the buttons */
+    gap: 8px; /* Even spacing between buttons */
+}
+
+/* Agency header styling */
+.agency-header {
+    border: none;
+    padding: 0;
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.agency-header td {
+    padding: 0 !important;
+}
+
+.agency-header-content {
+    font-weight: bold;
+    font-size: 16px; /* Larger font size for better visibility */
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px; /* Rounded corners for a modern look */
+}
+
+.agency-header-content i {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Current agency header - vibrant blue with shadow */
+.current-agency-header {
+    background: none;
+    box-shadow: none;
+}
+
+.current-agency-header .agency-header-content {
+    background-color: #24252A; /* Black background */
+    color: #A49885; /* Gold text */
+    border-left: 5px solid #A49885; /* Gold accent border */
+}
+
+/* Other agencies header - distinct neutral color with shadow */
+.other-agencies-header {
+    background: none;
+    box-shadow: none;
+    margin-top: 30px;
+}
+
+.other-agencies-header .agency-header-content {
+    background-color: #32333a; /* Slightly lighter black */
+    color: #9e9689; /* Slightly muted gold */
+    border-left: 5px solid #9e9689;
+}
+
+/* Row styling */
+.current-agency-row {
+    background-color: #f8f6f2; /* Very light gold tint */
+}
+
+.current-agency-row:hover {
+    background-color: #f0ece3; /* Slightly darker on hover */
+}
+
+.current-agency-row:nth-child(even) {
+    background-color: #f5f2eb; /* Alternating row color */
+}
+
+.other-agency-row {
+    background-color: #f9f9f9; /* Very light gray */
+}
+
+.other-agency-row:hover {
+    background-color: #f0f0f0; /* Slightly darker on hover */
+}
+
+.other-agency-row:nth-child(even) {
+    background-color: #f5f5f5; /* Alternating row color */
+}
+
+/* Ensure table cells have consistent padding */
+td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+/* Add space between the sections */
+.agency-header + .agency-header {
+    margin-top: 30px;
+}
+
+/* Add a subtle border to the table for definition */
+table.data-table {
+    border: 1px solid #e0e0e0;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Table header styling - updated to match primary button color */
+.data-table thead th {
+    background-color: #A49885; /* Gold background to match primary button */
+    color: #ffffff; /* White text for contrast */
+    padding: 15px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #ffffff; /* White border for separation */
+    text-align: left;
+}
+
+/* Add hover effect to table headers for better UX */
+.data-table thead th:hover {
+    background-color: #b9ad9b; /* Slightly lighter gold on hover */
+    cursor: pointer;
+}
+
+/* Sorting icon styling */
+.data-table thead th i {
+    margin-left: 5px;
+    opacity: 0.7;
+}
+
+/* Status circle styling */
+.status-circle {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.status-circle.completed {
+    background-color: #4CAF50; /* Green */
+}
+
+.status-circle.progress {
+    background-color: #2196F3; /* Blue */
+}
+
+.status-circle.warning {
+    background-color: #FF9800; /* Orange */
+}
+
+.status-circle.draft {
+    background-color: #9E9E9E; /* Gray */
+}
+
+/* No data message styling */
+.no-data-message {
+    text-align: center;
+    padding: 40px;
+    font-size: 15px;
+    color: #666;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    margin: 20px 0;
+    border: 1px solid #e0e0e0;
+}

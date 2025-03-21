@@ -270,127 +270,75 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
 
-                // Clear existing rows
-                if (submissionsTable) {
-                    submissionsTable.innerHTML = '';
-                }
-
-                // Show or hide no data message
-                if (data.data.length === 0 && noDataMessage) {
-                    noDataMessage.style.display = 'block';
-                    return;
-                } else if (noDataMessage) {
-                    noDataMessage.style.display = 'none';
-                }
-
-                // Add rows for each submission - filter out drafts
+                // Group submissions by agency
+                const currentAgencySubmissions = [];
+                const otherAgencySubmissions = [];
+                
+                // Sort submissions into groups
                 data.data.forEach(submission => {
                     // Skip drafts - they're now in a separate table
                     if (submission.status === 'draft') {
                         return;
                     }
-
-                    const row = document.createElement('tr');
                     
-                    // Add 'own-agency' class for visual distinction if this submission belongs to the user's agency
                     if (submission.agencyId === currentUser.agencyId) {
-                        row.classList.add('own-agency');
-                    }
-
-                    // Use the statusColor if provided, otherwise fall back to status mapping
-                    let statusClass, statusText;
-                    
-                    if (submission.statusColor) {
-                        // Use the explicitly set color
-                        statusClass = submission.statusColor;
+                        currentAgencySubmissions.push(submission);
                     } else {
-                        // Fall back to traditional status mapping
-                        switch (submission.statusCategory || submission.status) {
-                            case 'completed':
-                                statusClass = 'completed';
-                                statusText = 'Monthly target achieved';
-                                break;
-                            case 'nearly-complete':
-                                statusClass = 'progress';
-                                statusText = 'Miss in target but still on track';
-                                break;
-                            case 'in-progress':
-                                statusClass = 'progress';
-                                statusText = 'In Progress';
-                                break;
-                            case 'not-started':
-                                statusClass = 'draft';
-                                statusText = 'Not Started';
-                                break;
-                            case 'delayed':
-                                statusClass = 'warning';
-                                statusText = 'Severe delays';
-                                break;
-                            case 'cancelled':
-                                statusClass = 'draft';
-                                statusText = 'Cancelled';
-                                break;
-                            default:
-                                statusClass = 'draft';
-                                statusText = submission.status || 'Unknown';
-                        }
-                    }
-
-                    // Display either the quantitative value or a qualitative summary
-                    let statusDisplay = submission.currentValue;
-                    if (submission.isQualitative) { 
-                        // For qualitative status, show a truncated version of the status notes
-                        const maxLength = 30;
-                        statusDisplay = submission.statusSummary || 
-                            (submission.statusNotes && submission.statusNotes.length > maxLength ? 
-                            submission.statusNotes.substring(0, maxLength) + '...' : 
-                            submission.statusNotes || 'No update');
-                    }
-
-                    // Create action buttons based on editability
-                    const actionButtons = `
-                        <button type="button" class="icon-button view-btn" data-id="${submission.id}" title="View Details">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        ${submission.isEditable ? `
-                            <a href="target_status.php?program=${submission.id}" class="icon-button edit-btn" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <button type="button" class="icon-button delete-btn" data-id="${submission.id}" data-program="${escapeHtml(submission.programName)}" title="Delete">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        ` : `
-                            <button type="button" class="icon-button edit-btn" disabled title="Can't edit (different agency)">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button type="button" class="icon-button delete-btn" disabled title="Can't delete (different agency)">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        `}
-                    `;
-
-                    row.innerHTML = `
-                        <td>${escapeHtml(submission.programName)}</td>
-                        <td>${submission.year} ${submission.quarter}</td>
-                        <td>${escapeHtml(submission.metricTypeName)}</td>
-                        <td>${escapeHtml(submission.sectorName || 'Not specified')}</td>
-                        <td>${escapeHtml(submission.agencyName)}${submission.agencyId === currentUser.agencyId ? ' <span class="badge-small">yours</span>' : ''}</td>
-                        <td><div class="status-circle ${statusClass}" title="${statusText}"></div> ${escapeHtml(statusDisplay)}</td>
-                        <td>${formatDate(submission.lastUpdated)}</td>
-                        <td class="action-cell">${actionButtons}</td>
-                    `;
-
-                    if (submissionsTable) {
-                        submissionsTable.appendChild(row);
+                        otherAgencySubmissions.push(submission);
                     }
                 });
-
-                // Add event listeners to the buttons
-                addActionListeners();
                 
-                // Show success notification only on manual refresh
-                if (isManualRefresh) {
-                    showNotification('Submissions refreshed successfully', 'success');
+                // Clear existing rows
+                if (submissionsTable) {
+                    submissionsTable.innerHTML = '';
+                    
+                    // Add current agency submissions with header
+                    if (currentAgencySubmissions.length > 0) {
+                        // Add header row for current agency
+                        const currentAgencyHeader = document.createElement('tr');
+                        currentAgencyHeader.className = 'agency-header current-agency-header';
+                        currentAgencyHeader.innerHTML = `
+                            <td colspan="8">
+                                <div class="agency-header-content">
+                                    <i class="fas fa-building"></i> Your Agency: ${escapeHtml(currentUser.agencyName)}
+                                </div>
+                            </td>
+                        `;
+                        submissionsTable.appendChild(currentAgencyHeader);
+                        
+                        // Add each submission from current agency
+                        currentAgencySubmissions.forEach(submission => {
+                            addSubmissionRow(submission, 'current-agency-row');
+                        });
+                    }
+                    
+                    // Add other agency submissions with header
+                    if (otherAgencySubmissions.length > 0) {
+                        // Add header row for other agencies
+                        const otherAgenciesHeader = document.createElement('tr');
+                        otherAgenciesHeader.className = 'agency-header other-agencies-header';
+                        otherAgenciesHeader.innerHTML = `
+                            <td colspan="8">
+                                <div class="agency-header-content">
+                                    <i class="fas fa-exchange-alt"></i> Other Agencies
+                                </div>
+                            </td>
+                        `;
+                        submissionsTable.appendChild(otherAgenciesHeader);
+                        
+                        // Add each submission from other agencies
+                        otherAgencySubmissions.forEach(submission => {
+                            addSubmissionRow(submission, 'other-agency-row');
+                        });
+                    }
+                    
+                    // Add event listeners to the buttons
+                    addActionListeners();
+                    
+                    // Show success notification only on manual refresh
+                    if (isManualRefresh) {
+                        showNotification('Submissions refreshed successfully', 'success');
+                    }
                 }
             })
             .catch(error => {
@@ -405,6 +353,88 @@ document.addEventListener('DOMContentLoaded', function() {
                     showNotification('Error refreshing submissions: ' + error.message, 'error');
                 }
             });
+
+        // Helper function to add submission row
+        function addSubmissionRow(submission, rowClass) {
+            const row = document.createElement('tr');
+            row.className = rowClass;
+            
+            // Use the statusColor if provided, otherwise fall back to status mapping
+            let statusClass, statusText;
+            
+            if (submission.statusColor) {
+                // Use the explicitly set color
+                statusClass = submission.statusColor;
+            } else {
+                // Fall back to traditional status mapping
+                switch (submission.statusCategory || submission.status) {
+                    case 'completed':
+                        statusClass = 'completed';
+                        statusText = 'Monthly target achieved';
+                        break;
+                    case 'nearly-complete':
+                        statusClass = 'progress';
+                        statusText = 'Miss in target but still on track';
+                        break;
+                    case 'in-progress':
+                        statusClass = 'progress';
+                        statusText = 'In Progress';
+                        break;
+                    case 'not-started':
+                        statusClass = 'draft';
+                        statusText = 'Not Started';
+                        break;
+                    case 'delayed':
+                        statusClass = 'warning';
+                        statusText = 'Severe delays';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'draft';
+                        statusText = 'Cancelled';
+                        break;
+                    default:
+                        statusClass = 'draft';
+                        statusText = submission.status || 'Unknown';
+                }
+            }
+            
+            // Display either the quantitative value or a qualitative summary
+            let statusDisplay = submission.currentValue;
+            if (submission.isQualitative) { 
+                // For qualitative status, show a truncated version of the status notes
+                const maxLength = 30;
+                statusDisplay = submission.statusSummary || 
+                    (submission.statusNotes && submission.statusNotes.length > maxLength ? 
+                    submission.statusNotes.substring(0, maxLength) + '...' : 
+                    submission.statusNotes || 'No update');
+            }
+            
+            // Create action buttons - CONSISTENT STRUCTURE for both types of rows
+            const actionButtons = `
+                <button type="button" class="icon-button view-btn" data-id="${submission.id}" title="View Details">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button type="button" class="icon-button edit-btn" ${!submission.isEditable ? 'disabled' : ''} data-id="${submission.id}" title="${submission.isEditable ? 'Edit' : 'Cannot edit (different agency)'}">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button type="button" class="icon-button delete-btn" ${!submission.isEditable ? 'disabled' : ''} data-id="${submission.id}" ${submission.isEditable ? `data-program="${escapeHtml(submission.programName)}"` : ''} title="${submission.isEditable ? 'Delete' : 'Cannot delete (different agency)'}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            row.innerHTML = `
+                <td>${escapeHtml(submission.programName)}</td>
+                <td>${submission.year} ${submission.quarter}</td>
+                <td>${escapeHtml(submission.metricTypeName)}</td>
+                <td>${escapeHtml(submission.sectorName || 'Not specified')}</td>
+                <td>${escapeHtml(submission.agencyName)}</td>
+                <td><div class="status-circle ${statusClass}" title="${statusText}"></div> ${escapeHtml(statusDisplay)}</td>
+                <td>${formatDate(submission.lastUpdated)}</td>
+                <td class="action-cell">${actionButtons}</td>
+            `;
+            
+            submissionsTable.appendChild(row);
+        }
     }
 
     function loadDrafts() {
@@ -794,3 +824,40 @@ document.addEventListener('DOMContentLoaded', function () {
         modal.classList.add("active");
     };
 });
+
+function renderSubmissionsTable(submissions) {
+    const tableBody = document.querySelector('#submissionsTable tbody');
+    tableBody.innerHTML = ''; // Clear existing rows
+
+    submissions.forEach(submission => {
+        const row = document.createElement('tr');
+        row.className = 'table-row';
+
+        // Add program name
+        const programCell = document.createElement('td');
+        programCell.className = 'table-cell';
+        programCell.textContent = submission.programName;
+        row.appendChild(programCell);
+
+        // Add other cells (Year/Quarter, Category, etc.)
+        // ...existing code...
+
+        // Add action buttons
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'table-cell action-cell';
+        actionsCell.innerHTML = `
+            <button type="button" class="icon-button view-btn" data-id="${submission.id}" title="View Details">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button type="button" class="icon-button edit-btn" ${submission.isEditable ? '' : 'disabled'} data-id="${submission.id}" title="${submission.isEditable ? 'Edit' : 'Cannot edit (different agency)'}">
+                <i class="fas fa-edit"></i>
+            </button>
+            <button type="button" class="icon-button delete-btn" ${submission.isEditable ? '' : 'disabled'} data-id="${submission.id}" title="${submission.isEditable ? 'Delete' : 'Cannot delete (different agency)'}">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+        row.appendChild(actionsCell);
+
+        tableBody.appendChild(row);
+    });
+}

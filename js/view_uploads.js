@@ -8,33 +8,69 @@ document.addEventListener('DOMContentLoaded', function() {
         allowedMetricTypes: []
     };
 
-    // DOM elements
-    const submissionsTable = document.getElementById('submissionsTable').querySelector('tbody');
+    // DOM elements - add safe checks for all elements
+    const submissionsTable = document.getElementById('submissionsTable')?.querySelector('tbody');
     const noDataMessage = document.getElementById('noDataMessage');
     const detailModal = document.getElementById('detailModal');
-    const modalBody = document.getElementById('modalBody'); // Updated: Changed from modalContent to modalBody
+    const modalBody = document.getElementById('modalBody'); 
     const notification = document.getElementById('notification');
     const refreshSubmissionsBtn = document.getElementById('refreshSubmissions');
     const viewMetricTypeSelect = document.getElementById('viewMetricType');
     const viewAgencySelect = document.getElementById('viewAgency');
     const usernameElement = document.getElementById('username');
     const agencyBadge = document.getElementById('agency-badge');
-    const draftsTable = document.getElementById('draftsTable').querySelector('tbody');
+    const draftsTable = document.getElementById('draftsTable')?.querySelector('tbody');
     const noDraftsMessage = document.getElementById('noDraftsMessage');
+    
+    // Add loading indicators
+    const addLoadingSpinner = (element, message = 'Loading...') => {
+        if (!element) return;
+        element.innerHTML = `<tr><td colspan="8" class="loading-cell"><div class="loading-spinner"></div><p>${message}</p></td></tr>`;
+    };
 
     // Initialize app
     init();
 
-    // Event listeners
-    document.querySelector('.close-modal').addEventListener('click', () => detailModal.classList.remove('active'));
-    refreshSubmissionsBtn.addEventListener('click', loadSubmissions);
-    document.getElementById('viewYear').addEventListener('change', loadSubmissions);
-    document.getElementById('viewQuarter').addEventListener('change', loadSubmissions);
-    viewMetricTypeSelect.addEventListener('change', loadSubmissions);
-    viewAgencySelect.addEventListener('change', loadSubmissions);
+    // Event listeners - add null checks to prevent errors
+    if (document.querySelector('.close-modal')) {
+        document.querySelector('.close-modal').addEventListener('click', () => {
+            if (detailModal) detailModal.classList.remove('active');
+        });
+    }
+    
+    if (refreshSubmissionsBtn) {
+        refreshSubmissionsBtn.addEventListener('click', () => {
+            loadSubmissions(true); // true indicates this is a manual refresh
+        });
+    }
+    
+    if (document.getElementById('viewYear')) {
+        document.getElementById('viewYear').addEventListener('change', loadSubmissions);
+    }
+    
+    if (document.getElementById('viewQuarter')) {
+        document.getElementById('viewQuarter').addEventListener('change', loadSubmissions);
+    }
+    
+    if (viewMetricTypeSelect) {
+        viewMetricTypeSelect.addEventListener('change', loadSubmissions);
+    }
+    
+    if (viewAgencySelect) {
+        viewAgencySelect.addEventListener('change', loadSubmissions);
+    }
 
     // Functions
     function init() {
+        // Add initial loading indicators
+        if (submissionsTable) {
+            addLoadingSpinner(submissionsTable, 'Loading submissions...');
+        }
+        
+        if (draftsTable) {
+            addLoadingSpinner(draftsTable, 'Loading drafts...');
+        }
+
         // Load current user data
         loadCurrentUser();
         
@@ -56,10 +92,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleHashChange() {
         // If hash is #drafts, scroll to drafts section
         if (window.location.hash === '#drafts') {
-            document.querySelector('.dashboard-section:nth-child(2)').scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+            const draftsSection = document.querySelector('.dashboard-section:nth-child(2)');
+            if (draftsSection) {
+                draftsSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
         }
     }
 
@@ -70,6 +109,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (!data.success || !data.user) {
                     showNotification('Failed to load user data', 'error');
+                    // Still proceed with loading data
+                    loadAllMetricTypes();
+                    loadAgencies();
+                    loadSubmissions();  // Load submissions right away
+                    loadDrafts();       // Load drafts right away
                     return;
                 }
 
@@ -82,40 +126,69 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentUser.agencyName = userData.agencyName;
                 currentUser.allowedMetricTypes = userData.allowedMetricTypes;
 
-                // Update UI with user data
-                usernameElement.textContent = currentUser.username;
-                agencyBadge.textContent = currentUser.agencyName;
+                // Update UI with user data - Add null checks to prevent errors
+                if (usernameElement) {
+                    usernameElement.textContent = currentUser.username;
+                }
+                
+                if (agencyBadge) {
+                    agencyBadge.textContent = currentUser.agencyName;
+                }
                 
                 // Now that we have user data, load everything else
-                loadAgencies();
                 loadAllMetricTypes();
-                loadSubmissions();
-                loadDrafts(); // Add function to load drafts separately
+                loadAgencies();
+                loadSubmissions();  // Load submissions right away
+                loadDrafts();       // Load drafts right away
+                
+                // Check hash to determine what to load
+                handleHashChange();
             })
             .catch(error => {
                 console.error('Error loading user data:', error);
                 showNotification('Error loading user data: ' + error.message, 'error');
+                
+                // Still try to load metrics, agencies, and data even if user data fails
+                loadAllMetricTypes();
+                loadAgencies();
+                loadSubmissions();  // Load submissions despite error
+                loadDrafts();       // Load drafts despite error
+                handleHashChange();
             });
     }
 
     function loadAllMetricTypes() {
-        fetch('php/metrics/get_metric_types.php')
-            .then(response => response.json())
+        fetch('php/metrics/get_all_metric_types.php')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error("JSON Parse Error. Raw response:", text.substring(0, 100));
+                        throw new Error("Invalid JSON response from server");
+                    }
+                });
+            })
             .then(data => {
                 if (!data.success) {
                     throw new Error(data.message || 'Failed to load all metric types');
                 }
                 
                 // Clear existing options except the default one
-                viewMetricTypeSelect.innerHTML = '<option value="">All Sectors</option>';
-                
-                // Add options for each metric type
-                data.data.forEach(type => {
-                    const option = document.createElement('option');
-                    option.value = type.id;
-                    option.textContent = type.name;
-                    viewMetricTypeSelect.appendChild(option);
-                });
+                if (viewMetricTypeSelect) {
+                    viewMetricTypeSelect.innerHTML = '<option value="">All Sectors</option>';
+                    
+                    // Add options for each metric type
+                    data.data.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type.id;
+                        option.textContent = type.name;
+                        viewMetricTypeSelect.appendChild(option);
+                    });
+                }
             })
             .catch(error => {
                 console.error('Error loading all metric types:', error);
@@ -131,28 +204,38 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Clear existing options except the default one
-                viewAgencySelect.innerHTML = '<option value="">All Agencies</option>';
-                
-                // Add options for each agency
-                data.data.forEach(agency => {
-                    const option = document.createElement('option');
-                    option.value = agency.AgencyID;
-                    option.textContent = agency.AgencyName;
-                    viewAgencySelect.appendChild(option);
-                });
+                if (viewAgencySelect) {
+                    viewAgencySelect.innerHTML = '<option value="">All Agencies</option>';
+                    
+                    // Add options for each agency
+                    data.data.forEach(agency => {
+                        const option = document.createElement('option');
+                        option.value = agency.AgencyID;
+                        option.textContent = agency.AgencyName;
+                        viewAgencySelect.appendChild(option);
+                    });
+                }
             })
             .catch(error => {
                 console.error('Error loading agencies:', error);
             });
     }
 
-    function loadSubmissions() {
+    function loadSubmissions(isManualRefresh = false) {
+        // Show loading state
+        if (submissionsTable) {
+            // Only show loading if it's a manual refresh or the table is empty
+            if (isManualRefresh || !submissionsTable.querySelector('tr:not(.loading-cell)')) {
+                addLoadingSpinner(submissionsTable, 'Loading submissions...');
+            }
+        }
+        
         // Get filters
         const filters = {
-            year: document.getElementById('viewYear').value,
-            quarter: document.getElementById('viewQuarter').value,
-            metricType: viewMetricTypeSelect.value,
-            agencyId: viewAgencySelect.value
+            year: document.getElementById('viewYear')?.value,
+            quarter: document.getElementById('viewQuarter')?.value,
+            metricType: viewMetricTypeSelect?.value,
+            agencyId: viewAgencySelect?.value
         };
 
         // Build query parameters
@@ -161,24 +244,33 @@ document.addEventListener('DOMContentLoaded', function() {
         if (filters.quarter) queryParams.append('quarter', filters.quarter);
         if (filters.metricType) queryParams.append('metricType', filters.metricType);
         if (filters.agencyId) queryParams.append('agencyId', filters.agencyId);
+        
+        // Add a cache-busting parameter when manually refreshing
+        if (isManualRefresh) {
+            queryParams.append('refresh', Date.now());
+        }
 
         // Fetch data from database
         fetch('php/metrics/get_submissions.php?' + queryParams.toString())
             .then(response => response.json())
             .then(data => {
                 if (!data.success || !data.data) {
-                    showNotification('Failed to load submissions', 'error');
+                    if (isManualRefresh) {
+                        showNotification('Failed to load submissions', 'error');
+                    }
                     return;
                 }
 
                 // Clear existing rows
-                submissionsTable.innerHTML = '';
+                if (submissionsTable) {
+                    submissionsTable.innerHTML = '';
+                }
 
                 // Show or hide no data message
-                if (data.data.length === 0) {
+                if (data.data.length === 0 && noDataMessage) {
                     noDataMessage.style.display = 'block';
                     return;
-                } else {
+                } else if (noDataMessage) {
                     noDataMessage.style.display = 'none';
                 }
 
@@ -247,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <i class="fas fa-eye"></i>
                         </button>
                         ${submission.isEditable ? `
-                            <a href="target_status.html?edit=${submission.id}" class="icon-button edit-btn" title="Edit">
+                            <a href="target_status.php?program=${submission.id}" class="icon-button edit-btn" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </a>
                             <button type="button" class="icon-button delete-btn" data-id="${submission.id}" data-program="${escapeHtml(submission.programName)}" title="Delete">
@@ -273,32 +365,55 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td>${formatDate(submission.lastUpdated)}</td>
                         <td class="action-cell">${actionButtons}</td>
                     `;
-
-                    submissionsTable.appendChild(row);
+                    
+                    if (submissionsTable) {
+                        submissionsTable.appendChild(row);
+                    }
                 });
 
                 // Add event listeners to the buttons
                 addActionListeners();
+                
+                // Show success notification only on manual refresh
+                if (isManualRefresh) {
+                    showNotification('Submissions refreshed successfully', 'success');
+                }
             })
             .catch(error => {
                 console.error('Error loading submissions:', error);
-                submissionsTable.innerHTML = '<tr><td colspan="8" style="text-align: center;">Error loading submissions: ' + error.message + '</td></tr>';
-                noDataMessage.style.display = 'none';
+                if (submissionsTable) {
+                    submissionsTable.innerHTML = '<tr><td colspan="8" style="text-align: center;">Error loading submissions: ' + error.message + '</td></tr>';
+                }
+                if (noDataMessage) {
+                    noDataMessage.style.display = 'none';
+                }
+                if (isManualRefresh) {
+                    showNotification('Error refreshing submissions: ' + error.message, 'error');
+                }
             });
     }
 
     function loadDrafts() {
+        // Show loading state for drafts table
+        if (draftsTable && !draftsTable.querySelector('tr:not(.loading-cell)')) {
+            addLoadingSpinner(draftsTable, 'Loading drafts...');
+        }
+        
         fetch('php/metrics/get_drafts.php')
             .then(response => response.json())
             .then(data => {
                 // Clear existing rows
-                draftsTable.innerHTML = '';
+                if (draftsTable) {
+                    draftsTable.innerHTML = '';
+                }
 
                 // Show or hide no data message
                 if (!data.success || !data.data || data.data.length === 0) {
-                    noDraftsMessage.style.display = 'block';
+                    if (noDraftsMessage) {
+                        noDraftsMessage.style.display = 'block';
+                    }
                     return;
-                } else {
+                } else if (noDraftsMessage) {
                     noDraftsMessage.style.display = 'none';
                 }
 
@@ -317,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button type="button" class="icon-button view-btn" data-id="${draft.id}" title="View Details">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <a href="target_status.html?draft=${draft.id}" class="icon-button edit-btn" title="Continue Editing">
+                        <a href="target_status.php?draft=${draft.id}" class="icon-button edit-btn" title="Continue Editing">
                             <i class="fas fa-pencil-alt"></i>
                         </a>
                         <button type="button" class="icon-button delete-btn" data-id="${draft.id}" data-program="${escapeHtml(draft.programName)}" title="Delete">
@@ -334,12 +449,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td class="action-cell">${actionButtons}</td>
                     `;
 
-                    draftsTable.appendChild(row);
-                    
-                    // Trigger reflow and fade in
-                    setTimeout(() => {
-                        row.style.opacity = '1';
-                    }, 10);
+                    if (draftsTable) {
+                        draftsTable.appendChild(row);
+                        
+                        // Trigger reflow and fade in
+                        setTimeout(() => {
+                            row.style.opacity = '1';
+                        }, 10);
+                    }
                 });
 
                 // Add event listeners to the draft buttons
@@ -347,8 +464,12 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .catch(error => {
                 console.error('Error loading drafts:', error);
-                draftsTable.innerHTML = '<tr><td colspan="6" style="text-align: center;">Error loading drafts: ' + error.message + '</td></tr>';
-                noDraftsMessage.style.display = 'none';
+                if (draftsTable) {
+                    draftsTable.innerHTML = '<tr><td colspan="6" style="text-align: center;">Error loading drafts: ' + error.message + '</td></tr>';
+                }
+                if (noDraftsMessage) {
+                    noDraftsMessage.style.display = 'none';
+                }
             });
     }
 
@@ -420,7 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         document.getElementById('modalTitle').textContent = "Confirm Deletion";
-        modalBody.innerHTML = confirmHtml; // Updated: Use modalBody instead of modalContent
+        modalBody.innerHTML = confirmHtml;
         detailModal.classList.add('active');
         
         // Add event listeners for the buttons
@@ -452,7 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         document.getElementById('modalTitle').textContent = "Confirm Draft Deletion";
-        modalBody.innerHTML = confirmHtml; // Updated: Use modalBody instead of modalContent
+        modalBody.innerHTML = confirmHtml;
         detailModal.classList.add('active');
         
         // Add event listeners
@@ -464,7 +585,7 @@ document.addEventListener('DOMContentLoaded', function() {
             deleteSubmission(draftId); // Reuse existing delete function
         });
     }
-    
+
     function deleteSubmission(submissionId) {
         // Show loading state
         document.getElementById('confirmDelete').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
@@ -527,56 +648,79 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function viewSubmissionDetails(submissionId) {
-        // Fetch submission details from database
+        // Show loading in the modal
+        document.getElementById('modalTitle').textContent = 'Loading...';
+        document.getElementById('modalBody').innerHTML = '<div class="loading-spinner"></div>';
+        detailModal.classList.add('active');
+        
+        // Fetch submission details from database with better error handling
         fetch(`php/metrics/get_submission_details.php?id=${submissionId}`)
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error("JSON Parse Error. Raw response:", text.substring(0, 100));
+                        throw new Error("Invalid JSON response from server");
+                    }
+                });
+            })
             .then(data => {
                 if (!data.success || !data.data) {
-                    showNotification('Failed to load submission details', 'error');
-                    return;
+                    throw new Error(data.message || 'Failed to load submission details');
                 }
 
                 const submission = data.data;
 
                 // Set modal title
-                document.getElementById('modalTitle').textContent = submission.programName;
+                document.getElementById('modalTitle').textContent = submission.programName || 'Submission Details';
 
                 // Format modal content - adjust for qualitative targets/statuses
                 let content = `
                     <div class="modal-section">
                         <h4>Program Information</h4>
                         <p><strong>Description:</strong> ${submission.description || 'No description provided'}</p>
-                        <p><strong>Sector:</strong> ${submission.metricTypeName}</p>
-                        <p><strong>Agency:</strong> ${submission.agencyName}</p>
+                        <p><strong>Sector:</strong> ${submission.metricTypeName || 'Not specified'}</p>
+                        <p><strong>Agency:</strong> ${submission.agencyName || 'Not specified'}</p>
                         <p><strong>Period:</strong> ${submission.year} ${submission.quarter}</p>
                     </div>
 
                     <div class="modal-section">
                         <h4>Target Information</h4>
-                        <p><strong>Target:</strong> ${submission.indicator}</p>
+                        <p><strong>Target:</strong> ${submission.indicator || submission.targetText || 'No target specified'}</p>
                         ${submission.targetDescription ? `<p><strong>Details:</strong> ${submission.targetDescription}</p>` : ''}
                         ${submission.targetDeadline ? `<p><strong>Deadline:</strong> ${formatDate(submission.targetDeadline)}</p>` : ''}
                     </div>
 
                     <div class="modal-section">
                         <h4>Current Status</h4>
-                        ${submission.statusNotes ? `<p><strong>Status Update:</strong> ${submission.statusNotes}</p>` : ''}
-                        <p><strong>Status Date:</strong> ${formatDate(submission.statusDate)}</p>
-                    </div>`;
+                        ${submission.statusNotes || submission.statusText ? `<p><strong>Status Update:</strong> ${submission.statusNotes || submission.statusText}</p>` : '<p>No status information available</p>'}
+                        <p><strong>Status Date:</strong> ${formatDate(submission.statusDate || new Date())}</p>
+                    </div>
+                `;
                 
                 // Set modal content
                 document.getElementById('modalBody').innerHTML = content;
-
-                // Show modal
-                detailModal.classList.add('active');
             })
             .catch(error => {
                 console.error('Error fetching submission details:', error);
-                showNotification('Error loading details: ' + error.message, 'error');
+                document.getElementById('modalTitle').textContent = 'Error';
+                document.getElementById('modalBody').innerHTML = `
+                    <div class="modal-section error">
+                        <h4><i class="fas fa-exclamation-circle"></i> Error Loading Details</h4>
+                        <p>${error.message}</p>
+                        <p>Please try again or contact support if the issue persists.</p>
+                    </div>
+                `;
             });
     }
 
     function showNotification(message, type) {
+        if (!notification) return;
+        
         notification.textContent = message;
         notification.className = 'notification'; // Reset classes
         notification.classList.add(type);
@@ -594,7 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return unsafe
             .toString()
             .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")  // Fixed: removed extra slash
+            .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
@@ -606,18 +750,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalTitle = document.getElementById("modalTitle");
     const modalBody = document.getElementById("modalBody");
     const closeBtn = document.querySelector(".close-modal");
-    const footerBtn = document.querySelector(".modal-footer .modal-button");
+    const cancelBtn = document.querySelector(".modal-footer .modal-cancel");
 
-    // Close when clicking the x button
+    // Close when clicking the X button
     if (closeBtn) {
         closeBtn.addEventListener("click", function () {
             modal.classList.remove("active");
         });
     }
 
-    // Close when clicking the footer button
-    if (footerBtn) {
-        footerBtn.addEventListener("click", function () {
+    // Close when clicking the Cancel button
+    if (cancelBtn) {
+        cancelBtn.addEventListener("click", function () {
             modal.classList.remove("active");
         });
     }

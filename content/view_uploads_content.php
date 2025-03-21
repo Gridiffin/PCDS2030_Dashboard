@@ -115,8 +115,5 @@
         <div class="modal-body" id="modalBody">
             <!-- Content will be dynamically inserted here -->
         </div>
-        <div class="modal-footer">
-            <button type="button" class="modal-button">Close</button>
-        </div>
     </div>
 </div>

@@ -24,6 +24,9 @@ $pageVars = [
     ],
     'scripts' => [
         'js/view_uploads.js'
+    ],
+    'styles' => [
+        '/pcds2030_dashboard/css/view_uploads.css' // Use absolute path
     ]
 ];
 

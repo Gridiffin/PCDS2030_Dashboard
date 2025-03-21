@@ -11,7 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start(); 
 }
 
-// Include database connection and authentication
+// Include necessary files
 require_once '../config/db_connect.php';
 require_once '../auth/check_session.php';
 
@@ -29,230 +29,136 @@ if (!isAuthenticated()) {
     exit;
 }
 
-// This endpoint receives JSON data and stores it in the database
-// The data is stored in the Metrics table with Data column of type JSON
-
 // Default response
 $response = [
     'success' => false,
     'message' => 'An error occurred',
-    'data' => null
+    'programId' => null
 ];
 
-// Only process POST requests
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    ob_end_clean();
-    $response['message'] = 'Invalid request method';
-    echo json_encode($response);
-    exit;
-}
-
-// Enhance the error handling and logging
 try {
-    // Get the JSON data directly from POST body
-    $rawInput = file_get_contents('php://input');
-    error_log('Raw input: ' . $rawInput);
+    // Get JSON data from request
+    $jsonData = file_get_contents('php://input');
+    $inputData = json_decode($jsonData, true);
     
-    $inputData = json_decode($rawInput, true);
-    
-    if (json_last_error() !== JSON_ERROR_NONE) {
-        throw new Exception('Invalid JSON data: ' . json_last_error_msg());
-    }
-    
-    error_log('Parsed input data: ' . print_r($inputData, true));
-    
-    // No need to verify required fields for drafts
-    if (!isset($inputData['isDraft']) || !$inputData['isDraft']) {
-        // Add validation as needed
+    if (!$inputData) {
+        throw new Exception('Invalid JSON data');
     }
     
     // Get database connection
     $conn = getDbConnection();
     
-    // Check connection
-    if (!$conn) {
-        throw new Exception('Database connection failed');
+    // Get the user's agency ID from session
+    $agencyId = $_SESSION['agency_id'] ?? null;
+    
+    if (!$agencyId) {
+        throw new Exception('User agency not found');
     }
     
-    error_log('Database connection established');
+    // Process program ID - if it starts with 'new_', we need to generate a proper ID
+    $programId = $inputData['programId'] ?? null;
     
-    // Begin transaction
-    $conn->beginTransaction();
-    
-    // Get user's AgencyID from session
-    $agencyId = $_SESSION['agency_id'] ?? 1; // Default to 1 if not set
-    error_log('Using agency ID: ' . $agencyId);
-    
-    // Get the agency's sector from the database
-    $stmt = $conn->prepare("SELECT SectorID FROM agencies WHERE AgencyID = ?");
-    $stmt->execute([$agencyId]);
-    $agencySector = $stmt->fetchColumn();
-    
-    // Use the agency's sector instead of a user-selected one
-    $metricType = $agencySector ?: ($inputData['metricType'] ?? 'default');
-    
-    // Process program data
-    $programId = null;
-    if (isset($inputData['programId']) && !empty($inputData['programId']) && $inputData['programId'] !== 'new') {
-        // Use existing program
-        $programId = $inputData['programId'];
-    } else if (isset($inputData['programName']) && !empty($inputData['programName'])) {
-        // Create new program entry
-        $programId = uniqid('prog_');
-    }
-    
-    // Prepare JSON data for metrics table
+    // Simplified data structure for metrics table JSON
     $metricData = [
-        'programId' => $programId,
         'programName' => $inputData['programName'] ?? '',
-        'programDescription' => $inputData['programDescription'] ?? '',
-        'target' => [
-            'indicator' => $inputData['indicator'] ?? '',
-            'value' => $inputData['targetValue'] ?? '',
-            'unit' => $inputData['targetUnit'] ?? '',
-            'deadline' => $inputData['targetDeadline'] ?? null,
-            'description' => $inputData['targetDescription'] ?? ''
-        ],
-        'status' => [
-            'currentValue' => $inputData['currentValue'] ?? '',
-            'date' => $inputData['statusDate'] ?? date('Y-m-d'),
-            'completionPercentage' => $inputData['completionPercentage'] ?? 0,
-            'notes' => $inputData['statusNotes'] ?? '',
-            'challenges' => $inputData['challenges'] ?? '',
-            'color' => $inputData['statusColor'] ?? null
-        ],
-        // Store custom metrics data if provided
-        'customMetrics' => $inputData['customMetrics'] ?? null,
+        'targetText' => $inputData['targetText'] ?? '',
+        'statusText' => $inputData['statusText'] ?? '',
+        'statusDate' => $inputData['statusDate'] ?? date('Y-m-d'),
+        'statusColor' => $inputData['statusColor'] ?? 'not-started',
+        'isDraft' => $inputData['isDraft'] ?? false,
         'lastUpdated' => date('Y-m-d H:i:s'),
-        'status' => $inputData['status'] ?? 'draft',
-        'submittedBy' => $_SESSION['username'],
-        'userId' => $_SESSION['user_id']
+        'submittedBy' => $_SESSION['username'] ?? 'anonymous',
+        'userId' => $_SESSION['user_id'] ?? 0
     ];
     
-    // Check if this is an update to an existing draft
-    $isDraftUpdate = isset($inputData['isDraft']) && $inputData['isDraft'] && isset($inputData['draftId']);
-    $metricId = null;
+    // Convert to JSON string
+    $jsonMetricData = json_encode($metricData);
     
-    // Store whether this is a submission of a draft (converting from draft to submission)
-    $isSubmittingDraft = $inputData['status'] !== 'draft' && isset($inputData['draftId']);
-    $programName = $inputData['programName'];
+    // Check the actual column name in the database
+    // Check if MetricTypeID exists instead of MetricType
+    $checkColumnsQuery = "SHOW COLUMNS FROM metrics";
+    $columnsStmt = $conn->query($checkColumnsQuery);
+    $columns = $columnsStmt->fetchAll(PDO::FETCH_COLUMN);
     
-    // Add more detailed logging throughout the transaction
-    if ($isDraftUpdate) {
-        error_log('Updating existing draft with ID: ' . $inputData['draftId']);
-        // Update existing draft
-        $stmt = $conn->prepare('
-            UPDATE Metrics 
-            SET Data = ?, Quarter = ?, Year = ? 
-            WHERE MetricID = ? AND AgencyID = ?
-        ');
-        
-        $stmt->execute([
-            json_encode($metricData),
-            $inputData['quarter'],
-            $inputData['year'],
-            $inputData['draftId'],
-            $agencyId
-        ]);
-        
-        // Set the metric ID for the response
-        $metricId = $inputData['draftId'];
-        
-        // Check if update was successful
-        if ($stmt->rowCount() === 0) {
-            throw new Exception('Failed to update draft - draft not found or you don\'t have permission to update it');
-        }
-    } else {
-        error_log('Inserting new metric record');
-        
-        // Check if all required parameters are present
-        error_log('MetricType: ' . ($inputData['metricType'] ?? 'not set'));
-        error_log('Quarter: ' . ($inputData['quarter'] ?? 'not set'));
-        error_log('Year: ' . ($inputData['year'] ?? 'not set'));
-        
-        // Validate that metricData can be properly JSON encoded
-        $jsonData = json_encode($metricData);
-        if ($jsonData === false) {
-            throw new Exception('Failed to encode metric data as JSON: ' . json_last_error_msg());
-        }
-        error_log('JSON data size: ' . strlen($jsonData) . ' bytes');
-        
-        // Insert new record with the agency's sector as the metric type
-        $stmt = $conn->prepare('
-            INSERT INTO Metrics (MetricTypeID, Data, Quarter, Year, AgencyID) 
-            VALUES (?, ?, ?, ?, ?)
-        ');
-
-        // Get the MetricTypeID from the TypeKey using the helper function
-        require_once '../config/metric_type_helpers.php';
-        $metricTypeID = getMetricTypeIDFromKey($conn, 'governance');
-
-        $stmt->execute([
-            $metricTypeID,  // Now using MetricTypeID instead of string 'governance'
-            $jsonData,
-            $inputData['quarter'] ?? 'Q1',
-            $inputData['year'] ?? date('Y'),
-            $agencyId
-        ]);
-        
-        $metricId = $conn->lastInsertId();
-        error_log('New metric ID: ' . $metricId);
+    // Log the columns for debugging
+    error_log("Metrics table columns: " . implode(", ", $columns));
+    
+    // Determine if we should use MetricTypeID or another column
+    $metricTypeColumn = in_array('MetricTypeID', $columns) ? 'MetricTypeID' : 
+                        (in_array('MetricType', $columns) ? 'MetricType' : null);
+    
+    if (!$metricTypeColumn) {
+        throw new Exception('Could not determine metric type column in database');
     }
     
-    // If this was a draft being submitted (status changed from draft to submitted),
-    // delete any other drafts with the same program name
-    if ($isSubmittingDraft || ($inputData['status'] !== 'draft' && isset($programName))) {
-        // Find and delete other drafts with the same program name
-        $deleteDraftsStmt = $conn->prepare("
-            DELETE FROM Metrics 
-            WHERE AgencyID = ? 
-            AND JSON_EXTRACT(Data, '$.programName') = ? 
-            AND JSON_EXTRACT(Data, '$.status') = 'draft'
-            AND MetricID != ?
+    // Check if this is an update or a new entry
+    if (preg_match('/^new_/', $programId)) {
+        // This is a new entry - Use dynamic column name
+        $stmt = $conn->prepare("
+            INSERT INTO metrics 
+                ($metricTypeColumn, Data, Quarter, Year, AgencyID) 
+            VALUES 
+                (?, ?, ?, ?, ?)
         ");
-        $deleteDraftsStmt->execute([
-            $agencyId,
-            $programName,
-            $metricId
+        
+        // Use a default value for MetricTypeID - adjust based on your schema
+        $metricTypeValue = $metricTypeColumn === 'MetricTypeID' ? 3 : 'governance';
+        
+        $stmt->execute([
+            $metricTypeValue,
+            $jsonMetricData,
+            $inputData['quarter'],
+            $inputData['year'],
+            $agencyId
         ]);
         
-        $deletedDraftsCount = $deleteDraftsStmt->rowCount();
-        if ($deletedDraftsCount > 0) {
-            $response['deletedDraftsCount'] = $deletedDraftsCount;
-            $response['message'] .= " ($deletedDraftsCount related draft(s) removed)";
-        }
+        $newId = $conn->lastInsertId();
+        $response['programId'] = $newId;
+        $actionType = $inputData['isDraft'] ? 'draft_metric' : 'submit_metric';
+    } else {
+        // This is an update to an existing entry
+        $stmt = $conn->prepare("
+            UPDATE metrics 
+            SET 
+                Data = ?, 
+                Quarter = ?, 
+                Year = ? 
+            WHERE 
+                MetricID = ? AND AgencyID = ?
+        ");
+        
+        $stmt->execute([
+            $jsonMetricData,
+            $inputData['quarter'],
+            $inputData['year'],
+            $programId,
+            $agencyId
+        ]);
+        
+        $response['programId'] = $programId;
+        $actionType = $inputData['isDraft'] ? 'update_draft_metric' : 'update_metric';
     }
     
     // Log the action
-    $actionType = $inputData['status'] === 'draft' ? 
-        ($isDraftUpdate ? 'update_draft' : 'draft_metric') : 
-        'submit_metric';
-        
-    $stmt = $conn->prepare('
-        INSERT INTO logs (user_id, action, entity_type, entity_id, details, ip_address)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ');
+    $details = "{$actionType} - {$inputData['programName']} ({$inputData['quarter']} {$inputData['year']})";
+    $logStmt = $conn->prepare("
+        INSERT INTO logs 
+            (user_id, action, entity_type, entity_id, details, ip_address) 
+        VALUES 
+            (?, ?, ?, ?, ?, ?)
+    ");
     
-    $stmt->execute([
-        $_SESSION['user_id'],
+    $logStmt->execute([
+        $_SESSION['user_id'] ?? null,
         $actionType,
         'metric',
-        $metricId,
-        "Metric data for {$inputData['metricType']} - {$inputData['indicator']} (Q{$inputData['quarter']} {$inputData['year']})",
+        $response['programId'],
+        $details,
         $_SERVER['REMOTE_ADDR']
     ]);
     
-    // Commit transaction
-    $conn->commit();
-    
-    $response = [
-        'success' => true,
-        'message' => $inputData['status'] === 'draft' ? 
-            ($isDraftUpdate ? 'Draft updated successfully' : 'Draft saved successfully') : 
-            'Data submitted successfully',
-        'metricId' => $metricId,
-        'programName' => $programName
-    ];
+    $response['success'] = true;
+    $response['message'] = $inputData['isDraft'] ? 'Draft saved successfully' : 'Target status submitted successfully';
     
 } catch (Exception $e) {
     // Rollback transaction on error
@@ -261,15 +167,7 @@ try {
     }
     
     $response['message'] = 'Error: ' . $e->getMessage();
-    $response['error_details'] = [
-        'file' => $e->getFile(),
-        'line' => $e->getLine(),
-        'trace' => explode("\n", $e->getTraceAsString())
-    ];
-    
-    error_log('SEVERE Error in save_target_status.php: ' . $e->getMessage());
-    error_log('Error occurred at: ' . $e->getFile() . ' line ' . $e->getLine());
-    error_log('Trace: ' . $e->getTraceAsString());
+    error_log('Error in save_target_status.php: ' . $e->getMessage());
 }
 
 // Clear any buffered output before sending the JSON response

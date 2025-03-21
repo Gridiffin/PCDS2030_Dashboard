@@ -85,7 +85,7 @@
             <!-- Content will be inserted dynamically -->
         </div>
         <div class="modal-footer">
-            <button type="button" class="secondary-button modal-button">Close</button>
+            <!-- Footer intentionally left empty - removed all buttons for cleaner interface -->
         </div>
     </div>
 </div>

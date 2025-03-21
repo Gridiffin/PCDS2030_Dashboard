@@ -4,31 +4,33 @@ require_once 'includes/template_manager.php';
 // Require user to be logged in
 require_login();
 
+// Get program ID if editing an existing program
+$programId = isset($_GET['program']) ? $_GET['program'] : '';
+
 // Variables for templates
 $pageVars = [
-    'pageTitle' => 'Target & Status',
+    'pageTitle' => $programId ? 'Edit Target Status' : 'New Target Status',
     'userType' => 'user',
     'showAgencyBadge' => true,
-    'showLogout' => false,
+    'showLogout' => true,
     'includeForms' => true,
-    'includeResponsive' => true,
+    'includeResponsive' => true, 
     'includeMobileJs' => true,
     'notification' => true,
+    'additionalCss' => [
+        'css/target_status.css'
+    ],
     'additionalNavButtons' => [
         [
-            'href' => 'user_dashboard.php',
-            'text' => 'Dashboard',
-            'icon' => 'home'
-        ],
-        [
             'href' => 'view_uploads.php',
-            'text' => 'View Submissions',
-            'icon' => 'list'
+            'text' => 'Back to Submissions',
+            'icon' => 'chevron-left'
         ]
     ],
     'scripts' => [
         'js/target_status.js'
-    ]
+    ],
+    'programId' => $programId
 ];
 
 // Render the page

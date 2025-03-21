@@ -29,6 +29,11 @@ if (session_status() == PHP_SESSION_NONE) {
 function render_page($contentFile, $pageVars = []) {
     // Extract variables for template use
     extract($pageVars);
+
+    // Debug included styles
+    if (!empty($styles)) {
+        error_log('Included styles: ' . implode(', ', $styles));
+    }
     
     // Include header
     require_once 'templates/header.php';

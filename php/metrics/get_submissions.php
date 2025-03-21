@@ -72,7 +72,7 @@ try {
         $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
     }
     
-    // Get metrics data
+    // Build query
     $sql = "
         SELECT 
             m.MetricID, 
@@ -82,13 +82,17 @@ try {
             m.Quarter, 
             m.Year, 
             m.AgencyID,
-            a.AgencyName
+            a.AgencyName,
+            s.SectorName,
+            s.SectorID
         FROM 
             Metrics m
         LEFT JOIN 
             MetricTypes mt ON m.MetricTypeID = mt.MetricTypeID
         JOIN 
             agencies a ON m.AgencyID = a.AgencyID
+        LEFT JOIN
+            sectors s ON a.SectorID = s.SectorID
         $whereClause
         ORDER BY 
             m.Year DESC, 
@@ -99,7 +103,7 @@ try {
     $stmt = $conn->prepare($sql);
     $stmt->execute($params);
     $metrics = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
+
     // Process metrics data
     $submissions = [];
     foreach ($metrics as $metric) {
@@ -111,7 +115,7 @@ try {
         // Determine if the current user can edit this metric (only if it belongs to their agency)
         $isEditable = ($metric['AgencyID'] == $userAgencyId);
         
-        // Extract metric type name (in a real application, this would come from a lookup table)
+        // Extract metric type name
         $metricTypeName = ucfirst($metric['MetricTypeName']);
         
         // Process target value and current value safely
@@ -143,11 +147,14 @@ try {
             'metricTypeName' => $metricTypeName,
             'agencyId' => $metric['AgencyID'],
             'agencyName' => $metric['AgencyName'],
+            'sectorName' => $metric['SectorName'] ?? 'Not assigned',
+            'sectorId' => $metric['SectorID'] ?? null,
             'targetValue' => $targetValue,
-            'targetSummary' => isset($data['targetSummary']) ? $data['targetSummary'] : $targetValue,
+            'targetSummary' => $data['targetSummary'] ?? $targetValue,
             'currentValue' => $currentValue,
             'statusSummary' => $data['statusSummary'] ?? '',
-            'lastUpdated' => $data['lastUpdated'] ?? $metric['Year'] . '-01-01',
+            'statusNotes' => $data['statusNotes'] ?? '',
+            'lastUpdated' => $data['lastUpdated'] ?? date('Y-m-d H:i:s'),
             'status' => $data['status'] ?? 'in-progress',
             'statusCategory' => $data['statusCategory'] ?? $data['status'] ?? 'in-progress',
             'statusColor' => $data['statusColor'] ?? null,
@@ -157,7 +164,7 @@ try {
         
         $submissions[] = $submission;
     }
-    
+
     $response = [
         'success' => true,
         'data' => $submissions

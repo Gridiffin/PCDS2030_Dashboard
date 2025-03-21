@@ -138,6 +138,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Now that we have user data, load everything else
                 loadAllMetricTypes();
                 loadAgencies();
+                
+                // Set default agency filter to the user's own agency
+                if (viewAgencySelect && currentUser.agencyId) {
+                    // Wait for agencies to load before setting the default
+                    setTimeout(() => {
+                        viewAgencySelect.value = currentUser.agencyId;
+                    }, 500);
+                }
+                
                 loadSubmissions();  // Load submissions right away
                 loadDrafts();       // Load drafts right away
                 
@@ -282,6 +291,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     const row = document.createElement('tr');
+                    
+                    // Add 'own-agency' class for visual distinction if this submission belongs to the user's agency
+                    if (submission.agencyId === currentUser.agencyId) {
+                        row.classList.add('own-agency');
+                    }
 
                     // Use the statusColor if provided, otherwise fall back to status mapping
                     let statusClass, statusText;
@@ -359,13 +373,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td>${escapeHtml(submission.programName)}</td>
                         <td>${submission.year} ${submission.quarter}</td>
                         <td>${escapeHtml(submission.metricTypeName)}</td>
-                        <td>${escapeHtml(submission.agencyName)}</td>
-                        <td>${escapeHtml(submission.targetSummary || submission.targetValue)}</td>
+                        <td>${escapeHtml(submission.sectorName || 'Not specified')}</td>
+                        <td>${escapeHtml(submission.agencyName)}${submission.agencyId === currentUser.agencyId ? ' <span class="badge-small">yours</span>' : ''}</td>
                         <td><div class="status-circle ${statusClass}" title="${statusText}"></div> ${escapeHtml(statusDisplay)}</td>
                         <td>${formatDate(submission.lastUpdated)}</td>
                         <td class="action-cell">${actionButtons}</td>
                     `;
-                    
+
                     if (submissionsTable) {
                         submissionsTable.appendChild(row);
                     }

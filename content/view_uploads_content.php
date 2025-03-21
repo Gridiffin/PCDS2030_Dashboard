@@ -4,12 +4,11 @@
         <p>View and manage targets and status updates for your agency's programs</p>
     </div>
     
-    <!-- Add new section for drafts -->
+    <!-- Drafts Section -->
     <div class="dashboard-section">
         <div class="section-header">
             <h3><i class="fas fa-file-alt"></i> My Drafts</h3>
         </div>
-        
         <div class="table-container">
             <table class="data-table" id="draftsTable">
                 <thead>
@@ -32,6 +31,7 @@
         </div>
     </div>
     
+    <!-- Filter Section -->
     <div class="dashboard-section">
         <div class="section-header">
             <h3><i class="fas fa-filter"></i> Filter Submissions</h3>
@@ -73,7 +73,10 @@
                 <button type="button" id="refreshSubmissions" class="secondary-button"><i class="fas fa-sync-alt"></i> Refresh</button>
             </div>
         </div>
-        
+    </div>
+    
+    <!-- Submissions Section -->
+    <div class="dashboard-section">
         <div class="table-container">
             <table class="data-table" id="submissionsTable">
                 <thead>
@@ -81,8 +84,8 @@
                         <th>Program <i class="fas fa-sort"></i></th>
                         <th>Year/Quarter <i class="fas fa-sort"></i></th>
                         <th>Category <i class="fas fa-sort"></i></th>
+                        <th>Sector <i class="fas fa-sort"></i></th>
                         <th>Agency <i class="fas fa-sort"></i></th>
-                        <th>Target <i class="fas fa-sort"></i></th>
                         <th>Status <i class="fas fa-sort"></i></th>
                         <th>Last Updated <i class="fas fa-sort"></i></th>
                         <th>Actions</th>
@@ -96,7 +99,6 @@
                 <i class="fas fa-info-circle"></i> No submissions match your filters.
             </div>
         </div>
-        
         <div class="section-actions">
             <a href="target_status.php" class="primary-button">
                 <i class="fas fa-plus-circle"></i> Add New Submission
@@ -105,7 +107,7 @@
     </div>
 </div>
 
-<!-- Updated Modal Structure -->
+<!-- Modal Structure -->
 <div id="detailModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">

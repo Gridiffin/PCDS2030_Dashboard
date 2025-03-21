@@ -67,37 +67,57 @@ const domReady = function() {
      * @param {Event} e - The submit event
      */
     function handleLogin(e) {
+        e.preventDefault();
+        
+        // Get form data
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value;
+        const submitButton = loginForm.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        
+        // Basic validation
+        if (!username || !password) {
+            notifications.show('Please enter both username and password', 'error');
+            return;
+        }
+        
+        // Show loading state
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+        
         // Clear previous errors
         if (errorMessage) {
             errorMessage.textContent = '';
             errorMessage.style.display = 'none';
         }
         
-        // Get form data
-        const formData = new FormData(loginForm);
-        const submitButton = loginForm.querySelector('button[type="submit"]');
+        // Prepare login data as JSON
+        const loginData = {
+            username: username,
+            password: password
+        };
         
-        // Save original button text and show loading state
-        const originalButtonText = submitButton.innerHTML;
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+        console.log('Login attempt for:', username);
         
-        // Debug info to console
-        console.log('Login form submitted');
-        console.log('Username:', formData.get('username'));
-        console.log('Password length:', formData.get('password').length);
-        
-        // Send login request with more error handling
+        // First try using Fetch API directly with more detailed error handling
         fetch('php/auth/login.php', {
             method: 'POST',
-            body: formData,
-            credentials: 'same-origin' // Ensure cookies are sent and received
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(loginData),
+            credentials: 'same-origin' // Important for session cookies
         })
         .then(response => {
+            console.log('Response received:', response);
             console.log('Response status:', response.status);
+            console.log('Response OK:', response.ok);
+            
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
+            
             return response.json();
         })
         .then(data => {
@@ -110,31 +130,8 @@ const domReady = function() {
                 const redirectUrl = data.redirect || 'user_dashboard.php';
                 console.log('Redirecting to:', redirectUrl);
                 
-                // Use a simpler, more direct approach to redirecting
-                setTimeout(() => {
-                    // Try direct window.location approach (most reliable)
-                    window.location = redirectUrl;
-                    
-                    // Fallback: If after 500ms we're still on the same page, try another approach
-                    setTimeout(() => {
-                        if (window.location.href.includes('login.php')) {
-                            console.log('First redirect attempt failed, trying alternative...');
-                            window.location.href = redirectUrl;
-                            
-                            // Last resort - create and click a link
-                            setTimeout(() => {
-                                if (window.location.href.includes('login.php')) {
-                                    console.log('Second redirect attempt failed, using link click...');
-                                    const link = document.createElement('a');
-                                    link.href = redirectUrl;
-                                    link.style.display = 'none';
-                                    document.body.appendChild(link);
-                                    link.click();
-                                }
-                            }, 500);
-                        }
-                    }, 500);
-                }, 1000);
+                // Redirect to the appropriate page
+                window.location.href = redirectUrl;
             } else {
                 // Show error message
                 if (errorMessage) {
@@ -150,14 +147,37 @@ const domReady = function() {
             }
         })
         .catch(error => {
-            console.error('Login error:', error.message);
+            console.error('Login error:', error);
             
-            // Show detailed error notification
-            notifications.show('Error connecting to server: ' + error.message, 'error');
+            // Fallback to form submission if fetch fails
+            console.log('Trying alternative login method...');
             
-            // Reset button state
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
+            // Create a form and submit it directly (old-school but reliable)
+            const fallbackForm = document.createElement('form');
+            fallbackForm.method = 'POST';
+            fallbackForm.action = 'php/auth/login.php';
+            fallbackForm.style.display = 'none';
+            
+            const usernameInput = document.createElement('input');
+            usernameInput.name = 'username';
+            usernameInput.value = username;
+            
+            const passwordInput = document.createElement('input');
+            passwordInput.name = 'password';
+            passwordInput.value = password;
+            
+            fallbackForm.appendChild(usernameInput);
+            fallbackForm.appendChild(passwordInput);
+            
+            document.body.appendChild(fallbackForm);
+            
+            // Show error notification
+            notifications.show('Using alternative login method due to an error: ' + error.message, 'warning');
+            
+            // Submit the form after a short delay
+            setTimeout(() => {
+                fallbackForm.submit();
+            }, 500);
         });
     }
 
